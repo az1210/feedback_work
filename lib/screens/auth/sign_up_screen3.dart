@@ -1,63 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../providers/auth_providers.dart';
 
-class SignUpScreen extends ConsumerStatefulWidget {
-  const SignUpScreen({super.key});
+class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({Key? key}) : super(key: key);
 
   @override
-  ConsumerState<SignUpScreen> createState() => _SignUpScreenState();
+  State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _SignUpScreenState extends ConsumerState<SignUpScreen> {
-  final TextEditingController firstNameController = TextEditingController();
-  final TextEditingController lastNameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController phoneNumberController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
-
-  void handleSignUp() async {
-    if (passwordController.text != confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Passwords do not match")),
-      );
-      return;
-    }
-    try {
-      await ref.read(authServiceProvider).signUp(
-            firstName: firstNameController.text.trim(),
-            lastName: lastNameController.text.trim(),
-            email: emailController.text.trim(),
-            password: passwordController.text,
-            phoneNumber: phoneNumberController.text.trim(),
-          );
-
-      final userId = FirebaseAuth.instance.currentUser?.uid;
-      print('User ID: $userId');
-
-      // You can push to the CompleteProfile screen and pass userId as extra data
-      if (userId != null) {
-        context.push('/complete-profile', extra: userId);
-      } // Navigate to home after successful sign-up
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
-    }
-  }
-
+class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // (Unchanged UI code here, truncated for brevity)
+          // Background Image
           const Image(
             image: AssetImage("assets/images/onboard/bg.png"),
             fit: BoxFit.cover,
@@ -77,6 +38,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               ),
             ),
           ),
+          // Sign-Up Form Content
+
           Align(
             alignment: Alignment.bottomCenter,
             child: SingleChildScrollView(
@@ -113,9 +76,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     ),
                     const SizedBox(height: 20),
                     // Input Fields
-                    TextField(
-                      controller: firstNameController,
-                      decoration: const InputDecoration(
+                    const TextField(
+                      decoration: InputDecoration(
                         labelText: "First Name",
                         filled: true,
                         fillColor: Color(0xFFF5F5F5),
@@ -126,9 +88,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    TextField(
-                      controller: lastNameController,
-                      decoration: const InputDecoration(
+                    const TextField(
+                      decoration: InputDecoration(
                         labelText: "Last Name",
                         filled: true,
                         fillColor: Color(0xFFF5F5F5),
@@ -139,9 +100,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    TextField(
-                      controller: emailController,
-                      decoration: const InputDecoration(
+                    const TextField(
+                      decoration: InputDecoration(
                         labelText: "Email",
                         filled: true,
                         fillColor: Color(0xFFF5F5F5),
@@ -152,9 +112,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    TextField(
-                      controller: phoneNumberController,
-                      decoration: const InputDecoration(
+                    const TextField(
+                      decoration: InputDecoration(
                         labelText: "Phone Number",
                         filled: true,
                         fillColor: Color(0xFFF5F5F5),
@@ -165,10 +124,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    TextField(
-                      controller: passwordController,
+                    const TextField(
                       obscureText: true,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: "Password",
                         filled: true,
                         fillColor: Color(0xFFF5F5F5),
@@ -180,10 +138,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    TextField(
-                      controller: confirmPasswordController,
+                    const TextField(
                       obscureText: true,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: "Re-enter Password",
                         filled: true,
                         fillColor: Color(0xFFF5F5F5),
@@ -194,8 +151,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         suffixIcon: Icon(Icons.visibility_off),
                       ),
                     ),
+                    const SizedBox(height: 20),
+                    // Create Account Button
                     ElevatedButton(
-                      onPressed: handleSignUp,
+                      onPressed: () {
+                        // Handle sign-up logic
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF448ECB),
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -208,22 +169,83 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         style: TextStyle(fontSize: 16),
                       ),
                     ),
+                    const SizedBox(height: 10),
+                    // Sign In Redirect
+                    Center(
+                      child: GestureDetector(
+                        onTap: () {
+                          context.go('/sign-in');
+                        },
+                        child: const Text(
+                          "Have an account? Sign In here",
+                          style: TextStyle(
+                            color: Color(0xFF448ECB),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    // Divider with "OR"
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Divider(
+                            color: Colors.grey[400],
+                            thickness: 1,
+                          ),
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          child: Text(
+                            "Or",
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ),
+                        Expanded(
+                          child: Divider(
+                            color: Colors.grey[400],
+                            thickness: 1,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    // Social Sign-In Buttons
                     ElevatedButton.icon(
-                      onPressed: () async {
-                        try {
-                          await ref
-                              .read(authServiceProvider)
-                              .signInWithGoogle();
-                          context.go('/home');
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(e.toString())),
-                          );
-                        }
+                      onPressed: () {
+                        // Handle Google Sign-In
                       },
                       icon: const Icon(Icons.g_mobiledata, color: Colors.red),
                       label: const Text("Continue with Google"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
+                        side: const BorderSide(color: Colors.grey),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
                     ),
+                    const SizedBox(height: 10),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        // Handle Facebook Sign-In
+                      },
+                      icon: const Icon(Icons.facebook, color: Colors.blue),
+                      label: const Text("Continue with Facebook"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
+                        side: const BorderSide(color: Colors.grey),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20), // Bottom padding
                   ],
                 ),
               ),

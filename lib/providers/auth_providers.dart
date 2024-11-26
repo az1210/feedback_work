@@ -1,95 +1,159 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
-// UserSignUp model
-class UserSignUp {
-  final String firstName;
-  final String lastName;
-  final String email;
-  final String phoneNumber;
-  final String password;
-  final String username;
-  final String title;
-  final String expertise;
-  final String accountType;
+final firebaseAuthProvider =
+    Provider<FirebaseAuth>((ref) => FirebaseAuth.instance);
+final firestoreProvider =
+    Provider<FirebaseFirestore>((ref) => FirebaseFirestore.instance);
 
-  UserSignUp({
-    this.firstName = '',
-    this.lastName = '',
-    this.email = '',
-    this.phoneNumber = '',
-    this.password = '',
-    this.username = '',
-    this.title = '',
-    this.expertise = '',
-    this.accountType = '',
-  });
+// class AuthService {
+//   final FirebaseAuth _auth;
+//   final FirebaseFirestore _firestore;
 
-  UserSignUp copyWith({
-    String? firstName,
-    String? lastName,
-    String? email,
-    String? phoneNumber,
-    String? password,
+//   AuthService(this._auth, this._firestore);
+
+//   // Sign Up
+//   Future<void> signUp({
+//     required String firstName,
+//     required String lastName,
+//     required String email,
+//     required String password,
+//     required String phoneNumber,
+//   }) async {
+//     UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+//       email: email,
+//       password: password,
+//     );
+
+//     // Save user details to Firestore
+//     await _firestore.collection('users').doc(userCredential.user!.uid).set({
+//       'firstName': firstName,
+//       'lastName': lastName,
+//       'email': email,
+//       'phoneNumber': phoneNumber,
+//       'createdAt': FieldValue.serverTimestamp(),
+//     });
+//   }
+
+//   // Google Sign-In
+//   Future<void> signInWithGoogle() async {
+//     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+//     if (googleUser == null) return; // User canceled the login.
+
+//     final GoogleSignInAuthentication googleAuth =
+//         await googleUser.authentication;
+//     final AuthCredential credential = GoogleAuthProvider.credential(
+//       accessToken: googleAuth.accessToken,
+//       idToken: googleAuth.idToken,
+//     );
+
+//     UserCredential userCredential =
+//         await _auth.signInWithCredential(credential);
+
+//     if (userCredential.additionalUserInfo!.isNewUser) {
+//       await _firestore.collection('users').doc(userCredential.user!.uid).set({
+//         'firstName': googleUser.displayName?.split(' ')[0],
+//         'lastName': googleUser.displayName?.split(' ')[1] ?? '',
+//         'email': googleUser.email,
+//         'phoneNumber': '',
+//         'createdAt': FieldValue.serverTimestamp(),
+//       });
+//     }
+//   }
+// }
+
+// final authServiceProvider = Provider((ref) {
+//   final auth = ref.watch(firebaseAuthProvider);
+//   final firestore = ref.watch(firestoreProvider);
+//   return AuthService(auth, firestore);
+// });
+
+class AuthService {
+  final FirebaseAuth _auth;
+  final FirebaseFirestore _firestore;
+
+  AuthService(this._auth, this._firestore);
+
+  // Sign Up
+  Future<void> signUp({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String password,
+    required String phoneNumber,
+  }) async {
+    UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+
+    // Save basic user details to Firestore
+    await _firestore.collection('users').doc(userCredential.user!.uid).set({
+      'firstName': firstName,
+      'lastName': lastName,
+      'email': email,
+      'phoneNumber': phoneNumber,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  // Google Sign-In
+  Future<void> signInWithGoogle() async {
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    if (googleUser == null) return; // User canceled the login.
+
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser.authentication;
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    UserCredential userCredential =
+        await _auth.signInWithCredential(credential);
+
+    if (userCredential.additionalUserInfo!.isNewUser) {
+      await _firestore.collection('users').doc(userCredential.user!.uid).set({
+        'firstName': googleUser.displayName?.split(' ')[0],
+        'lastName': googleUser.displayName?.split(' ')[1] ?? '',
+        'email': googleUser.email,
+        'phoneNumber': '',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    }
+  }
+
+  // Update Additional User Details (Step 2)
+  Future<void> completeUserProfile({
+    required String uid,
     String? username,
     String? title,
     String? expertise,
     String? accountType,
-  }) {
-    return UserSignUp(
-      firstName: firstName ?? this.firstName,
-      lastName: lastName ?? this.lastName,
-      email: email ?? this.email,
-      phoneNumber: phoneNumber ?? this.phoneNumber,
-      password: password ?? this.password,
-      username: username ?? this.username,
-      title: title ?? this.title,
-      expertise: expertise ?? this.expertise,
-      accountType: accountType ?? this.accountType,
-    );
+  }) async {
+    await _firestore.collection('users').doc(uid).update({
+      if (username != null) 'username': username,
+      if (title != null) 'title': title,
+      if (expertise != null) 'expertise': expertise,
+      if (accountType != null) 'accountType': accountType,
+    });
+  }
+
+  // Real-Time Username Validation
+  Future<bool> isUsernameAvailable(String username) async {
+    final querySnapshot = await _firestore
+        .collection('users')
+        .where('username', isEqualTo: username)
+        .get();
+
+    return querySnapshot.docs.isEmpty;
   }
 }
 
-// StateNotifier to manage user signup data
-class UserSignUpNotifier extends StateNotifier<UserSignUp> {
-  UserSignUpNotifier() : super(UserSignUp());
-
-  void updateBasicDetails({
-    required String firstName,
-    required String lastName,
-    required String email,
-    required String phoneNumber,
-    required String password,
-  }) {
-    state = state.copyWith(
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
-      phoneNumber: phoneNumber,
-      password: password,
-    );
-  }
-
-  void updateProfileDetails({
-    required String username,
-    required String title,
-    required String expertise,
-    required String accountType,
-  }) {
-    state = state.copyWith(
-      username: username,
-      title: title,
-      expertise: expertise,
-      accountType: accountType,
-    );
-  }
-
-  void clear() {
-    state = UserSignUp();
-  }
-}
-
-// Define a Riverpod provider
-final userSignUpProvider =
-    StateNotifierProvider<UserSignUpNotifier, UserSignUp>((ref) {
-  return UserSignUpNotifier();
+final authServiceProvider = Provider((ref) {
+  final auth = ref.watch(firebaseAuthProvider);
+  final firestore = ref.watch(firestoreProvider);
+  return AuthService(auth, firestore);
 });

@@ -3,8 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import './screens/onboard/splash_screen.dart';
 import './screens/onboard/onboard_screen.dart';
-import './screens/auth/sign_up_screen.dart';
+import 'screens/auth/sign_up_screen.dart';
 import 'screens/auth/sign_in_screen.dart';
+import './screens/auth/complete_profile_screen.dart';
 // import './screens/home_screen.dart';
 // import './screens/profile_screen.dart';
 
@@ -52,13 +53,21 @@ final routerProvider = Provider<GoRouter>(
         //   builder: (context, state) => const OnboardingScreen(),
         // ),
         GoRoute(
-          path: '/sign-in',
-          builder: (context, state) => SignInScreen(),
-        ),
-        GoRoute(
           path: '/sign-up',
           builder: (context, state) => const SignUpScreen(),
         ),
+        GoRoute(
+          path: '/complete-profile',
+          builder: (context, state) {
+            final userId = state.extra as String;
+            return CompleteProfileScreen(userId: userId);
+          },
+        ),
+        GoRoute(
+          path: '/sign-in',
+          builder: (context, state) => const SignInScreen(),
+        ),
+
         // GoRoute(
         //   path: '/home',
         //   builder: (context, state) => const HomeScreen(),
