@@ -65,7 +65,7 @@ final routerProvider = Provider<GoRouter>(
         ),
         GoRoute(
           path: '/sign-in',
-          builder: (context, state) => const SignInScreen(),
+          builder: (context, state) => SignInScreen(),
         ),
 
         // GoRoute(

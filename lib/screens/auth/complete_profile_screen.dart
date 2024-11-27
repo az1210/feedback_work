@@ -228,7 +228,7 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
         const SnackBar(content: Text("Profile updated successfully!")),
       );
 
-      context.go('/home'); // Navigate to home screen
+      context.go('/sign-in'); // Navigate to home screen
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error: $e")),

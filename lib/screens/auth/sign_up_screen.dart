@@ -38,7 +38,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           );
 
       final userId = FirebaseAuth.instance.currentUser?.uid;
-      print('User ID: $userId');
 
       // You can push to the CompleteProfile screen and pass userId as extra data
       if (userId != null) {
@@ -207,6 +206,45 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         "Create Account",
                         style: TextStyle(fontSize: 16),
                       ),
+                    ),
+                    Center(
+                      child: GestureDetector(
+                        onTap: () {
+                          context.go('/sign-in');
+                        },
+                        child: const Text(
+                          "Have an account? Sign In here",
+                          style: TextStyle(
+                            color: Color(0xFF448ECB),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    // Divider with "OR"
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Divider(
+                            color: Colors.grey[400],
+                            thickness: 1,
+                          ),
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          child: Text(
+                            "Or",
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ),
+                        Expanded(
+                          child: Divider(
+                            color: Colors.grey[400],
+                            thickness: 1,
+                          ),
+                        ),
+                      ],
                     ),
                     ElevatedButton.icon(
                       onPressed: () async {

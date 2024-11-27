@@ -8,68 +8,6 @@ final firebaseAuthProvider =
 final firestoreProvider =
     Provider<FirebaseFirestore>((ref) => FirebaseFirestore.instance);
 
-// class AuthService {
-//   final FirebaseAuth _auth;
-//   final FirebaseFirestore _firestore;
-
-//   AuthService(this._auth, this._firestore);
-
-//   // Sign Up
-//   Future<void> signUp({
-//     required String firstName,
-//     required String lastName,
-//     required String email,
-//     required String password,
-//     required String phoneNumber,
-//   }) async {
-//     UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-//       email: email,
-//       password: password,
-//     );
-
-//     // Save user details to Firestore
-//     await _firestore.collection('users').doc(userCredential.user!.uid).set({
-//       'firstName': firstName,
-//       'lastName': lastName,
-//       'email': email,
-//       'phoneNumber': phoneNumber,
-//       'createdAt': FieldValue.serverTimestamp(),
-//     });
-//   }
-
-//   // Google Sign-In
-//   Future<void> signInWithGoogle() async {
-//     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-//     if (googleUser == null) return; // User canceled the login.
-
-//     final GoogleSignInAuthentication googleAuth =
-//         await googleUser.authentication;
-//     final AuthCredential credential = GoogleAuthProvider.credential(
-//       accessToken: googleAuth.accessToken,
-//       idToken: googleAuth.idToken,
-//     );
-
-//     UserCredential userCredential =
-//         await _auth.signInWithCredential(credential);
-
-//     if (userCredential.additionalUserInfo!.isNewUser) {
-//       await _firestore.collection('users').doc(userCredential.user!.uid).set({
-//         'firstName': googleUser.displayName?.split(' ')[0],
-//         'lastName': googleUser.displayName?.split(' ')[1] ?? '',
-//         'email': googleUser.email,
-//         'phoneNumber': '',
-//         'createdAt': FieldValue.serverTimestamp(),
-//       });
-//     }
-//   }
-// }
-
-// final authServiceProvider = Provider((ref) {
-//   final auth = ref.watch(firebaseAuthProvider);
-//   final firestore = ref.watch(firestoreProvider);
-//   return AuthService(auth, firestore);
-// });
-
 class AuthService {
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
@@ -97,6 +35,32 @@ class AuthService {
       'phoneNumber': phoneNumber,
       'createdAt': FieldValue.serverTimestamp(),
     });
+  }
+
+// signIn with username or email
+  Future<void> signInWithEmailOrUsername({
+    required String emailOrUsername,
+    required String password,
+  }) async {
+    String email = emailOrUsername;
+
+    // Check if input is a username, not an email
+    if (!emailOrUsername.contains('@')) {
+      // Query Firestore to get the email associated with the username
+      final querySnapshot = await _firestore
+          .collection('users')
+          .where('username', isEqualTo: emailOrUsername)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        throw Exception('No user found with that username.');
+      }
+
+      email = querySnapshot.docs.first['email'];
+    }
+
+    // Use the resolved email to sign in
+    await _auth.signInWithEmailAndPassword(email: email, password: password);
   }
 
   // Google Sign-In
