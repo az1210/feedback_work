@@ -100,7 +100,7 @@ class SignInScreen extends ConsumerWidget {
                 const Center(child: Text("Don’t have an account?")),
                 TextButton(
                   onPressed: () {
-                    // Navigate to sign-up page
+                    context.push('/sign-up');
                   },
                   child: const Text("Sign Up here"),
                 ),
@@ -170,7 +170,7 @@ Future<void> handleSignIn({
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Sign-In Successful!")),
     );
-    context.push('/complete-profile');
+    context.push('/projects');
   } catch (e) {
     // Handle errors and show error message
     ScaffoldMessenger.of(context).showSnackBar(

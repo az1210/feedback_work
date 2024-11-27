@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import './screens/onboard/splash_screen.dart';
 import './screens/onboard/onboard_screen.dart';
-import 'screens/auth/sign_up_screen.dart';
-import 'screens/auth/sign_in_screen.dart';
+import './screens/auth/sign_up_screen.dart';
+import './screens/auth/sign_in_screen.dart';
 import './screens/auth/complete_profile_screen.dart';
+import './screens/projects/projects_screen.dart';
+import './screens/projects/create_project_screen.dart';
+import './screens/projects/project_edit_screen.dart';
 // import './screens/home_screen.dart';
 // import './screens/profile_screen.dart';
 
@@ -67,6 +71,18 @@ final routerProvider = Provider<GoRouter>(
           path: '/sign-in',
           builder: (context, state) => SignInScreen(),
         ),
+        GoRoute(
+          path: '/projects',
+          builder: (context, state) => ProjectsScreen(),
+        ),
+        GoRoute(
+          path: '/create-project',
+          builder: (context, state) => const CreateProjectScreen(),
+        ),
+        GoRoute(
+          path: '/edit-project',
+          builder: (context, state) => const ProjectEditScreen(),
+        ),
 
         // GoRoute(
         //   path: '/home',
@@ -79,19 +95,20 @@ final routerProvider = Provider<GoRouter>(
         //   ],
         // ),
       ],
-      // redirect: (context, state) {
-      //   // Handle redirection based on authentication state
-      //   if (!isLoggedIn &&
-      //       state.location != '/sign-in' &&
-      //       state.location != '/onboarding') {
-      //     return '/sign-in'; // Redirect unauthenticated users to sign-in
-      //   }
-      //   if (isLoggedIn &&
-      //       (state.location == '/sign-in' || state.location == '/onboarding')) {
-      //     return '/home'; // Redirect authenticated users to home
-      //   }
-      //   return null; // No redirection
-      // },
+      redirect: (context, state) {
+        // Handle redirection based on authentication state
+        if (!isLoggedIn &&
+            state.uri.toString() != '/sign-in' &&
+            state.uri.toString() != '/onboarding') {
+          return '/sign-in'; // Redirect unauthenticated users to sign-in
+        }
+        if (isLoggedIn &&
+            (state.uri.toString() == '/sign-in' ||
+                state.uri.toString() == '/onboarding')) {
+          return '/home'; // Redirect authenticated users to home
+        }
+        return null; // No redirection
+      },
     );
   },
 );
