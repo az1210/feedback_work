@@ -171,6 +171,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../providers/auth_providers.dart';
+import './widgets/block_button.dart';
 
 class CompleteProfileScreen extends ConsumerStatefulWidget {
   final String userId; // Pass the user's UID from the previous screen
@@ -239,127 +240,151 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text("Complete Your Profile"),
-        backgroundColor: const Color(0xFF001233),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SizedBox(height: 20),
-            const CircleAvatar(
-              radius: 50,
-              backgroundColor: Color(0xFF448ECB),
-              child: Icon(
-                Icons.person_add,
-                size: 50,
-                color: Colors.white,
+      body: Stack(
+        children: [
+          const Image(
+            image: AssetImage("assets/images/onboard/bg.png"),
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+          ),
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color.fromRGBO(28, 26, 74, 1),
+                  Colors.transparent,
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
             ),
-            const SizedBox(height: 20),
-            const Text(
-              "Complete Your Profile",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF001233),
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _usernameController,
-              onChanged: (value) => _validateUsername(),
-              decoration: InputDecoration(
-                labelText: "Username (Optional)",
-                suffixIcon: _isCheckingUsername
-                    ? const CircularProgressIndicator()
-                    : Icon(
-                        _isUsernameValid
-                            ? Icons.check_circle
-                            : Icons.error_outline,
-                        color:
-                            _isUsernameValid ? Colors.green : Colors.redAccent,
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: SingleChildScrollView(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 10),
+                    Text(
+                      "Complete Your Profile",
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF1B1949),
+                          ),
+                    ),
+                    const SizedBox(height: 30),
+                    GestureDetector(
+                      onTap: () {},
+                      child: const CircleAvatar(
+                        radius: 40,
+                        backgroundColor: Color.fromARGB(255, 235, 233, 233),
+                        child: Icon(
+                          Icons.person_add,
+                          size: 40,
+                          color: Colors.white,
+                        ),
                       ),
-                filled: true,
-                fillColor: const Color(0xFFF5F5F5),
-                border: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(8)),
-                  borderSide: BorderSide.none,
+                    ),
+                    const SizedBox(height: 50),
+                    TextField(
+                      controller: _usernameController,
+                      onChanged: (value) => _validateUsername(),
+                      decoration: InputDecoration(
+                        labelText: "Username (Optional)",
+                        suffixIcon: _isCheckingUsername
+                            ? const CircularProgressIndicator()
+                            : Icon(
+                                _isUsernameValid
+                                    ? Icons.check_circle
+                                    : Icons.error_outline,
+                                color: _isUsernameValid
+                                    ? Colors.green
+                                    : Colors.redAccent,
+                              ),
+                        filled: true,
+                        fillColor: const Color(0xFFF5F5F5),
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    TextField(
+                      controller: _titleController,
+                      decoration: const InputDecoration(
+                        labelText: "Title",
+                        filled: true,
+                        fillColor: Color(0xFFF5F5F5),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    TextField(
+                      controller: _expertiseController,
+                      decoration: const InputDecoration(
+                        labelText: "Expertise",
+                        filled: true,
+                        fillColor: Color(0xFFF5F5F5),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    DropdownButtonFormField<String>(
+                      value: _selectedAccountType,
+                      hint: const Text("Select Account Type"),
+                      items: _accountTypes.map((type) {
+                        return DropdownMenuItem(
+                          value: type,
+                          child: Text(type),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedAccountType = value;
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        filled: true,
+                        fillColor: Color(0xFFF5F5F5),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    BlockButton(
+                      onPressed: _submitProfile,
+                      text: 'Submit',
+                    ),
+                    const SizedBox(
+                      height: 70,
+                    ),
+                  ],
                 ),
               ),
             ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: "Title",
-                filled: true,
-                fillColor: Color(0xFFF5F5F5),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(8)),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _expertiseController,
-              decoration: const InputDecoration(
-                labelText: "Expertise",
-                filled: true,
-                fillColor: Color(0xFFF5F5F5),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(8)),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            DropdownButtonFormField<String>(
-              value: _selectedAccountType,
-              hint: const Text("Select account type"),
-              items: _accountTypes.map((type) {
-                return DropdownMenuItem(
-                  value: type,
-                  child: Text(type),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedAccountType = value;
-                });
-              },
-              decoration: const InputDecoration(
-                filled: true,
-                fillColor: Color(0xFFF5F5F5),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(8)),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _submitProfile,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF448ECB),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text(
-                "Submit",
-                style: TextStyle(fontSize: 16),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

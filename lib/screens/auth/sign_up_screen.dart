@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../providers/auth_providers.dart';
+import './widgets/icon_button.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
@@ -20,6 +21,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
+
+  bool _isObscured = true;
 
   void handleSignUp() async {
     if (passwordController.text != confirmPasswordController.text) {
@@ -92,26 +95,24 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 10),
-                    const Text(
+                    Text(
                       "Create Your Account",
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF001233),
-                      ),
+                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF1B1949),
+                          ),
                     ),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 8),
                     const Text(
-                      "Create account for Feedback Work",
+                      "Create Account for Feedback Work",
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
+                        fontSize: 19,
+                        color: Colors.black87,
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    // Input Fields
+                    const SizedBox(height: 25),
                     TextField(
                       controller: firstNameController,
                       decoration: const InputDecoration(
@@ -124,7 +125,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 15),
                     TextField(
                       controller: lastNameController,
                       decoration: const InputDecoration(
@@ -137,7 +138,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 15),
                     TextField(
                       controller: emailController,
                       decoration: const InputDecoration(
@@ -150,7 +151,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 15),
                     TextField(
                       controller: phoneNumberController,
                       decoration: const InputDecoration(
@@ -163,40 +164,63 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 15),
                     TextField(
                       controller: passwordController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
+                      obscureText: _isObscured,
+                      decoration: InputDecoration(
                         labelText: "Password",
                         filled: true,
-                        fillColor: Color(0xFFF5F5F5),
-                        border: OutlineInputBorder(
+                        fillColor: const Color(0xFFF5F5F5),
+                        border: const OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8)),
                           borderSide: BorderSide.none,
                         ),
-                        suffixIcon: Icon(Icons.visibility_off),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isObscured
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isObscured = !_isObscured; // Toggle visibility
+                            });
+                          },
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 15),
                     TextField(
                       controller: confirmPasswordController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
+                      obscureText: _isObscured,
+                      decoration: InputDecoration(
                         labelText: "Re-enter Password",
                         filled: true,
-                        fillColor: Color(0xFFF5F5F5),
-                        border: OutlineInputBorder(
+                        fillColor: const Color(0xFFF5F5F5),
+                        border: const OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(8)),
                           borderSide: BorderSide.none,
                         ),
-                        suffixIcon: Icon(Icons.visibility_off),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isObscured
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isObscured = !_isObscured; // Toggle visibility
+                            });
+                          },
+                        ),
                       ),
                     ),
+                    const SizedBox(height: 15),
                     ElevatedButton(
                       onPressed: handleSignUp,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF448ECB),
+                        backgroundColor: const Color(0xFF0866ff),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -204,21 +228,40 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                       ),
                       child: const Text(
                         "Create Account",
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: 1.2,
+                        ),
                       ),
                     ),
+                    const SizedBox(height: 15),
                     Center(
-                      child: GestureDetector(
-                        onTap: () {
-                          context.go('/sign-in');
-                        },
-                        child: const Text(
-                          "Have an account? Sign In here",
-                          style: TextStyle(
-                            color: Color(0xFF448ECB),
-                            fontSize: 14,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            "Have an Account?",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 17,
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: () {
+                              context.go('/sign-in');
+                            },
+                            child: const Text(
+                              "Sign In Here",
+                              style: TextStyle(
+                                color: Color(0xFF0866ff),
+                                fontSize: 17,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -235,7 +278,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           padding: EdgeInsets.symmetric(horizontal: 10),
                           child: Text(
                             "Or",
-                            style: TextStyle(color: Colors.grey),
+                            style: TextStyle(
+                              color: Colors.black87,
+                            ),
                           ),
                         ),
                         Expanded(
@@ -246,7 +291,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         ),
                       ],
                     ),
-                    ElevatedButton.icon(
+                    const SizedBox(height: 15),
+                    SignInButton(
                       onPressed: () async {
                         try {
                           await ref
@@ -259,9 +305,25 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           );
                         }
                       },
-                      icon: const Icon(Icons.g_mobiledata, color: Colors.red),
+                      icon: Image.asset(
+                        'assets/images/icons/g_icon.png',
+                        height: 24,
+                        width: 24,
+                      ),
                       label: const Text("Continue with Google"),
                     ),
+                    const SizedBox(height: 15),
+                    SignInButton(
+                      onPressed: () {
+                        // Handle Facebook Sign-In
+                      },
+                      icon: const Icon(
+                        Icons.facebook,
+                        color: Color(0xFF0866ff),
+                      ),
+                      label: const Text("Continue with Facebook"),
+                    ),
+                    const SizedBox(height: 15),
                   ],
                 ),
               ),

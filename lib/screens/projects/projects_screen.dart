@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart'; // For formatting dates
+import 'package:intl/intl.dart';
+
+import 'package:go_router/go_router.dart';
 import '../../providers/project_providers.dart'; // Import your project_providers.dart
 
 class ProjectsScreen extends ConsumerWidget {
+  const ProjectsScreen({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final projectService = ref.watch(projectServiceProvider);
@@ -59,7 +63,7 @@ class ProjectsScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Navigate to Create Project Screen
-          Navigator.pushNamed(context, '/create-project');
+          context.push('/create-project');
         },
         child: const Icon(Icons.add),
       ),

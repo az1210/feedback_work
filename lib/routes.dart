@@ -95,20 +95,20 @@ final routerProvider = Provider<GoRouter>(
         //   ],
         // ),
       ],
-      redirect: (context, state) {
-        // Handle redirection based on authentication state
-        if (!isLoggedIn &&
-            state.uri.toString() != '/sign-in' &&
-            state.uri.toString() != '/onboarding') {
-          return '/sign-in'; // Redirect unauthenticated users to sign-in
-        }
-        if (isLoggedIn &&
-            (state.uri.toString() == '/sign-in' ||
-                state.uri.toString() == '/onboarding')) {
-          return '/home'; // Redirect authenticated users to home
-        }
-        return null; // No redirection
-      },
+      // redirect: (context, state) {
+      //   // Handle redirection based on authentication state
+      //   if (!isLoggedIn &&
+      //       state.uri.toString() != '/sign-in' &&
+      //       state.uri.toString() != '/onboarding') {
+      //     return '/sign-in'; // Redirect unauthenticated users to sign-in
+      //   }
+      //   if (isLoggedIn &&
+      //       (state.uri.toString() == '/sign-in' ||
+      //           state.uri.toString() == '/onboarding')) {
+      //     return '/home'; // Redirect authenticated users to home
+      //   }
+      //   return null; // No redirection
+      // },
     );
   },
 );
