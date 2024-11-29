@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:file_picker/file_picker.dart';
 
 import '../../providers/project_providers.dart';
@@ -158,7 +159,7 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
               children: [
                 OutlinedButton(
                   onPressed: () {
-                    Navigator.pop(context); // Navigate back
+                    context.pop(); // Navigate back
                   },
                   child: const Text('Cancel'),
                 ),
