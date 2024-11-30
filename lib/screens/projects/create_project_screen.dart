@@ -63,6 +63,7 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
         SnackBar(content: Text('Error: ${e.toString()}')),
       );
     }
+    context.push('/projects');
   }
 
   @override
