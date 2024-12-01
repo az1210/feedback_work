@@ -116,6 +116,19 @@ class AuthService {
   }
 }
 
+final keepMeSignedInProvider =
+    StateNotifierProvider<CheckboxStateNotifier, bool>(
+  (ref) => CheckboxStateNotifier(),
+);
+
+class CheckboxStateNotifier extends StateNotifier<bool> {
+  CheckboxStateNotifier() : super(false);
+
+  void toggle(bool value) {
+    state = value; // Update the state
+  }
+}
+
 final authServiceProvider = Provider((ref) {
   final auth = ref.watch(firebaseAuthProvider);
   final firestore = ref.watch(firestoreProvider);

@@ -4,7 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../providers/auth_providers.dart';
-import './widgets/icon_button.dart';
+import './widgets/third_party_icon_button.dart';
+import './widgets/or_divider.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
@@ -115,7 +116,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 19,
-                              color: Colors.black87,
+                              color: Colors.black54,
                             ),
                           ),
                           const SizedBox(height: 25),
@@ -248,59 +249,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 15),
-                          Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Text(
-                                  "Have an Account?",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 17,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                GestureDetector(
-                                  onTap: () {
-                                    context.go('/sign-in');
-                                  },
-                                  child: const Text(
-                                    "Sign In Here",
-                                    style: TextStyle(
-                                      color: Color(0xFF0866ff),
-                                      fontSize: 17,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
                           const SizedBox(height: 20),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Divider(
-                                  color: Colors.grey[400],
-                                  thickness: 1,
-                                ),
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 10),
-                                child: Text(
-                                  "Or",
-                                  style: TextStyle(
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Divider(
-                                  color: Colors.grey[400],
-                                  thickness: 1,
-                                ),
-                              ),
-                            ],
+                          OrDivider(
+                            topText: 'Have an Account?',
+                            onTap: () {
+                              context.go('/sign-in');
+                            },
+                            bottomText: 'Sign In Here',
                           ),
                           const SizedBox(height: 15),
                           SignInButton(
@@ -325,9 +280,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           ),
                           const SizedBox(height: 15),
                           SignInButton(
-                            onPressed: () {
-                              // Handle Facebook Sign-In
-                            },
+                            onPressed: () {},
                             icon: const Icon(
                               Icons.facebook,
                               color: Color(0xFF0866ff),
