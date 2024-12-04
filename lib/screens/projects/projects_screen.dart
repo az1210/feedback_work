@@ -260,14 +260,14 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
     final projectService = ref.watch(projectServiceProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5), // Grayish background
+      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        title: const Text('Project'),
+        title: const Text('Projects'),
         actions: [
           IconButton(
             icon: const Icon(Icons.grid_view),
             onPressed: () {
-              // Optional: Toggle between views
+              // Toggle between views
             },
           ),
         ],
@@ -295,10 +295,8 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
                 );
               }),
               const SizedBox(height: 16),
-              // Create Project Button as Card
               InkWell(
                 onTap: () {
-                  // Navigate to Create Project Screen
                   context.push('/create-project');
                 },
                 child: Container(
@@ -317,20 +315,25 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
                   child: const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.add_circle, size: 48, color: Colors.blue),
+                      Icon(Icons.add_circle,
+                          size: 48, color: Color(0xFF0866ff)),
                       SizedBox(height: 8),
                       Text(
                         'Create Project',
                         style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
+                          fontSize: 24,
+                          // fontWeight: FontWeight.bold,
+                          color: Color(0xFF0866ff),
+                          letterSpacing: 0.8,
                         ),
                       ),
                     ],
                   ),
                 ),
               ),
+              const SizedBox(
+                height: 25,
+              )
             ],
           );
         },
@@ -391,11 +394,11 @@ class ProjectCard extends StatefulWidget {
   final ProjectService projectService;
 
   const ProjectCard({
-    Key? key,
+    super.key,
     required this.projectId,
     required this.project,
     required this.projectService,
-  }) : super(key: key);
+  });
 
   @override
   State<ProjectCard> createState() => _ProjectCardState();
@@ -409,96 +412,127 @@ class _ProjectCardState extends State<ProjectCard> {
     final project = widget.project;
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.all(10),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header Row with Title and Collapse Icon
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      project['projectName'] ?? 'No Name',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            color: const Color.fromARGB(200, 232, 242, 252),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 20, top: 15, bottom: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 12),
+                      Text(
+                        project['projectName'] ?? 'No Name',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 23,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      DateFormat('dd/MM/yyyy').format(
-                        (project['createdAt'] as Timestamp).toDate(),
+                      const SizedBox(height: 4),
+                      Text(
+                        DateFormat('dd/MM/yyyy').format(
+                          (project['createdAt'] as Timestamp).toDate(),
+                        ),
+                        style: const TextStyle(
+                            fontSize: 14, color: Colors.black87),
                       ),
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                  ],
-                ),
-                IconButton(
-                  icon: Icon(_isExpanded
-                      ? Icons.keyboard_arrow_up
-                      : Icons.keyboard_arrow_down),
-                  onPressed: () {
-                    setState(() {
-                      _isExpanded = !_isExpanded;
-                    });
-                  },
-                ),
-              ],
+                    ],
+                  ),
+                  IconButton(
+                    icon: Icon(_isExpanded
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down),
+                    onPressed: () {
+                      setState(() {
+                        _isExpanded = !_isExpanded;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const Divider(),
+          // Collapsible Content
+          if (_isExpanded) ...[
+            _buildProjectDetailRow(
+                'Problem:', project['problemName'], Colors.red),
+            _buildProjectDetailRow(
+                'Solution:', project['solutionName'], Colors.green),
+            _buildProjectDetailRow('Solution Function:',
+                project['solutionFunctionName'], Colors.black),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: Text(
+                'Status: ${project['status'] ?? 'Not Started'}',
+                style: const TextStyle(color: Colors.red, fontSize: 16),
+              ),
             ),
             const Divider(),
-            // Collapsible Content
-            if (_isExpanded) ...[
-              _buildProjectDetailRow(
-                  'Problem:', project['problemName'], Colors.red),
-              _buildProjectDetailRow(
-                  'Solution:', project['solutionName'], Colors.green),
-              _buildProjectDetailRow('Solution Function:',
-                  project['solutionFunctionName'], Colors.black),
-              const SizedBox(height: 8),
-              Text(
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12, top: 10),
+              child: Center(
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0866ff),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Request Feedback',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ] else
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: Text(
                 'Status: ${project['status'] ?? 'Not Started'}',
-                style: const TextStyle(color: Colors.blue),
+                style: const TextStyle(color: Colors.red, fontSize: 16),
               ),
-              const Divider(),
-              ElevatedButton(
-                onPressed: () {
-                  // Handle Request Feedback
-                },
-                child: const Text('Request Feedback'),
-              ),
-            ] else
-              Text(
-                'Status: ${project['status'] ?? 'Not Started'}',
-                style: const TextStyle(color: Colors.blue),
-              ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
 
   Widget _buildProjectDetailRow(String title, String? value, Color color) {
-    return Row(
-      children: [
-        Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(width: 4),
-        Expanded(
-          child: Text(
-            value ?? 'N/A',
-            style: TextStyle(color: color),
-            overflow: TextOverflow.ellipsis,
+    return Padding(
+      padding: const EdgeInsets.only(left: 20),
+      child: Row(
+        children: [
+          Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
           ),
-        ),
-      ],
+          const SizedBox(width: 4),
+          Expanded(
+            child: Text(
+              value ?? 'N/A',
+              style: TextStyle(color: color, fontSize: 20),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

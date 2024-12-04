@@ -7,7 +7,7 @@ import 'package:file_picker/file_picker.dart';
 import '../../providers/project_providers.dart';
 
 class CreateProjectScreen extends ConsumerStatefulWidget {
-  const CreateProjectScreen({Key? key}) : super(key: key);
+  const CreateProjectScreen({super.key});
 
   @override
   ConsumerState<CreateProjectScreen> createState() =>

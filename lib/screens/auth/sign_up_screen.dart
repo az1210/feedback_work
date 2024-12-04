@@ -24,8 +24,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       TextEditingController();
 
   bool _isObscured = true;
+  final Map<String, String?> _errorMessages = {};
 
   void handleSignUp() async {
+    if (!_validateInputs()) return;
     if (passwordController.text != confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Passwords do not match")),
@@ -53,8 +55,37 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     }
   }
 
+  bool _validateInputs() {
+    setState(() {
+      _errorMessages.clear();
+      if (firstNameController.text.trim().isEmpty) {
+        _errorMessages['firstName'] = "First name is required.";
+      }
+      if (lastNameController.text.trim().isEmpty) {
+        _errorMessages['lastName'] = "Last name is required.";
+      }
+      if (emailController.text.trim().isEmpty) {
+        _errorMessages['email'] = "Email is required.";
+      }
+      if (phoneNumberController.text.trim().isEmpty) {
+        _errorMessages['phoneNumber'] = "Phone number is required.";
+      }
+      if (passwordController.text.isEmpty) {
+        _errorMessages['password'] = "Password is required.";
+      }
+      if (confirmPasswordController.text.isEmpty) {
+        _errorMessages['confirmPassword'] =
+            "Password confirmation is required.";
+      }
+    });
+
+    return _errorMessages.isEmpty;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final authService = ref.watch(authServiceProvider);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: LayoutBuilder(
@@ -122,11 +153,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           const SizedBox(height: 25),
                           TextField(
                             controller: firstNameController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: "First Name",
                               filled: true,
-                              fillColor: Color(0xFFF5F5F5),
-                              border: OutlineInputBorder(
+                              fillColor: const Color(0xFFF5F5F5),
+                              errorText: _errorMessages['firstName'],
+                              border: const OutlineInputBorder(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(8)),
                                 borderSide: BorderSide.none,
@@ -136,11 +168,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           const SizedBox(height: 15),
                           TextField(
                             controller: lastNameController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: "Last Name",
                               filled: true,
-                              fillColor: Color(0xFFF5F5F5),
-                              border: OutlineInputBorder(
+                              fillColor: const Color(0xFFF5F5F5),
+                              errorText: _errorMessages['lastName'],
+                              border: const OutlineInputBorder(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(8)),
                                 borderSide: BorderSide.none,
@@ -150,11 +183,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           const SizedBox(height: 15),
                           TextField(
                             controller: emailController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: "Email",
                               filled: true,
-                              fillColor: Color(0xFFF5F5F5),
-                              border: OutlineInputBorder(
+                              fillColor: const Color(0xFFF5F5F5),
+                              errorText: _errorMessages['email'],
+                              border: const OutlineInputBorder(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(8)),
                                 borderSide: BorderSide.none,
@@ -164,11 +198,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           const SizedBox(height: 15),
                           TextField(
                             controller: phoneNumberController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: "Phone Number",
                               filled: true,
-                              fillColor: Color(0xFFF5F5F5),
-                              border: OutlineInputBorder(
+                              fillColor: const Color(0xFFF5F5F5),
+                              errorText: _errorMessages['phoneNumber'],
+                              border: const OutlineInputBorder(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(8)),
                                 borderSide: BorderSide.none,
@@ -183,6 +218,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                               labelText: "Password",
                               filled: true,
                               fillColor: const Color(0xFFF5F5F5),
+                              errorText: _errorMessages['password'],
                               border: const OutlineInputBorder(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(8)),
@@ -210,6 +246,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                               labelText: "Re-enter Password",
                               filled: true,
                               fillColor: const Color(0xFFF5F5F5),
+                              errorText: _errorMessages['confirmPassword'],
                               border: const OutlineInputBorder(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(8)),
@@ -261,9 +298,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           SignInButton(
                             onPressed: () async {
                               try {
-                                await ref
-                                    .read(authServiceProvider)
-                                    .signInWithGoogle();
+                                await authService.signInWithGoogle();
                                 context.go('/home');
                               } catch (e) {
                                 ScaffoldMessenger.of(context).showSnackBar(

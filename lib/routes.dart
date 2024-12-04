@@ -1,4 +1,3 @@
-import 'package:feedback_work/screens/auth/forgot_pass_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +10,7 @@ import './screens/auth/complete_profile_screen.dart';
 import './screens/projects/projects_screen.dart';
 import './screens/projects/create_project_screen.dart';
 import './screens/projects/project_edit_screen.dart';
+import './screens/auth/forgot_pass_screen.dart';
 // import './screens/home_screen.dart';
 // import './screens/profile_screen.dart';
 
@@ -86,7 +86,7 @@ final routerProvider = Provider<GoRouter>(
         ),
         GoRoute(
           path: '/forgot-password',
-          builder: (context, state) => const ForgotPassScreen(),
+          builder: (context, state) => ForgotPassScreen(),
         ),
 
         // GoRoute(
