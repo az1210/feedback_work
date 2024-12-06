@@ -133,19 +133,14 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           Text(
                             "Create Your Account",
                             textAlign: TextAlign.center,
-                            style: Theme.of(context)
-                                .textTheme
-                                .displaySmall
-                                ?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF1B1949),
-                                ),
+                            style: Theme.of(context).textTheme.displayLarge,
                           ),
                           const SizedBox(height: 8),
                           const Text(
                             "Create Account for Feedback Work",
                             textAlign: TextAlign.center,
                             style: TextStyle(
+                              fontFamily: 'Inter',
                               fontSize: 19,
                               color: Colors.black54,
                             ),

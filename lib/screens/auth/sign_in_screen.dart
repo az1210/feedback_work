@@ -17,29 +17,33 @@ class SignInScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authService = ref.watch(authServiceProvider);
     final isChecked = ref.watch(keepMeSignedInProvider);
+    final double deviceHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          const Image(
-            image: AssetImage("assets/images/onboard/bg.png"),
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
-          ),
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color.fromRGBO(28, 26, 74, 1),
-                  Colors.transparent,
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
+          const Align(
+            alignment: Alignment.topCenter,
+            child: Image(
+              image: AssetImage("assets/images/onboard/top-pic.png"),
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: 250,
             ),
           ),
+          // Container(
+          //   decoration: const BoxDecoration(
+          //     gradient: LinearGradient(
+          //       colors: [
+          //         Color.fromRGBO(28, 26, 74, 1),
+          //         Colors.transparent,
+          //       ],
+          //       begin: Alignment.topCenter,
+          //       end: Alignment.bottomCenter,
+          //     ),
+          //   ),
+          // ),
           Align(
             alignment: Alignment.bottomCenter,
             child: SingleChildScrollView(
@@ -57,13 +61,14 @@ class SignInScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 10),
-                    Text(
+                    const Text(
                       "Welcome Back",
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF1B1949),
-                          ),
+                      style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1B1949),
+                          fontSize: 40),
                     ),
                     const SizedBox(height: 8),
                     const Text(
@@ -74,14 +79,17 @@ class SignInScreen extends ConsumerWidget {
                         color: Colors.black54,
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 20),
                     TextField(
                       controller: emailController,
                       decoration: InputDecoration(
-                        labelText: "Email",
-                        prefixIcon: const Icon(Icons.email),
+                        labelText: "Enter your Email",
+                        prefixIcon: const Icon(
+                          Icons.email_outlined,
+                          color: Color(0xFF0866ff),
+                        ),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+                          borderRadius: BorderRadius.circular(10.0),
                         ),
                       ),
                     ),
@@ -90,14 +98,17 @@ class SignInScreen extends ConsumerWidget {
                       controller: passwordController,
                       obscureText: true,
                       decoration: InputDecoration(
-                        labelText: "Password",
-                        prefixIcon: const Icon(Icons.lock),
+                        labelText: "Enter your Password",
+                        prefixIcon: const Icon(
+                          Icons.lock_outline,
+                          color: Color(0xFF0866ff),
+                        ),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+                          borderRadius: BorderRadius.circular(10.0),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 5),
                     Row(
                       children: [
                         Expanded(
@@ -123,7 +134,7 @@ class SignInScreen extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 5),
                     BlockButton(
                       onPressed: () async {
                         final authService = ref.read(authServiceProvider);
@@ -136,15 +147,15 @@ class SignInScreen extends ConsumerWidget {
                       },
                       text: "Sign In",
                     ),
-                    const SizedBox(height: 25),
+                    const SizedBox(height: 10),
                     OrDivider(
                       topText: "Don't have an account?",
                       onTap: () {
                         context.replace('/sign-up');
                       },
-                      bottomText: 'Sign Up Here',
+                      bottomText: 'Sign Up here',
                     ),
-                    const SizedBox(height: 25),
+                    const SizedBox(height: 14),
                     SignInButton(
                       onPressed: () async {
                         try {
@@ -164,16 +175,26 @@ class SignInScreen extends ConsumerWidget {
                       ),
                       label: const Text("Continue with Google"),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 12),
                     SignInButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        try {
+                          await authService.signInWithFacebook();
+                          context.push('/projects');
+                        } catch (e) {
+                          // Handle errors
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(e.toString())),
+                          );
+                        }
+                      },
                       icon: const Icon(
                         Icons.facebook,
                         color: Color(0xFF0866ff),
                       ),
                       label: const Text("Continue with Facebook"),
                     ),
-                    const SizedBox(height: 35),
+                    const SizedBox(height: 15),
                   ],
                 ),
               ),
