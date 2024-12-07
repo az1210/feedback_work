@@ -22,12 +22,22 @@ class AppTheme {
           fontSize: 32,
           fontWeight: FontWeight.w700,
           color: primaryColor),
+      displaySmall: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 24,
+          fontWeight: FontWeight.w700,
+          color: bodyTextColor1),
       titleLarge: TextStyle(
           fontFamily: fontFamily,
-          fontSize: 20,
+          fontSize: 24,
           fontWeight: FontWeight.w600,
           color: bodyTextColor1),
       titleMedium: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: bodyTextColor1),
+      titleSmall: TextStyle(
           fontFamily: fontFamily,
           fontSize: 18,
           fontWeight: FontWeight.w500,
@@ -66,12 +76,22 @@ class AppTheme {
           fontSize: 32,
           fontWeight: FontWeight.w700,
           color: primaryColor),
+      displaySmall: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 24,
+          fontWeight: FontWeight.w700,
+          color: bodyTextColor1),
       titleLarge: TextStyle(
           fontFamily: fontFamily,
-          fontSize: 20,
+          fontSize: 24,
           fontWeight: FontWeight.w600,
           color: bodyTextColor1),
       titleMedium: TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: bodyTextColor1),
+      titleSmall: TextStyle(
           fontFamily: fontFamily,
           fontSize: 18,
           fontWeight: FontWeight.w500,

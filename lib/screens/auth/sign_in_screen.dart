@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:go_router/go_router.dart';
+
 import '../../providers/auth_providers.dart';
 import './widgets/block_button.dart';
 import './widgets/or_divider.dart';
@@ -17,7 +17,6 @@ class SignInScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authService = ref.watch(authServiceProvider);
     final isChecked = ref.watch(keepMeSignedInProvider);
-    final double deviceHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -26,26 +25,17 @@ class SignInScreen extends ConsumerWidget {
           const Align(
             alignment: Alignment.topCenter,
             child: Image(
-              image: AssetImage("assets/images/onboard/top-pic.png"),
+              image: AssetImage("assets/images/onboard/top1.jpeg"),
               fit: BoxFit.cover,
               width: double.infinity,
-              height: 250,
+              height: 230,
             ),
           ),
-          // Container(
-          //   decoration: const BoxDecoration(
-          //     gradient: LinearGradient(
-          //       colors: [
-          //         Color.fromRGBO(28, 26, 74, 1),
-          //         Colors.transparent,
-          //       ],
-          //       begin: Alignment.topCenter,
-          //       end: Alignment.bottomCenter,
-          //     ),
-          //   ),
-          // ),
-          Align(
-            alignment: Alignment.bottomCenter,
+          Positioned(
+            top: 200,
+            left: 0,
+            right: 0,
+            bottom: 0,
             child: SingleChildScrollView(
               child: Container(
                 padding: const EdgeInsets.all(20),
@@ -57,33 +47,32 @@ class SignInScreen extends ConsumerWidget {
                   ),
                 ),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 10),
-                    const Text(
+                    Text(
                       "Welcome Back",
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1B1949),
-                          fontSize: 40),
+                      style: Theme.of(context).textTheme.displayMedium,
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
+                    const SizedBox(height: 11),
+                    Text(
                       "Let's login to continue for Feedback Work",
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.black54,
-                      ),
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
+                    Text(
+                      "Email",
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 11),
                     TextField(
                       controller: emailController,
                       decoration: InputDecoration(
                         labelText: "Enter your Email",
+                        labelStyle: Theme.of(context).textTheme.bodySmall,
                         prefixIcon: const Icon(
                           Icons.email_outlined,
                           color: Color(0xFF0866ff),
@@ -93,12 +82,18 @@ class SignInScreen extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 15),
+                    const SizedBox(height: 16),
+                    Text(
+                      "Password",
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 10),
                     TextField(
                       controller: passwordController,
                       obscureText: true,
                       decoration: InputDecoration(
                         labelText: "Enter your Password",
+                        labelStyle: Theme.of(context).textTheme.bodySmall,
                         prefixIcon: const Icon(
                           Icons.lock_outline,
                           color: Color(0xFF0866ff),
@@ -108,10 +103,11 @@ class SignInScreen extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 16),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(
+                        Flexible(
                           child: Row(
                             children: [
                               Checkbox(
@@ -122,19 +118,37 @@ class SignInScreen extends ConsumerWidget {
                                       .toggle(value ?? false);
                                 },
                               ),
-                              const Text("Keep me signed in"),
+                              Flexible(
+                                child: Text(
+                                  "Keep me signed in",
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ),
                             ],
                           ),
                         ),
-                        TextButton(
-                          onPressed: () {
-                            context.go('/forgot-password');
-                          },
-                          child: const Text("Forgot Password?"),
+                        Flexible(
+                          child: TextButton(
+                            onPressed: () {
+                              context.go('/forgot-password');
+                            },
+                            child: Text(
+                              "Forgot Password?",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color:
+                                        const Color.fromARGB(255, 8, 102, 255),
+                                  ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 16),
                     BlockButton(
                       onPressed: () async {
                         final authService = ref.read(authServiceProvider);
@@ -147,7 +161,7 @@ class SignInScreen extends ConsumerWidget {
                       },
                       text: "Sign In",
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 24),
                     OrDivider(
                       topText: "Don't have an account?",
                       onTap: () {
@@ -155,7 +169,7 @@ class SignInScreen extends ConsumerWidget {
                       },
                       bottomText: 'Sign Up here',
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 16),
                     SignInButton(
                       onPressed: () async {
                         try {
@@ -169,9 +183,9 @@ class SignInScreen extends ConsumerWidget {
                         }
                       },
                       icon: Image.asset(
-                        'assets/images/icons/g_icon.png',
-                        height: 24,
-                        width: 24,
+                        'assets/images/icons/g-logo.png',
+                        height: 16,
+                        width: 16,
                       ),
                       label: const Text("Continue with Google"),
                     ),
@@ -194,7 +208,7 @@ class SignInScreen extends ConsumerWidget {
                       ),
                       label: const Text("Continue with Facebook"),
                     ),
-                    const SizedBox(height: 15),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),

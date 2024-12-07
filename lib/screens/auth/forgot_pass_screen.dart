@@ -43,26 +43,20 @@ class ForgotPassScreen extends ConsumerWidget {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          const Image(
-            image: AssetImage("assets/images/onboard/bg.png"),
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
-          ),
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color.fromRGBO(28, 26, 74, 1),
-                  Colors.transparent,
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
+          const Align(
+            alignment: Alignment.topCenter,
+            child: Image(
+              image: AssetImage("assets/images/onboard/top1.jpeg"),
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: 230,
             ),
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
+          Positioned(
+            top: 200,
+            left: 0,
+            right: 0,
+            bottom: 0,
             child: SingleChildScrollView(
               child: Container(
                 padding: const EdgeInsets.all(20),
@@ -77,30 +71,27 @@ class ForgotPassScreen extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 10),
                     Text(
                       "Forgot Password?",
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF1B1949),
-                          ),
+                      style: Theme.of(context).textTheme.displayMedium,
                     ),
-                    const SizedBox(height: 18),
-                    const Text(
+                    const SizedBox(height: 11),
+                    Text(
                       "Please enter your email here to get a link to reset your Password",
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.black87,
-                          letterSpacing: 0.6),
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 32),
                     TextField(
                       controller: emailController,
                       decoration: InputDecoration(
-                        labelText: "Email",
-                        prefixIcon: const Icon(Icons.email),
+                        labelText: "Enter your email",
+                        prefixIcon: const Icon(
+                          Icons.email_outlined,
+                          color: Color.fromARGB(255, 8, 102, 255),
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
                         ),
@@ -127,9 +118,6 @@ class ForgotPassScreen extends ConsumerWidget {
                           ),
                         ),
                       ),
-                    const SizedBox(
-                      height: 300,
-                    )
                   ],
                 ),
               ),

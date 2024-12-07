@@ -13,11 +13,26 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   int _currentIndex = 0;
 
-  final List<String> _messages = [
-    "Welcome to the Feedback Work!",
-    "Request constructive feedback, refine your work, and watch your expertise soar—all while getting rewarded.",
-    "Collaborate with a community of experts, share your Project, and elevate it to the next level.",
-    "Unlock opportunities by connecting with people and grow. Get started now!",
+  final List<Map<String, String>> _messages = [
+    {
+      "heading": "Welcome!",
+      "message": "Welcome to the Feedback Work!",
+    },
+    {
+      "heading": "Refine Your Skills",
+      "message":
+          "Request constructive feedback, refine your work, and watch your expertise soar—all while getting rewarded.",
+    },
+    {
+      "heading": "Collaborate & Elevate",
+      "message":
+          "Collaborate with a community of experts, share your Project, and elevate it to the next level.",
+    },
+    {
+      "heading": "Unlock Opportunities",
+      "message":
+          "Unlock opportunities by connecting with people and grow. Get started now!",
+    },
   ];
 
   void _goToNext(BuildContext context) {
@@ -58,26 +73,37 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 const EdgeInsets.symmetric(horizontal: 20.0, vertical: 40.0),
             child: Column(
               children: [
+                const Spacer(flex: 2), // Pushes content down
                 // Logo
                 Center(
                   child: Image.asset(
                     'assets/images/onboard/logo.png',
-                    height: 100, // Adjust height as necessary
-                    width: 100, // Optional: Add width constraint
+                    height: 100,
+                    width: 100,
                   ),
                 ),
-                const Spacer(),
-                // Onboarding Message
+                const SizedBox(height: 150),
+                // Onboarding Heading
                 Text(
-                  _messages[_currentIndex],
+                  _messages[_currentIndex]['heading']!,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 24,
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
+                // Onboarding Message
+                Text(
+                  _messages[_currentIndex]['message']!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+                ),
+                const SizedBox(height: 40),
                 // Progress Indicators
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -96,7 +122,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 40),
+                const Spacer(flex: 2), // Pushes content down further
                 // Next and Skip Buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -124,6 +150,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 20), // Add spacing at the bottom
               ],
             ),
           ),

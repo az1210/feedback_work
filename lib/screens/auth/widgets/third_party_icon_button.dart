@@ -15,7 +15,7 @@ class SignInButton extends StatelessWidget {
       icon: icon,
       label: label,
       style: ElevatedButton.styleFrom(
-        textStyle: const TextStyle(fontSize: 15, letterSpacing: 0.7),
+        textStyle: Theme.of(context).textTheme.bodyLarge,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         side: const BorderSide(color: Colors.grey),

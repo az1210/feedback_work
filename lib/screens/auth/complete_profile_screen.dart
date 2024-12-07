@@ -1,171 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:go_router/go_router.dart';
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-
-// class CompleteProfileScreen extends ConsumerStatefulWidget {
-//   final Map<String, dynamic> basicInfo; // Passed data from previous screen
-
-//   const CompleteProfileScreen({super.key, required this.basicInfo});
-
-//   @override
-//   ConsumerState<CompleteProfileScreen> createState() =>
-//       _CompleteProfileScreenState();
-// }
-
-// class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
-//   final _formKey = GlobalKey<FormState>();
-//   final TextEditingController _usernameController = TextEditingController();
-//   final TextEditingController _titleController = TextEditingController();
-//   final TextEditingController _expertiseController = TextEditingController();
-//   String? _selectedAccountType;
-//   bool _isUsernameValid = true;
-
-//   // Real-time username validation
-//   Future<void> _checkUsernameAvailability(String username) async {
-//     final querySnapshot = await FirebaseFirestore.instance
-//         .collection('users')
-//         .where('username', isEqualTo: username)
-//         .get();
-
-//     setState(() {
-//       _isUsernameValid = querySnapshot.docs.isEmpty;
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: Colors.white,
-//       appBar: AppBar(
-//         title: const Text("Complete Your Profile"),
-//       ),
-//       body: Padding(
-//         padding: const EdgeInsets.all(20.0),
-//         child: Form(
-//           key: _formKey,
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.stretch,
-//             children: [
-//               const SizedBox(height: 20),
-
-//               // Username Field
-//               TextFormField(
-//                 controller: _usernameController,
-//                 decoration: InputDecoration(
-//                   labelText: "Username (Optional)",
-//                   filled: true,
-//                   fillColor: const Color(0xFFF5F5F5),
-//                   border: const OutlineInputBorder(
-//                     borderRadius: BorderRadius.all(Radius.circular(8)),
-//                   ),
-//                   suffixIcon: _isUsernameValid
-//                       ? const Icon(Icons.check, color: Colors.green)
-//                       : const Icon(Icons.close, color: Colors.red),
-//                 ),
-//                 onChanged: _checkUsernameAvailability,
-//               ),
-//               if (!_isUsernameValid)
-//                 const Text(
-//                   'Username is already taken',
-//                   style: TextStyle(color: Colors.red),
-//                 ),
-//               const SizedBox(height: 20),
-
-//               // Title Field
-//               TextFormField(
-//                 controller: _titleController,
-//                 decoration: const InputDecoration(
-//                   labelText: "Title",
-//                   filled: true,
-//                   fillColor: Color(0xFFF5F5F5),
-//                   border: OutlineInputBorder(),
-//                 ),
-//               ),
-//               const SizedBox(height: 20),
-
-//               // Expertise Field
-//               TextFormField(
-//                 controller: _expertiseController,
-//                 decoration: const InputDecoration(
-//                   labelText: "Expertise",
-//                   filled: true,
-//                   fillColor: Color(0xFFF5F5F5),
-//                   border: OutlineInputBorder(),
-//                 ),
-//               ),
-//               const SizedBox(height: 20),
-
-//               // Account Type Dropdown
-//               DropdownButtonFormField<String>(
-//                 value: _selectedAccountType,
-//                 items: const [
-//                   DropdownMenuItem(
-//                     value: "Individual",
-//                     child: Text("Individual"),
-//                   ),
-//                   DropdownMenuItem(
-//                     value: "Business",
-//                     child: Text("Business"),
-//                   ),
-//                 ],
-//                 onChanged: (value) {
-//                   setState(() {
-//                     _selectedAccountType = value;
-//                   });
-//                 },
-//                 decoration: const InputDecoration(
-//                   labelText: "Account Type",
-//                   filled: true,
-//                   fillColor: Color(0xFFF5F5F5),
-//                   border: OutlineInputBorder(),
-//                 ),
-//               ),
-//               const SizedBox(height: 30),
-
-//               // Submit Button
-//               ElevatedButton(
-//                 onPressed: () async {
-//                   if (_formKey.currentState!.validate() && _isUsernameValid) {
-//                     try {
-//                       // Save to Firestore
-//                       await FirebaseFirestore.instance
-//                           .collection('users')
-//                           .doc(widget.basicInfo['uid'])
-//                           .set({
-//                         'firstName': widget.basicInfo['firstName'],
-//                         'lastName': widget.basicInfo['lastName'],
-//                         'email': widget.basicInfo['email'],
-//                         'username': _usernameController.text,
-//                         'title': _titleController.text,
-//                         'expertise': _expertiseController.text,
-//                         'accountType': _selectedAccountType,
-//                         'createdAt': DateTime.now().toIso8601String(),
-//                       });
-
-//                       ScaffoldMessenger.of(context).showSnackBar(
-//                         const SnackBar(content: Text('Profile completed!')),
-//                       );
-
-//                       // Navigate to home screen
-//                       context.go('/home');
-//                     } catch (e) {
-//                       ScaffoldMessenger.of(context).showSnackBar(
-//                         SnackBar(content: Text('Error: ${e.toString()}')),
-//                       );
-//                     }
-//                   }
-//                 },
-//                 child: const Text("Submit"),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -249,26 +81,49 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          const Image(
-            image: AssetImage("assets/images/onboard/bg.png"),
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
-          ),
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color.fromRGBO(28, 26, 74, 1),
-                  Colors.transparent,
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
+          const Align(
+            alignment: Alignment.topCenter,
+            child: Image(
+              image: AssetImage("assets/images/onboard/top1.jpeg"),
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: 230,
             ),
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
+          // Positioned(
+          //   top: 40,
+          //   left: 20,
+          //   child: GestureDetector(
+          //     onTap: () {
+          //       Navigator.pop(context);
+          //     },
+          //     child: Container(
+          //       decoration: BoxDecoration(
+          //         color: Colors.white.withOpacity(0.7),
+          //         shape: BoxShape.circle,
+          //         boxShadow: const [
+          //           BoxShadow(
+          //             color: Colors.black12,
+          //             blurRadius: 4,
+          //             offset: Offset(2, 2),
+          //           ),
+          //         ],
+          //       ),
+          //       padding: const EdgeInsets.all(8),
+          //       child: Icon(
+          //         Theme.of(context).platform == TargetPlatform.iOS
+          //             ? Icons.arrow_back_ios
+          //             : Icons.arrow_back,
+          //         color: Colors.black,
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          Positioned(
+            top: 200,
+            left: 0,
+            right: 0,
+            bottom: 0,
             child: SingleChildScrollView(
               child: Container(
                 padding: const EdgeInsets.all(20),
@@ -282,34 +137,30 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
                     Text(
                       "Complete Your Profile",
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF1B1949),
-                          ),
+                      style: Theme.of(context).textTheme.displayMedium,
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 24),
                     GestureDetector(
                       onTap: () {},
-                      child: const CircleAvatar(
-                        radius: 40,
-                        backgroundColor: Color.fromARGB(255, 235, 233, 233),
-                        child: Icon(
-                          Icons.person_add,
-                          size: 40,
-                          color: Colors.white,
-                        ),
+                      child: Image.asset(
+                        "assets/images/icons/profile-frame.png",
+                        height: 78,
                       ),
                     ),
-                    const SizedBox(height: 50),
+                    const SizedBox(height: 16),
+                    Text(
+                      "Username (Optional)",
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 10),
                     TextField(
                       controller: _usernameController,
                       onChanged: (value) => _validateUsername(),
                       decoration: InputDecoration(
-                        labelText: "Username (Optional)",
                         suffixIcon: _isCheckingUsername
                             ? const CircularProgressIndicator()
                             : Icon(
@@ -328,11 +179,15 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 15),
+                    const SizedBox(height: 16),
+                    Text(
+                      "Title",
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 10),
                     TextField(
                       controller: _titleController,
                       decoration: const InputDecoration(
-                        labelText: "Title",
                         filled: true,
                         fillColor: Color(0xFFF5F5F5),
                         border: OutlineInputBorder(
@@ -341,11 +196,15 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 15),
+                    const SizedBox(height: 16),
+                    Text(
+                      "Expertise",
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 10),
                     TextField(
                       controller: _expertiseController,
                       decoration: const InputDecoration(
-                        labelText: "Expertise",
                         filled: true,
                         fillColor: Color(0xFFF5F5F5),
                         border: OutlineInputBorder(
@@ -354,10 +213,15 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 15),
+                    const SizedBox(height: 16),
+                    Text(
+                      "Account Type",
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 10),
                     DropdownButtonFormField<String>(
                       value: _selectedAccountType,
-                      hint: const Text("Select Account Type"),
+                      hint: const Text("Select account type"),
                       items: _accountTypes.map((type) {
                         return DropdownMenuItem(
                           value: type,
@@ -378,13 +242,13 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 16),
                     BlockButton(
                       onPressed: _submitProfile,
                       text: 'Submit',
                     ),
                     const SizedBox(
-                      height: 70,
+                      height: 32,
                     ),
                   ],
                 ),

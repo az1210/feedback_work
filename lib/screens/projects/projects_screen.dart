@@ -260,9 +260,12 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
     final projectService = ref.watch(projectServiceProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: const Color.fromARGB(255, 240, 242, 245),
       appBar: AppBar(
-        title: const Text('Projects'),
+        title: Text(
+          'Projects',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.grid_view),
@@ -282,7 +285,8 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
           final projects = snapshot.data!.docs;
 
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding:
+                const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 16),
             children: [
               ...projects.map((doc) {
                 final project = doc.data() as Map<String, dynamic>;
@@ -294,7 +298,7 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
                   projectService: projectService,
                 );
               }),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               InkWell(
                 onTap: () {
                   context.push('/create-project');
@@ -302,16 +306,16 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 5,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                    borderRadius: BorderRadius.circular(5),
+                    // boxShadow: [
+                    //   BoxShadow(
+                    //     color: Colors.black.withOpacity(0.1),
+                    //     blurRadius: 5,
+                    //     offset: const Offset(0, 2),
+                    //   ),
+                    // ],
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
                   child: const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -345,9 +349,7 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
         unselectedItemColor: const Color.fromARGB(255, 88, 88, 88),
         unselectedFontSize: 12,
         currentIndex: 0, // Current tab index
-        onTap: (index) {
-          // Handle navigation
-        },
+        onTap: (index) {},
         items: const [
           BottomNavigationBarItem(
             icon: ImageIcon(
@@ -412,15 +414,15 @@ class _ProjectCardState extends State<ProjectCard> {
     final project = widget.project;
 
     return Card(
-      margin: const EdgeInsets.all(10),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
-            color: const Color.fromARGB(200, 232, 242, 252),
+            color: const Color.fromARGB(255, 235, 245, 255),
             child: Padding(
-              padding: const EdgeInsets.only(left: 20, top: 15, bottom: 15),
+              padding:
+                  const EdgeInsets.only(left: 8, top: 8, bottom: 8, right: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -428,38 +430,38 @@ class _ProjectCardState extends State<ProjectCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 12),
-                      Text(
-                        project['projectName'] ?? 'No Name',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 23,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
+                      Text(project['projectName'] ?? 'No Name',
+                          style: Theme.of(context).textTheme.titleMedium),
+                      const SizedBox(height: 8),
                       Text(
                         DateFormat('dd/MM/yyyy').format(
                           (project['createdAt'] as Timestamp).toDate(),
                         ),
                         style: const TextStyle(
-                            fontSize: 14, color: Colors.black87),
+                            fontFamily: "Inter",
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            fontStyle: FontStyle.italic),
                       ),
                     ],
                   ),
-                  IconButton(
-                    icon: Icon(_isExpanded
-                        ? Icons.keyboard_arrow_up
-                        : Icons.keyboard_arrow_down),
-                    onPressed: () {
+                  GestureDetector(
+                    onTap: () {
                       setState(() {
-                        _isExpanded = !_isExpanded;
+                        _isExpanded = !_isExpanded; // Toggle the expanded state
                       });
                     },
-                  ),
+                    child: _isExpanded
+                        ? Image.asset("assets/images/icons/up-arrow.png",
+                            height: 8)
+                        : Image.asset("assets/images/icons/down-arrow.png",
+                            height: 8), // Regular icon when not expanded
+                  )
                 ],
               ),
             ),
           ),
-          const Divider(),
+          const SizedBox(height: 8),
           // Collapsible Content
           if (_isExpanded) ...[
             _buildProjectDetailRow(
@@ -470,40 +472,37 @@ class _ProjectCardState extends State<ProjectCard> {
                 project['solutionFunctionName'], Colors.black),
             const SizedBox(height: 8),
             Padding(
-              padding: const EdgeInsets.only(left: 20),
+              padding: const EdgeInsets.only(left: 8),
               child: Text(
                 'Status: ${project['status'] ?? 'Not Started'}',
                 style: const TextStyle(color: Colors.red, fontSize: 16),
               ),
             ),
-            const Divider(),
+            // const Divider(),
             Padding(
-              padding: const EdgeInsets.only(bottom: 12, top: 10),
-              child: Center(
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0866ff),
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+              padding: const EdgeInsets.all(8),
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 8, 102, 255),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text(
-                    'Request Feedback',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
+                ),
+                child: const Text(
+                  'Request Feedback',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
                   ),
                 ),
               ),
             ),
           ] else
             Padding(
-              padding: const EdgeInsets.only(left: 20),
+              padding: const EdgeInsets.only(left: 8),
               child: Text(
                 'Status: ${project['status'] ?? 'Not Started'}',
                 style: const TextStyle(color: Colors.red, fontSize: 16),
@@ -516,18 +515,21 @@ class _ProjectCardState extends State<ProjectCard> {
 
   Widget _buildProjectDetailRow(String title, String? value, Color color) {
     return Padding(
-      padding: const EdgeInsets.only(left: 20),
+      padding: const EdgeInsets.only(top: 4, left: 8, right: 8, bottom: 4),
       child: Row(
         children: [
           Text(
             title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(width: 4),
           Expanded(
             child: Text(
               value ?? 'N/A',
-              style: TextStyle(color: color, fontSize: 20),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: color),
               overflow: TextOverflow.ellipsis,
             ),
           ),

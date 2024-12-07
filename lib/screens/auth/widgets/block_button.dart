@@ -15,10 +15,10 @@ class BlockButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF0866ff),
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        backgroundColor: const Color.fromARGB(255, 8, 102, 255),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(10),
         ),
       ),
       child: Text(

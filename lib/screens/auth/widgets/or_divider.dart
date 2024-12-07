@@ -20,25 +20,22 @@ class OrDivider extends StatelessWidget {
           children: [
             Text(
               topText,
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 17,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(width: 8),
             GestureDetector(
               onTap: onTap,
               child: Text(
                 bottomText,
-                style: const TextStyle(
-                  color: Color(0xFF0866ff),
-                  fontSize: 17,
-                ),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: const Color.fromARGB(255, 8, 102, 255)),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 15),
+        const SizedBox(height: 16),
         Row(
           children: [
             Expanded(
