@@ -7,14 +7,13 @@ import './screens/onboard/onboard_screen.dart';
 import './screens/auth/sign_up_screen.dart';
 import './screens/auth/sign_in_screen.dart';
 import './screens/auth/complete_profile_screen.dart';
+import './screens/home_screen.dart';
 import './screens/projects/projects_screen.dart';
 import './screens/projects/create_project_screen.dart';
 import './screens/projects/project_edit_screen.dart';
 import './screens/auth/forgot_pass_screen.dart';
-// import './screens/home_screen.dart';
-// import './screens/profile_screen.dart';
+import './screens/projects/feedback_screen.dart';
 
-// Provider to simulate authentication state
 final authProvider = StateProvider<bool>((ref) => false);
 
 final routerProvider = Provider<GoRouter>(
@@ -69,12 +68,20 @@ final routerProvider = Provider<GoRouter>(
           },
         ),
         GoRoute(
+          path: '/forgot-password',
+          builder: (context, state) => ForgotPassScreen(),
+        ),
+        GoRoute(
           path: '/sign-in',
           builder: (context, state) => SignInScreen(),
         ),
         GoRoute(
+          path: '/home-screen',
+          builder: (context, state) => MyHomePage(),
+        ),
+        GoRoute(
           path: '/projects',
-          builder: (context, state) => ProjectsScreen(),
+          builder: (context, state) => const ProjectsScreen(),
         ),
         GoRoute(
           path: '/create-project',
@@ -85,10 +92,9 @@ final routerProvider = Provider<GoRouter>(
           builder: (context, state) => const ProjectEditScreen(),
         ),
         GoRoute(
-          path: '/forgot-password',
-          builder: (context, state) => ForgotPassScreen(),
+          path: '/feedback',
+          builder: (context, state) => FeedbackScreen(),
         ),
-
         // GoRoute(
         //   path: '/home',
         //   builder: (context, state) => const HomeScreen(),
