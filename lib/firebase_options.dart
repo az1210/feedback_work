@@ -73,6 +73,9 @@ class DefaultFirebaseOptions {
     projectId: 'feedback-work-61234',
     databaseURL: 'https://feedback-work-61234-default-rtdb.firebaseio.com',
     storageBucket: 'feedback-work-61234.firebasestorage.app',
+    androidClientId: '583751085628-0alc2huf7487up0umgc5tat2r760uasl.apps.googleusercontent.com',
+    iosClientId: '583751085628-vo13o241vnc1g7gpsmhj7ds7jr194kb2.apps.googleusercontent.com',
     iosBundleId: 'com.speaklogic.feedbackWork',
   );
+
 }
