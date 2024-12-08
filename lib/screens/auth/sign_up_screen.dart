@@ -152,21 +152,21 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  TextButton(
-                      onPressed: () {
-                        context.push('/projects');
-                      },
-                      child: Text(
-                        'Development Button',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      )),
-                  Text(
-                    "Last Name",
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
+                  // TextButton(
+                  //     onPressed: () {
+                  //       context.push('/projects');
+                  //     },
+                  //     child: Text(
+                  //       'Development Button',
+                  //       style: TextStyle(
+                  //         fontSize: 20,
+                  //         fontWeight: FontWeight.bold,
+                  //       ),
+                  //     )),
+                  // Text(
+                  //   "Last Name",
+                  //   style: Theme.of(context).textTheme.titleMedium,
+                  // ),
                   const SizedBox(height: 5),
                   TextField(
                     controller: lastNameController,

@@ -12,7 +12,10 @@ import './screens/projects/projects_screen.dart';
 import './screens/projects/create_project_screen.dart';
 import './screens/projects/project_edit_screen.dart';
 import './screens/auth/forgot_pass_screen.dart';
-import './screens/projects/feedback_screen.dart';
+import './screens/feedback/feedback_screen.dart';
+import './screens/network/network_tab_screen.dart';
+import './screens/status/status.dart';
+import './screens/more/more_tab_screen.dart';
 
 final authProvider = StateProvider<bool>((ref) => false);
 
@@ -94,6 +97,18 @@ final routerProvider = Provider<GoRouter>(
         GoRoute(
           path: '/feedback',
           builder: (context, state) => FeedbackScreen(),
+        ),
+        GoRoute(
+          path: '/network',
+          builder: (context, state) => NetworkTabScreen(),
+        ),
+        GoRoute(
+          path: '/status',
+          builder: (context, state) => StatusTabScreen(),
+        ),
+        GoRoute(
+          path: '/more',
+          builder: (context, state) => MoreTabScreen(),
         ),
         // GoRoute(
         //   path: '/home',
