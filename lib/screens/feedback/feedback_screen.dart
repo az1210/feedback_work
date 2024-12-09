@@ -26,7 +26,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         child: Text("This is Feedback Screen"),
       ),
       bottomNavigationBar: SizedBox(
-        height: 82,
+        height: 90,
         child: BottomNavigationBar(
           showUnselectedLabels: true,
           selectedIconTheme: const IconThemeData(size: 30),

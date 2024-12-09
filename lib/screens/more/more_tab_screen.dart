@@ -26,7 +26,7 @@ class _MoreTabScreenState extends State<MoreTabScreen> {
         child: Text("This is Sample More Screen"),
       ),
       bottomNavigationBar: SizedBox(
-        height: 82,
+        height: 90,
         child: BottomNavigationBar(
           showUnselectedLabels: true,
           selectedIconTheme: const IconThemeData(size: 30),

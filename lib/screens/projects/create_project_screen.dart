@@ -69,6 +69,7 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 240, 242, 245),
       appBar: AppBar(
         title: const Text('Create Project'),
       ),
@@ -77,11 +78,25 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            SizedBox(height: 9),
+            Text(
+              "Project Name*",
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 5),
             TextField(
               controller: projectNameController,
-              decoration: const InputDecoration(
-                labelText: 'Project Name*',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                label: Text(
+                  "Type here..",
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                filled: true,
+                fillColor: const Color(0xFFF5F5F5),
+                border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
             const SizedBox(height: 16),

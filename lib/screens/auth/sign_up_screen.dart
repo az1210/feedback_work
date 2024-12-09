@@ -163,10 +163,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   //         fontWeight: FontWeight.bold,
                   //       ),
                   //     )),
-                  // Text(
-                  //   "Last Name",
-                  //   style: Theme.of(context).textTheme.titleMedium,
-                  // ),
+                  Text(
+                    "Last Name",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                   const SizedBox(height: 5),
                   TextField(
                     controller: lastNameController,
