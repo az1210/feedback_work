@@ -103,12 +103,19 @@ class ProjectService {
           .get();
 
       // Return a list of project data
-      return querySnapshot.docs
-          .map((doc) => doc.data() as Map<String, dynamic>)
-          .toList();
+      return querySnapshot.docs.map((doc) => doc.data()).toList();
     } catch (e) {
       throw Exception("Failed to fetch projects: ${e.toString()}");
     }
+  }
+
+  Stream<List<QueryDocumentSnapshot<Map<String, dynamic>>>> getUserProjects(
+      String userId) {
+    return _firestore
+        .collection('projects')
+        .where('creatorId', isEqualTo: userId)
+        .snapshots()
+        .map((snapshot) => snapshot.docs);
   }
 
   /// Fetch projects filtered by a specific expertise

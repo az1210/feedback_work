@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../providers/project_providers.dart';
 
 class ProjectsScreen extends ConsumerStatefulWidget {
@@ -26,6 +28,7 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
   @override
   Widget build(BuildContext context) {
     final projectService = ref.watch(projectServiceProvider);
+    final userId = FirebaseAuth.instance.currentUser?.uid;
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 240, 242, 245),
@@ -50,20 +53,69 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('projects').snapshots(),
+      body: StreamBuilder<List<QueryDocumentSnapshot<Map<String, dynamic>>>>(
+        stream: projectService.getUserProjects(userId!),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final projects = snapshot.data!.docs;
+          final projects = snapshot.data!;
+
+          if (projects.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'No projects found yet.',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  InkWell(
+                    onTap: () {
+                      context.push('/create-project');
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 24, horizontal: 100),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.add_circle,
+                              size: 35, color: Color(0xFF0866ff)),
+                          const SizedBox(height: 5),
+                          Text(
+                            'Create Project',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(
+                                  color: const Color(0xFF0866ff),
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
 
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
               ...projects.map((doc) {
-                final project = doc.data() as Map<String, dynamic>;
+                final project = doc.data();
                 final projectId = doc.id;
 
                 return ProjectCard(
@@ -236,9 +288,25 @@ class _ProjectCardState extends State<ProjectCard> {
                     'Solution', project['solutionName'] ?? 'N/A', Colors.green),
                 _buildDetailRow('Solution Function',
                     project['solutionFunctionName'] ?? 'N/A', Colors.green),
+                // _buildDetailRow(
+                //   'Start Date',
+                //   project['startDate'] != null
+                //       ? DateFormat('dd/MM/yyyy')
+                //           .format((project['startDate'] as Timestamp).toDate())
+                //       : '01/01/2024, 5PM',
+                //   Colors.black54,
+                // ),
+                // _buildDetailRow(
+                //   'End Date',
+                //   project['endDate'] != null
+                //       ? DateFormat('dd/MM/yyyy')
+                //           .format((project['endDate'] as Timestamp).toDate())
+                //       : '05/01/2024, 5PM',
+                //   Colors.black54,
+                // ),
                 _buildDetailRow(
                   'Start Date',
-                  project['startDate'] != null
+                  project['startDate'] is Timestamp
                       ? DateFormat('dd/MM/yyyy')
                           .format((project['startDate'] as Timestamp).toDate())
                       : '01/01/2024, 5PM',
@@ -246,7 +314,7 @@ class _ProjectCardState extends State<ProjectCard> {
                 ),
                 _buildDetailRow(
                   'End Date',
-                  project['endDate'] != null
+                  project['endDate'] is Timestamp
                       ? DateFormat('dd/MM/yyyy')
                           .format((project['endDate'] as Timestamp).toDate())
                       : '05/01/2024, 5PM',

@@ -24,6 +24,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
+  bool _isLoading = false;
   bool _isObscured = true;
   final Map<String, String?> _errorMessages = {};
 
@@ -35,6 +36,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       );
       return;
     }
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
       await ref.read(authServiceProvider).signUp(
             firstName: firstNameController.text.trim(),
@@ -53,6 +58,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.toString())),
       );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -275,7 +284,18 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  BlockButton(onPressed: handleSignUp, text: "Create Account"),
+                  _isLoading
+                      ? const Center(
+                          child: SizedBox(
+                            height: 40,
+                            width: 40,
+                            child: CircularProgressIndicator(
+                              color: Color.fromARGB(255, 8, 102, 255),
+                            ),
+                          ),
+                        )
+                      : BlockButton(
+                          onPressed: handleSignUp, text: "Create Account"),
                   const SizedBox(height: 16),
                   OrDivider(
                     topText: 'Have an Account?',
