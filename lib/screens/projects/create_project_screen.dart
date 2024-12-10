@@ -69,6 +69,7 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 240, 242, 245),
       appBar: AppBar(
         title: const Text('Create Project'),
       ),
@@ -77,50 +78,116 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 16),
+            Text(
+              "Project Name*",
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: 5),
             TextField(
               controller: projectNameController,
-              decoration: const InputDecoration(
-                labelText: 'Project Name*',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                label: Text(
+                  "Type here..",
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                filled: true,
+                fillColor: const Color(0xFFF5F5F5),
+                border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
             const SizedBox(height: 16),
+            Text(
+              "Problem Name*",
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: 5),
             TextField(
               controller: problemNameController,
-              decoration: const InputDecoration(
-                labelText: 'Problem Name*',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                label: Text(
+                  "Type here..",
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                filled: true,
+                fillColor: const Color(0xFFF5F5F5),
+                border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
             const SizedBox(height: 16),
+            Text(
+              "Solution Name*",
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: 5),
             TextField(
               controller: solutionNameController,
-              decoration: const InputDecoration(
-                labelText: 'Solution Name*',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                label: Text(
+                  "Type here..",
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                filled: true,
+                fillColor: const Color(0xFFF5F5F5),
+                border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
             const SizedBox(height: 16),
+            Text(
+              "Solution Function Name",
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: 5),
             TextField(
               controller: solutionFunctionController,
-              decoration: const InputDecoration(
-                labelText: 'Solution Function Name',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                label: Text(
+                  "Type here..",
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                filled: true,
+                fillColor: const Color(0xFFF5F5F5),
+                border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
             const SizedBox(height: 16),
+            Text(
+              "Project Description",
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: 5),
             TextField(
-              controller: projectDescriptionController,
+              controller: projectNameController,
               maxLines: 5,
-              decoration: const InputDecoration(
-                labelText: 'Project Description',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                label: Text(
+                  "Type here..",
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                filled: true,
+                fillColor: const Color(0xFFF5F5F5),
+                border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
             const SizedBox(height: 16),
             Text(
               'Add Image',
-              style: Theme.of(context).textTheme.titleMedium,
+              style: Theme.of(context).textTheme.titleSmall,
             ),
             const SizedBox(height: 8),
             InkWell(
