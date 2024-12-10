@@ -19,7 +19,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: SizedBox(
-        height: 82,
+        height: 90,
         child: BottomNavigationBar(
           showUnselectedLabels: true,
           selectedIconTheme: const IconThemeData(

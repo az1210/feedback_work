@@ -26,7 +26,7 @@ class _StatusTabScreenState extends State<StatusTabScreen> {
         child: Text("This is Sample Status Screen"),
       ),
       bottomNavigationBar: SizedBox(
-        height: 82,
+        height: 90,
         child: BottomNavigationBar(
           showUnselectedLabels: true,
           selectedIconTheme: const IconThemeData(size: 30),

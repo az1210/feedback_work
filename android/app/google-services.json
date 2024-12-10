@@ -13,7 +13,20 @@
           "package_name": "com.speaklogic.feedback_work"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "583751085628-0alc2huf7487up0umgc5tat2r760uasl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.speaklogic.feedback_work",
+            "certificate_hash": "829205c5d25e7776e498a096920ec43aa5f7ebf3"
+          }
+        },
+        {
+          "client_id": "583751085628-ogr22crveq628kn356c54tmlv6pl7jb5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBU--w1Wl10FbuPGjhqouaWQ57bpSQKHmg"
@@ -21,7 +34,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "583751085628-ogr22crveq628kn356c54tmlv6pl7jb5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "583751085628-vo13o241vnc1g7gpsmhj7ds7jr194kb2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.speaklogic.feedbackWork"
+              }
+            }
+          ]
         }
       }
     }

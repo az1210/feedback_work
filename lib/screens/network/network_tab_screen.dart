@@ -26,7 +26,7 @@ class _NetworkTabScreenState extends State<NetworkTabScreen> {
         child: Text("This is Sample Network Screen"),
       ),
       bottomNavigationBar: SizedBox(
-        height: 82,
+        height: 90,
         child: BottomNavigationBar(
           showUnselectedLabels: true,
           selectedIconTheme: const IconThemeData(size: 30),
