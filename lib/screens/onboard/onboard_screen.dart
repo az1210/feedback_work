@@ -35,18 +35,28 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     },
   ];
 
+  void _navigateToNextScreen(BuildContext context, String defaultRoute) {
+    final isLoggedIn = ref.read(authProvider);
+
+    if (isLoggedIn) {
+      context.go('/projects');
+    } else {
+      context.go(defaultRoute);
+    }
+  }
+
   void _goToNext(BuildContext context) {
     if (_currentIndex < _messages.length - 1) {
       setState(() {
         _currentIndex++;
       });
     } else {
-      context.go('/sign-up');
+      _navigateToNextScreen(context, '/sign-up');
     }
   }
 
   void _skip(BuildContext context) {
-    context.go('/sign-up');
+    _navigateToNextScreen(context, '/sign-up');
   }
 
   @override
