@@ -1,12 +1,14 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 
 import '../../providers/auth_providers.dart';
 import './widgets/third_party_icon_button.dart';
 import './widgets/or_divider.dart';
 import './widgets/block_button.dart';
+import '../../utility/custom_snackbar.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
@@ -55,9 +57,14 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
         context.push('/complete-profile', extra: userId);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
+      final snackBar = CustomSnackbar.build(
+        title: 'Oh Snap!',
+        message: 'Something went wrong!',
+        contentType: ContentType.failure,
       );
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(snackBar);
     } finally {
       setState(() {
         _isLoading = false;
@@ -134,7 +141,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   Text(
                     "Create Your Account",
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.displayMedium,
+                    style: Theme.of(context)
+                        .textTheme
+                        .displayMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -152,7 +162,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     controller: firstNameController,
                     decoration: InputDecoration(
                       filled: true,
-                      fillColor: const Color(0xFFF5F5F5),
+                      fillColor: const Color.fromARGB(255, 240, 242, 245),
                       errorText: _errorMessages['firstName'],
                       border: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -161,17 +171,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // TextButton(
-                  //     onPressed: () {
-                  //       context.push('/projects');
-                  //     },
-                  //     child: Text(
-                  //       'Development Button',
-                  //       style: TextStyle(
-                  //         fontSize: 20,
-                  //         fontWeight: FontWeight.bold,
-                  //       ),
-                  //     )),
                   Text(
                     "Last Name",
                     style: Theme.of(context).textTheme.titleMedium,
@@ -181,7 +180,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     controller: lastNameController,
                     decoration: InputDecoration(
                       filled: true,
-                      fillColor: const Color(0xFFF5F5F5),
+                      fillColor: const Color.fromARGB(255, 240, 242, 245),
                       errorText: _errorMessages['lastName'],
                       border: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -199,7 +198,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     controller: emailController,
                     decoration: InputDecoration(
                       filled: true,
-                      fillColor: const Color(0xFFF5F5F5),
+                      fillColor: const Color.fromARGB(255, 240, 242, 245),
                       errorText: _errorMessages['email'],
                       border: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -217,7 +216,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     controller: phoneNumberController,
                     decoration: InputDecoration(
                       filled: true,
-                      fillColor: const Color(0xFFF5F5F5),
+                      fillColor: const Color.fromARGB(255, 240, 242, 245),
                       errorText: _errorMessages['phoneNumber'],
                       border: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -236,7 +235,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     obscureText: _isObscured,
                     decoration: InputDecoration(
                       filled: true,
-                      fillColor: const Color(0xFFF5F5F5),
+                      fillColor: const Color.fromARGB(255, 240, 242, 245),
                       errorText: _errorMessages['password'],
                       border: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -265,7 +264,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     obscureText: _isObscured,
                     decoration: InputDecoration(
                       filled: true,
-                      fillColor: const Color(0xFFF5F5F5),
+                      fillColor: const Color.fromARGB(255, 240, 242, 245),
                       errorText: _errorMessages['confirmPassword'],
                       border: const OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(10)),

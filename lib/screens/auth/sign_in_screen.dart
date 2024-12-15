@@ -1,20 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 
 import '../../providers/auth_providers.dart';
 import './widgets/block_button.dart';
 import './widgets/or_divider.dart';
 import './widgets/third_party_icon_button.dart';
+import '../../utility/custom_snackbar.dart';
 
-class SignInScreen extends ConsumerWidget {
-  SignInScreen({super.key});
+// ignore: must_be_immutable
+class SignInScreen extends ConsumerStatefulWidget {
+  const SignInScreen({super.key});
 
+  @override
+  ConsumerState<SignInScreen> createState() => _SignInScreenState();
+}
+
+class _SignInScreenState extends ConsumerState<SignInScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
+  bool _isObscured = true;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final authService = ref.watch(authServiceProvider);
     final isChecked = ref.watch(keepMeSignedInProvider);
 
@@ -71,14 +81,17 @@ class SignInScreen extends ConsumerWidget {
                     TextField(
                       controller: emailController,
                       decoration: InputDecoration(
-                        labelText: "Enter your Email",
-                        labelStyle: Theme.of(context).textTheme.bodySmall,
+                        hintText: "Enter your email",
+                        hintStyle: Theme.of(context).textTheme.bodySmall,
+                        filled: true,
+                        fillColor: const Color.fromARGB(255, 240, 242, 245),
                         prefixIcon: const Icon(
                           Icons.email_outlined,
                           color: Color(0xFF0866ff),
                         ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide.none,
                         ),
                       ),
                     ),
@@ -90,16 +103,31 @@ class SignInScreen extends ConsumerWidget {
                     const SizedBox(height: 10),
                     TextField(
                       controller: passwordController,
-                      obscureText: true,
+                      obscureText: _isObscured,
                       decoration: InputDecoration(
-                        labelText: "Enter your Password",
-                        labelStyle: Theme.of(context).textTheme.bodySmall,
+                        hintText: "Enter your password",
+                        hintStyle: Theme.of(context).textTheme.bodySmall,
+                        filled: true,
+                        fillColor: const Color.fromARGB(255, 240, 242, 245),
                         prefixIcon: const Icon(
                           Icons.lock_outline,
                           color: Color(0xFF0866ff),
                         ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isObscured
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isObscured = !_isObscured;
+                            });
+                          },
+                        ),
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide.none,
                         ),
                       ),
                     ),
@@ -233,14 +261,21 @@ Future<void> handleSignIn({
     );
 
     // Show success message or navigate
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Sign-In Successful!")),
-    );
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   const SnackBar(
+    //     content: Text("Sign-In Successful!"),
+    //     backgroundColor: Color.fromARGB(255, 0, 161, 76),
+    //   ),
+    // );
     context.push('/projects');
   } catch (e) {
-    // Handle errors and show error message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(e.toString())),
+    final snackBar = CustomSnackbar.build(
+      title: 'Oh Snap!',
+      message: 'Something went wrong!',
+      contentType: ContentType.failure,
     );
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(snackBar);
   }
 }

@@ -51,12 +51,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         _currentIndex++;
       });
     } else {
-      _navigateToNextScreen(context, '/sign-up');
+      _navigateToNextScreen(context, '/sign-in');
     }
   }
 
   void _skip(BuildContext context) {
-    _navigateToNextScreen(context, '/sign-up');
+    _navigateToNextScreen(context, '/sign-in');
   }
 
   @override

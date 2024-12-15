@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MoreTabScreen extends StatefulWidget {
+import '../../providers/auth_providers.dart';
+
+class MoreTabScreen extends ConsumerStatefulWidget {
   const MoreTabScreen({super.key});
 
   @override
-  State<MoreTabScreen> createState() => _MoreTabScreenState();
+  ConsumerState<MoreTabScreen> createState() => _MoreTabScreenState();
 }
 
-class _MoreTabScreenState extends State<MoreTabScreen> {
+class _MoreTabScreenState extends ConsumerState<MoreTabScreen> {
   int _currentIndex = 4;
 
   final List<String> _routes = [
@@ -21,9 +24,25 @@ class _MoreTabScreenState extends State<MoreTabScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = ref.watch(authServiceProvider);
+
     return Scaffold(
-      body: const Center(
-        child: Text("This is Sample More Screen"),
+      body: Center(
+        child: TextButton(
+            onPressed: () async {
+              try {
+                await authService.logout();
+                context.replace('/sign-in');
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Logout failed: $e')),
+                );
+              }
+            },
+            child: Text(
+              "Log out",
+              style: Theme.of(context).textTheme.titleLarge,
+            )),
       ),
       bottomNavigationBar: SizedBox(
         height: 90,

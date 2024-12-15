@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:flutter_quill/flutter_quill.dart' as quill;
 
 import '../../providers/project_providers.dart';
 
@@ -24,9 +25,14 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
   final TextEditingController solutionNameController = TextEditingController();
   final TextEditingController solutionFunctionController =
       TextEditingController();
-  final TextEditingController projectDescriptionController =
-      TextEditingController();
   final TextEditingController youtubeLinkController = TextEditingController();
+
+  final quill.QuillController projectDescriptionController =
+      quill.QuillController.basic();
+
+  bool isKeyboardVisible(BuildContext context) {
+    return MediaQuery.of(context).viewInsets.bottom > 0;
+  }
 
   String? selectedFilePath;
 
@@ -50,35 +56,43 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
 
     final file = File(filePath); // Local file reference
 
-    // Upload the file
     await storageRef.putFile(file);
 
-    // Get the download URL
     return await storageRef.getDownloadURL();
   }
 
   Future<void> createProject() async {
-    if (selectedFilePath == null || selectedFilePath!.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please upload an image!')),
-      );
-      return;
-    }
-
     try {
       final projectService = ref.read(projectServiceProvider);
       final currentUser = FirebaseAuth.instance.currentUser;
 
+      String? imageUrl;
+
       // Upload the file to Firebase Storage
-      final imageUrl = await uploadFileToFirebase(selectedFilePath!);
+      if (selectedFilePath != null && selectedFilePath!.isNotEmpty) {
+        imageUrl = await uploadFileToFirebase(selectedFilePath!);
+      }
+
+      String? projectDescriptionJson;
+      if (projectDescriptionController.document
+          .toPlainText()
+          .trim()
+          .isNotEmpty) {
+        projectDescriptionJson =
+            projectDescriptionController.document.toDelta().toJson().toString();
+      }
 
       await projectService.createProject(
         projectName: projectNameController.text.trim(),
         problemName: problemNameController.text.trim(),
         solutionName: solutionNameController.text.trim(),
-        solutionFunctionName: solutionFunctionController.text.trim(),
-        projectDescription: projectDescriptionController.text.trim(),
-        youtubeLink: youtubeLinkController.text.trim(),
+        solutionFunctionName: solutionFunctionController.text.trim().isNotEmpty
+            ? solutionFunctionController.text.trim()
+            : null,
+        projectDescription: projectDescriptionJson.toString(),
+        youtubeLink: youtubeLinkController.text.trim().isNotEmpty
+            ? youtubeLinkController.text.trim()
+            : null,
         imageUrl: imageUrl,
         userId: currentUser!.uid,
       );
@@ -96,7 +110,35 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
   }
 
   @override
+  void dispose() {
+    projectNameController.dispose();
+    problemNameController.dispose();
+    solutionNameController.dispose();
+    solutionFunctionController.dispose();
+    youtubeLinkController.dispose();
+    projectDescriptionController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final bool keyboardVisible = isKeyboardVisible(context);
+
+    const config = quill.QuillSimpleToolbarConfigurations(
+      multiRowsDisplay: true,
+      showFontFamily: true,
+      showFontSize: true,
+      showBoldButton: true,
+      showItalicButton: true,
+      showUnderLineButton: true,
+      showStrikeThrough: true,
+      showColorButton: true,
+      showAlignmentButtons: true,
+      showSubscript: true,
+      showSuperscript: true,
+      showLink: true,
+    );
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 240, 242, 245),
       appBar: AppBar(
@@ -122,7 +164,7 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
                     hintText: "Type here",
                     hintStyle: Theme.of(context).textTheme.bodySmall,
                     filled: true,
-                    fillColor: const Color(0xFFF5F5F5),
+                    fillColor: Colors.white,
                     border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                       borderSide: BorderSide.none,
@@ -141,7 +183,7 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
                     hintText: "Type here",
                     hintStyle: Theme.of(context).textTheme.bodySmall,
                     filled: true,
-                    fillColor: const Color(0xFFF5F5F5),
+                    fillColor: Colors.white,
                     border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                       borderSide: BorderSide.none,
@@ -160,7 +202,7 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
                     hintText: "Type here",
                     hintStyle: Theme.of(context).textTheme.bodySmall,
                     filled: true,
-                    fillColor: const Color(0xFFF5F5F5),
+                    fillColor: Colors.white,
                     border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                       borderSide: BorderSide.none,
@@ -179,7 +221,7 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
                     hintText: "Type here",
                     hintStyle: Theme.of(context).textTheme.bodySmall,
                     filled: true,
-                    fillColor: const Color(0xFFF5F5F5),
+                    fillColor: Colors.white,
                     border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                       borderSide: BorderSide.none,
@@ -192,18 +234,27 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 5),
-                TextField(
-                  controller: projectDescriptionController,
-                  maxLines: 5,
-                  decoration: InputDecoration(
-                    hintText: "Type here",
-                    hintStyle: Theme.of(context).textTheme.bodySmall,
-                    filled: true,
-                    fillColor: const Color(0xFFF5F5F5),
-                    border: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      borderSide: BorderSide.none,
-                    ),
+                if (!keyboardVisible)
+                  quill.QuillToolbar.simple(
+                    controller: projectDescriptionController,
+                    configurations: config,
+                  ),
+                const SizedBox(height: 8),
+                // Quill Editor
+                Container(
+                  height: 200,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white,
+                  ),
+                  child: quill.QuillEditor.basic(
+                    controller: projectDescriptionController,
+                    focusNode: FocusNode(),
+
+                    // padding: const EdgeInsets.all(16),
+                    // autoFocus: true,
+                    // showCursor: true,
+                    // enableInteractiveSelection: true,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -214,7 +265,8 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
                 const SizedBox(height: 8),
                 InkWell(
                   onTap: pickFile,
-                  child: SizedBox(
+                  child: Container(
+                    color: Colors.white,
                     height: 120,
                     width: double.infinity,
                     child: DottedBorder(
@@ -267,7 +319,7 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
                     hintText: "Insert link here",
                     hintStyle: Theme.of(context).textTheme.bodySmall,
                     filled: true,
-                    fillColor: const Color(0xFFF5F5F5),
+                    fillColor: Colors.white,
                     border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                       borderSide: BorderSide.none,

@@ -1,43 +1,3 @@
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-
-// final firestoreProvider =
-//     Provider<FirebaseFirestore>((ref) => FirebaseFirestore.instance);
-
-// class ProjectService {
-//   final FirebaseFirestore _firestore;
-
-//   ProjectService(this._firestore);
-
-//   Future<void> createProject({
-//     required String projectName,
-//     required String problemName,
-//     required String solutionName,
-//     required String solutionFunctionName,
-//     required String projectDescription,
-//     required String youtubeLink,
-//     required String imageUrl, // Assuming file upload generates this URL
-//   }) async {
-//     final projectId = _firestore.collection('projects').doc().id;
-
-//     await _firestore.collection('projects').doc(projectId).set({
-//       'projectName': projectName,
-//       'problemName': problemName,
-//       'solutionName': solutionName,
-//       'solutionFunctionName': solutionFunctionName,
-//       'projectDescription': projectDescription,
-//       'youtubeLink': youtubeLink,
-//       'imageUrl': imageUrl,
-//       'createdAt': FieldValue.serverTimestamp(),
-//     });
-//   }
-// }
-
-// final projectServiceProvider = Provider((ref) {
-//   final firestore = ref.watch(firestoreProvider);
-//   return ProjectService(firestore);
-// });
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -55,10 +15,10 @@ class ProjectService {
     required String projectName,
     required String problemName,
     required String solutionName,
-    required String solutionFunctionName,
-    required String projectDescription,
-    required String youtubeLink,
-    required String imageUrl,
+    String? solutionFunctionName,
+    String? projectDescription,
+    String? youtubeLink,
+    String? imageUrl,
   }) async {
     try {
       // Fetch user details from the `users` collection
@@ -69,11 +29,8 @@ class ProjectService {
 
       final userData = userDoc.data()!;
 
-      // Generate a unique ID for the new project
-      final projectId = _firestore.collection('projects').doc().id;
-
       // Create the project document in the `projects` collection
-      await _firestore.collection('projects').doc(projectId).set({
+      final projectData = {
         'projectName': projectName,
         'problemName': problemName,
         'solutionName': solutionName,
@@ -88,7 +45,21 @@ class ProjectService {
           'title': userData['title'],
           'expertise': userData['expertise'],
         },
-      });
+      };
+
+      // if (solutionFunctionName != null && solutionFunctionName.isNotEmpty) {
+      //   projectData['solutionFunctionName'] = solutionFunctionName;
+      // }
+      // if (imageUrl == null) {
+      //   projectData.remove('imageUrl');
+      // }
+      // if (solutionFunctionName != null && solutionFunctionName.isNotEmpty) {
+      //   projectData['solutionFunctionName'] = solutionFunctionName;
+      // }
+      projectData.removeWhere((key, value) => value == null);
+
+      final projectId = _firestore.collection('projects').doc().id;
+      await _firestore.collection('projects').doc(projectId).set(projectData);
     } catch (e) {
       throw Exception("Failed to create project: ${e.toString()}");
     }

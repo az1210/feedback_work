@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 
 import '../../providers/auth_providers.dart';
 import './widgets/block_button.dart';
+import '../../utility/custom_snackbar.dart';
 
 class CompleteProfileScreen extends ConsumerStatefulWidget {
   final String userId; // Pass the user's UID from the previous screen
@@ -57,9 +59,14 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
         accountType: _selectedAccountType,
       );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Profile updated successfully!")),
+      final snackBar = CustomSnackbar.build(
+        title: 'Congratulations!',
+        message: 'You have successfully created a Feedback Work account',
+        contentType: ContentType.success,
       );
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(snackBar);
 
       context.replace('/sign-in'); // Navigate to home screen
     } catch (e) {
