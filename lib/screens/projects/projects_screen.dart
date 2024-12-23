@@ -46,9 +46,7 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.grid_view, color: Colors.black),
-            onPressed: () {
-              // Handle toggle between views
-            },
+            onPressed: () {},
           ),
         ],
         backgroundColor: Colors.white,
@@ -128,7 +126,7 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
                   projectService: projectService,
                 );
               }),
-              const SizedBox(height: 24),
+              const SizedBox(height: 4),
               InkWell(
                 onTap: () {
                   context.push('/create-project');
@@ -293,13 +291,25 @@ class _ProjectCardState extends State<ProjectCard> {
               if (_isExpanded) ...[
                 const SizedBox(height: 4),
                 _buildDetailRow(
-                    'Problem', project['problemName'] ?? 'N/A', Colors.red),
-                _buildDetailRow('Solution', project['solutionName'] ?? 'N/A',
-                    const Color.fromARGB(255, 0, 161, 76)),
+                  'Problem',
+                  project['problemName'] ?? 'N/A',
+                  Colors.red,
+                  () {},
+                ),
                 _buildDetailRow(
-                    'Solution Function',
-                    project['solutionFunctionName'] ?? 'N/A',
-                    const Color.fromARGB(255, 0, 161, 76)),
+                  'Solution',
+                  project['solutionName'] ?? 'N/A',
+                  const Color.fromARGB(255, 0, 161, 76),
+                  () {},
+                ),
+                _buildDetailRow(
+                  'Solution Function',
+                  project['solutionFunctionName'] ?? 'N/A',
+                  const Color.fromARGB(255, 0, 161, 76),
+                  () {
+                    context.push('/solution-function');
+                  },
+                ),
                 _buildDetailRow(
                   'Start Date',
                   project['startDate'] is Timestamp
@@ -307,6 +317,7 @@ class _ProjectCardState extends State<ProjectCard> {
                           .format((project['startDate'] as Timestamp).toDate())
                       : '01/01/2024, 5PM',
                   Colors.black54,
+                  () {},
                 ),
                 _buildDetailRow(
                   'End Date',
@@ -315,19 +326,26 @@ class _ProjectCardState extends State<ProjectCard> {
                           .format((project['endDate'] as Timestamp).toDate())
                       : '05/01/2024, 5PM',
                   Colors.black54,
+                  () {},
                 ),
                 _buildDetailRow(
-                    'Total Feedback Requested',
-                    '${project['feedbackRequested'] ?? 0}',
-                    const Color.fromARGB(255, 0, 87, 255)),
+                  'Total Feedback Requested',
+                  '${project['feedbackRequested'] ?? 0}',
+                  const Color.fromARGB(255, 0, 87, 255),
+                  () {},
+                ),
                 _buildDetailRow(
-                    'Total Feedback Received',
-                    '${project['feedbackReceived'] ?? 0}',
-                    const Color.fromARGB(255, 0, 87, 255)),
+                  'Total Feedback Received',
+                  '${project['feedbackReceived'] ?? 0}',
+                  const Color.fromARGB(255, 0, 87, 255),
+                  () {},
+                ),
                 _buildDetailRow(
-                    'Total Feedback Applied',
-                    '${project['feedbackApplied'] ?? 0}',
-                    const Color.fromARGB(255, 0, 87, 255)),
+                  'Total Feedback Applied',
+                  '${project['feedbackApplied'] ?? 0}',
+                  const Color.fromARGB(255, 0, 87, 255),
+                  () {},
+                ),
                 Padding(
                   padding: const EdgeInsets.only(left: 8, top: 4),
                   child: Row(
@@ -554,13 +572,25 @@ class _ProjectCardState extends State<ProjectCard> {
               ] else ...[
                 const SizedBox(height: 4),
                 _buildDetailRow(
-                    'Problem', project['problemName'] ?? 'N/A', Colors.red),
-                _buildDetailRow('Solution', project['solutionName'] ?? 'N/A',
-                    const Color.fromARGB(255, 0, 161, 76)),
+                  'Problem',
+                  project['problemName'] ?? 'N/A',
+                  Colors.red,
+                  () {},
+                ),
                 _buildDetailRow(
-                    'Solution Function',
-                    project['solutionFunctionName'] ?? 'N/A',
-                    const Color.fromARGB(255, 0, 161, 76)),
+                  'Solution',
+                  project['solutionName'] ?? 'N/A',
+                  const Color.fromARGB(255, 0, 161, 76),
+                  () {},
+                ),
+                _buildDetailRow(
+                  'Solution Function',
+                  project['solutionFunctionName'] ?? 'N/A',
+                  const Color.fromARGB(255, 0, 161, 76),
+                  () {
+                    context.push('/solution-function');
+                  },
+                ),
                 Padding(
                   padding: const EdgeInsets.only(left: 8, top: 4),
                   child: Row(
@@ -614,124 +644,13 @@ class _ProjectCardState extends State<ProjectCard> {
             ],
           ),
         ),
-        // if (_isExpanded)
-        // Container(
-        //   decoration: BoxDecoration(
-        //     border: Border.all(
-        //       color: const Color.fromARGB(255, 233, 234, 240),
-        //     ),
-        //     borderRadius: const BorderRadius.only(
-        //       bottomLeft: Radius.circular(5),
-        //       bottomRight: Radius.circular(5),
-        //     ),
-        //   ),
-        //   child: Column(
-        //     children: [
-        //       Padding(
-        //         padding: const EdgeInsets.only(right: 16),
-        //         child: Row(
-        //           children: [
-        //             IconButton(
-        //               icon: const Icon(
-        //                 Icons.edit_outlined,
-        //                 color: Colors.black,
-        //               ),
-        //               onPressed: () {
-        //                 // Handle edit
-        //               },
-        //             ),
-        //             IconButton(
-        //               icon: const Icon(Icons.delete_outline,
-        //                   color: Colors.black),
-        //               onPressed: () {
-        //                 // Handle delete
-        //               },
-        //             ),
-        //             IconButton(
-        //               icon: const Icon(Icons.share_outlined,
-        //                   color: Colors.black),
-        //               onPressed: () {
-        //                 // Handle share
-        //               },
-        //             ),
-        //             const Spacer(),
-        //             ElevatedButton(
-        //               onPressed: () {
-        //                 // Handle Start action
-        //               },
-        //               style: ElevatedButton.styleFrom(
-        //                 backgroundColor: const Color(0xFF0866FF),
-        //                 padding: const EdgeInsets.symmetric(
-        //                     vertical: 8, horizontal: 21),
-        //                 shape: RoundedRectangleBorder(
-        //                   borderRadius: BorderRadius.circular(29),
-        //                 ),
-        //                 minimumSize: const Size(0, 0),
-        //               ),
-        //               child: const Text(
-        //                 'Start',
-        //                 style: TextStyle(
-        //                   fontSize: 10,
-        //                   fontWeight: FontWeight.w600,
-        //                   color: Colors.white,
-        //                 ),
-        //               ),
-        //             ),
-        //           ],
-        //         ),
-        //       ),
-        //       const Divider(
-        //         color: Color.fromARGB(255, 233, 234, 240),
-        //         height: 0,
-        //       ),
-        //       Padding(
-        //         padding:
-        //             const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        //         child: Row(
-        //           children: [
-        //             const Text(
-        //               "Check Progress",
-        //               style: TextStyle(
-        //                 fontFamily: "Inter",
-        //                 fontSize: 16,
-        //                 fontWeight: FontWeight.w600,
-        //               ),
-        //             ),
-        //             const Spacer(),
-        //             GestureDetector(
-        //               onTap: () {
-        //                 setState(() {
-        //                   _isProgressExpanded = !_isProgressExpanded;
-        //                 });
-        //               },
-        //               behavior: HitTestBehavior.opaque,
-        //               child: Padding(
-        //                 padding: const EdgeInsets.all(10),
-        //                 child: _isProgressExpanded
-        //                     ? Image.asset(
-        //                         "assets/images/icons/up-arrow.png",
-        //                         height: 6,
-        //                         width: 12,
-        //                       )
-        //                     : Image.asset(
-        //                         "assets/images/icons/down-arrow.png",
-        //                         height: 6,
-        //                         width: 12,
-        //                       ),
-        //               ),
-        //             ),
-        //           ],
-        //         ),
-        //       ),
-        //     ],
-        //   ),
-        // ),
         const SizedBox(height: 20),
       ],
     );
   }
 
-  Widget _buildDetailRow(String label, String value, Color valueColor) {
+  Widget _buildDetailRow(
+      String label, String value, Color valueColor, VoidCallback onTap) {
     return Padding(
       padding: const EdgeInsets.only(left: 8, right: 8, top: 4),
       child: Column(
@@ -746,14 +665,24 @@ class _ProjectCardState extends State<ProjectCard> {
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: Text(
-                  value,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: valueColor),
-                  overflow: TextOverflow.clip,
-                  softWrap: true,
+                child: TextButton(
+                  onPressed: onTap,
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero, // Removes all internal padding
+                    alignment: Alignment.centerLeft,
+                    minimumSize: Size.zero, // Ensures no extra size constraints
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    splashFactory: NoSplash.splashFactory,
+                  ),
+                  child: Text(
+                    value,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: valueColor),
+                    overflow: TextOverflow.clip,
+                    softWrap: true,
+                  ),
                 ),
               ),
             ],

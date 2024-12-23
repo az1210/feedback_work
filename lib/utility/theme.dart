@@ -8,6 +8,7 @@ class AppTheme {
   static const Color bodyTextColor1 = Color.fromARGB(255, 5, 5, 5);
 
   static final ThemeData lightTheme = ThemeData(
+    useMaterial3: true,
     primaryColor: primaryColor,
     colorScheme: const ColorScheme.light(
         primary: primaryColor, secondary: secondaryColor),
@@ -62,6 +63,7 @@ class AppTheme {
   );
 
   static final ThemeData darkTheme = ThemeData(
+    useMaterial3: true,
     primaryColor: primaryColor,
     colorScheme: const ColorScheme.dark(
         primary: primaryColor, secondary: secondaryColor),

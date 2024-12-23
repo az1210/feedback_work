@@ -30,6 +30,7 @@ dependencies:
   flutter_quill: ^10.8.5
   flutter_keyboard_visibility: ^6.0.0
   awesome_snackbar_content: ^0.1.4
+  flutter_svg: ^2.0.16
 
 dev_dependencies:
   flutter_test:
@@ -47,6 +48,7 @@ flutter:
     - assets/images/onboard/
     - assets/images/icons/
     - assets/images/icons/nav-tab/
+    - assets/images/solution_function/
 
 
   fonts:

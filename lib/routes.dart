@@ -16,6 +16,7 @@ import './screens/feedback/feedback_screen.dart';
 import './screens/network/network_tab_screen.dart';
 import './screens/status/status.dart';
 import './screens/more/more_tab_screen.dart';
+import '././screens/projects/solution_function.dart';
 
 final authProvider = StateProvider<bool>((ref) => false);
 
@@ -73,15 +74,19 @@ final routerProvider = Provider<GoRouter>(
         ),
         GoRoute(
           path: '/network',
-          builder: (context, state) => NetworkTabScreen(),
+          builder: (context, state) => const NetworkTabScreen(),
         ),
         GoRoute(
           path: '/status',
-          builder: (context, state) => StatusTabScreen(),
+          builder: (context, state) => const StatusTabScreen(),
         ),
         GoRoute(
           path: '/more',
-          builder: (context, state) => MoreTabScreen(),
+          builder: (context, state) => const MoreTabScreen(),
+        ),
+        GoRoute(
+          path: '/solution-function',
+          builder: (context, state) => const SolutionFunction(),
         ),
       ],
     );
