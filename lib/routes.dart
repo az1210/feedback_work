@@ -17,6 +17,7 @@ import './screens/network/network_tab_screen.dart';
 import './screens/status/status.dart';
 import './screens/more/more_tab_screen.dart';
 import '././screens/projects/solution_function.dart';
+import '././screens/projects/settings_screen.dart';
 
 final authProvider = StateProvider<bool>((ref) => false);
 
@@ -87,6 +88,10 @@ final routerProvider = Provider<GoRouter>(
         GoRoute(
           path: '/solution-function',
           builder: (context, state) => const SolutionFunction(),
+        ),
+        GoRoute(
+          path: '/solution-function-settings',
+          builder: (context, state) => const SettingsScreen(),
         ),
       ],
     );

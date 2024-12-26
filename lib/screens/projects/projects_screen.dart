@@ -415,7 +415,7 @@ class _ProjectCardState extends State<ProjectCard> {
                                   color: Colors.black,
                                 ),
                                 onPressed: () {
-                                  // Handle edit
+                                  context.push('/solution-function-settings');
                                 },
                               ),
                               IconButton(
