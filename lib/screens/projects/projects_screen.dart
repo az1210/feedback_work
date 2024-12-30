@@ -307,7 +307,8 @@ class _ProjectCardState extends State<ProjectCard> {
                   project['solutionFunctionName'] ?? 'N/A',
                   const Color.fromARGB(255, 0, 161, 76),
                   () {
-                    context.push('/solution-function');
+                    final projectId = widget.projectId;
+                    context.push('/solution-function/$projectId');
                   },
                 ),
                 _buildDetailRow(
@@ -415,7 +416,9 @@ class _ProjectCardState extends State<ProjectCard> {
                                   color: Colors.black,
                                 ),
                                 onPressed: () {
-                                  context.push('/solution-function-settings');
+                                  final projectId = widget.projectId;
+                                  context.push(
+                                      '/solution-function-settings/$projectId');
                                 },
                               ),
                               IconButton(
@@ -588,7 +591,8 @@ class _ProjectCardState extends State<ProjectCard> {
                   project['solutionFunctionName'] ?? 'N/A',
                   const Color.fromARGB(255, 0, 161, 76),
                   () {
-                    context.push('/solution-function');
+                    final projectId = widget.projectId;
+                    context.push('/solution-function/$projectId');
                   },
                 ),
                 Padding(

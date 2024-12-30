@@ -86,12 +86,18 @@ final routerProvider = Provider<GoRouter>(
           builder: (context, state) => const MoreTabScreen(),
         ),
         GoRoute(
-          path: '/solution-function',
-          builder: (context, state) => const SolutionFunction(),
+          path: '/solution-function/:projectId',
+          builder: (context, state) {
+            final projectId = state.pathParameters['projectId']!;
+            return SolutionFunction(projectId: projectId);
+          },
         ),
         GoRoute(
-          path: '/solution-function-settings',
-          builder: (context, state) => const SettingsScreen(),
+          path: '/solution-function-settings/:projectId',
+          builder: (context, state) {
+            final projectId = state.pathParameters['projectId']!;
+            return SettingsScreen(projectId: projectId);
+          },
         ),
       ],
     );
