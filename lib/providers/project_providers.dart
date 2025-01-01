@@ -21,7 +21,6 @@
 //     String? imageUrl,
 //   }) async {
 //     try {
-//       // Fetch user details from the `users` collection
 //       final userDoc = await _firestore.collection('users').doc(userId).get();
 //       if (!userDoc.exists) {
 //         throw Exception("User not found");
@@ -29,7 +28,6 @@
 
 //       final userData = userDoc.data()!;
 
-//       // Create the project document in the `projects` collection
 //       final projectData = {
 //         'projectName': projectName,
 //         'problemName': problemName,
@@ -47,33 +45,89 @@
 //         },
 //       };
 
-//       // if (solutionFunctionName != null && solutionFunctionName.isNotEmpty) {
-//       //   projectData['solutionFunctionName'] = solutionFunctionName;
-//       // }
-//       // if (imageUrl == null) {
-//       //   projectData.remove('imageUrl');
-//       // }
-//       // if (solutionFunctionName != null && solutionFunctionName.isNotEmpty) {
-//       //   projectData['solutionFunctionName'] = solutionFunctionName;
-//       // }
 //       projectData.removeWhere((key, value) => value == null);
 
 //       final projectId = _firestore.collection('projects').doc().id;
 //       await _firestore.collection('projects').doc(projectId).set(projectData);
+
+//       // Initialize empty settings for the Solution Function sub-collection
+//       await _firestore
+//           .collection('projects')
+//           .doc(projectId)
+//           .collection('settings')
+//           .doc('solutionFunctionSettings')
+//           .set({
+//         'startTime': null,
+//         'endTime': null,
+//         'breakTime': null,
+//         'travelPerHour': null,
+//         'travelPerMinute': null,
+//         'audioUrl': null,
+//         'popupText': null,
+//       });
 //     } catch (e) {
 //       throw Exception("Failed to create project: ${e.toString()}");
 //     }
 //   }
 
-//   /// Fetch all projects sorted by creation time
+//   /// Save or Update Solution Function Settings
+//   Future<void> saveSolutionFunctionSettings({
+//     required String projectId,
+//     required Map<String, dynamic> settings,
+//   }) async {
+//     try {
+//       final settingsDocRef = _firestore
+//           .collection('projects')
+//           .doc(projectId)
+//           .collection('settings')
+//           .doc('solutionFunctionSettings');
+
+//       await settingsDocRef.set(settings, SetOptions(merge: true));
+//     } catch (e) {
+//       throw Exception("Failed to save settings: ${e.toString()}");
+//     }
+//   }
+
+//   /// Fetch Solution Function Settings
+//   Future<Map<String, dynamic>?> fetchSolutionFunctionSettings({
+//     required String projectId,
+//   }) async {
+//     try {
+//       final settingsDoc = await _firestore
+//           .collection('projects')
+//           .doc(projectId)
+//           .collection('settings')
+//           .doc('solutionFunctionSettings')
+//           .get();
+
+//       return settingsDoc.exists ? settingsDoc.data() : null;
+//     } catch (e) {
+//       throw Exception("Failed to fetch settings: ${e.toString()}");
+//     }
+//   }
+
+//   /// Delete Solution Function Settings
+//   Future<void> deleteSolutionFunctionSettings(
+//       {required String projectId}) async {
+//     try {
+//       await _firestore
+//           .collection('projects')
+//           .doc(projectId)
+//           .collection('settings')
+//           .doc('solutionFunctionSettings')
+//           .delete();
+//     } catch (e) {
+//       throw Exception("Failed to delete settings: ${e.toString()}");
+//     }
+//   }
+
+//   /// Existing Project Methods (Unchanged)
 //   Future<List<Map<String, dynamic>>> fetchAllProjects() async {
 //     try {
 //       final querySnapshot = await _firestore
 //           .collection('projects')
 //           .orderBy('createdAt', descending: true)
 //           .get();
-
-//       // Return a list of project data
 //       return querySnapshot.docs.map((doc) => doc.data()).toList();
 //     } catch (e) {
 //       throw Exception("Failed to fetch projects: ${e.toString()}");
@@ -89,55 +143,6 @@
 //         .map((snapshot) => snapshot.docs);
 //   }
 
-//   /// Fetch projects filtered by a specific expertise
-//   Future<List<Map<String, dynamic>>> fetchProjectsByExpertise(
-//       String expertise) async {
-//     try {
-//       final querySnapshot = await _firestore
-//           .collection('projects')
-//           .where('creatorDetails.expertise', isEqualTo: expertise)
-//           .orderBy('createdAt', descending: true)
-//           .get();
-
-//       // Return filtered projects as a list
-//       return querySnapshot.docs
-//           .map((doc) => doc.data() as Map<String, dynamic>)
-//           .toList();
-//     } catch (e) {
-//       throw Exception("Failed to fetch projects by expertise: ${e.toString()}");
-//     }
-//   }
-
-//   /// Fetch paginated projects
-//   Future<List<Map<String, dynamic>>> fetchProjectsPaginated({
-//     required int limit,
-//     DocumentSnapshot?
-//         lastDocument, // For pagination: last document from previous fetch
-//   }) async {
-//     try {
-//       // Base query
-//       Query query =
-//           _firestore.collection('projects').orderBy('createdAt').limit(limit);
-
-//       // Add pagination if lastDocument is provided
-//       if (lastDocument != null) {
-//         query = query.startAfterDocument(lastDocument);
-//       }
-
-//       // Fetch projects
-//       final querySnapshot = await query.get();
-
-//       // Return the project data
-//       return querySnapshot.docs
-//           .map((doc) => doc.data() as Map<String, dynamic>)
-//           .toList();
-//     } catch (e) {
-//       throw Exception("Failed to fetch paginated projects: ${e.toString()}");
-//     }
-//   }
-
-//   // Update Projects
-
 //   Future<void> updateProject({
 //     required String projectId,
 //     String? projectName,
@@ -149,14 +154,12 @@
 //     String? imageUrl,
 //   }) async {
 //     try {
-//       // Check if the project exists
 //       final projectDoc =
 //           await _firestore.collection('projects').doc(projectId).get();
 //       if (!projectDoc.exists) {
 //         throw Exception("Project not found");
 //       }
 
-//       // Prepare updated data
 //       Map<String, dynamic> updatedData = {};
 //       if (projectName != null) updatedData['projectName'] = projectName;
 //       if (problemName != null) updatedData['problemName'] = problemName;
@@ -170,7 +173,6 @@
 //       if (youtubeLink != null) updatedData['youtubeLink'] = youtubeLink;
 //       if (imageUrl != null) updatedData['imageUrl'] = imageUrl;
 
-//       // Update the project document
 //       await _firestore
 //           .collection('projects')
 //           .doc(projectId)
@@ -180,18 +182,14 @@
 //     }
 //   }
 
-//   // Delete Projects
-
 //   Future<void> deleteProject({required String projectId}) async {
 //     try {
-//       // Check if the project exists
 //       final projectDoc =
 //           await _firestore.collection('projects').doc(projectId).get();
 //       if (!projectDoc.exists) {
 //         throw Exception("Project not found");
 //       }
 
-//       // Delete the project document
 //       await _firestore.collection('projects').doc(projectId).delete();
 //     } catch (e) {
 //       throw Exception("Failed to delete project: ${e.toString()}");
@@ -268,7 +266,6 @@ class ProjectService {
         'endTime': null,
         'breakTime': null,
         'travelPerHour': null,
-        'travelPerMinute': null,
         'audioUrl': null,
         'popupText': null,
       });

@@ -2,11 +2,14 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:audioplayers/audioplayers.dart';
 
-class SolutionFunction extends StatefulWidget {
+import '../../providers/solution_function_provider.dart';
+
+class SolutionFunction extends ConsumerStatefulWidget {
   final String projectId;
 
   const SolutionFunction({required this.projectId, super.key});
@@ -15,13 +18,12 @@ class SolutionFunction extends StatefulWidget {
   _SolutionFunctionState createState() => _SolutionFunctionState();
 }
 
-class _SolutionFunctionState extends State<SolutionFunction>
+class _SolutionFunctionState extends ConsumerState<SolutionFunction>
     with SingleTickerProviderStateMixin {
   bool isPlaying = false;
   bool manualControl = false;
-  double percentage = 0;
   late AnimationController _animationController;
-  Timer? breakTimer;
+  late Timer? breakTimer;
 
   Map<String, dynamic>? settingsData;
   AudioPlayer? audioPlayer;
@@ -32,66 +34,63 @@ class _SolutionFunctionState extends State<SolutionFunction>
     _fetchSettings();
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(hours: 1), // Default duration
+      duration: const Duration(minutes: 2), // Default duration
     );
     _animationController.addListener(() {
-      setState(() {
-        percentage = _animationController.value * 100;
-      });
+      final percentage = (_animationController.value * 100).toInt();
+      ref.read(percentageProvider.notifier).state = percentage;
     });
 
     audioPlayer = AudioPlayer();
   }
 
   Future<void> _fetchSettings() async {
-    try {
-      final settingsDoc = await FirebaseFirestore.instance
-          .collection('projects')
-          .doc(widget.projectId)
-          .collection('settings')
-          .doc('solutionFunctionSettings')
-          .get();
+    final settingsDoc = await FirebaseFirestore.instance
+        .collection('projects')
+        .doc(widget.projectId)
+        .collection('settings')
+        .doc('solutionFunctionSettings')
+        .get();
 
-      if (settingsDoc.exists) {
-        setState(() {
-          settingsData = settingsDoc.data();
+    if (settingsDoc.exists) {
+      setState(() {
+        settingsData = settingsDoc.data();
 
-          final startTime = (settingsData!['startTime'] as Timestamp).toDate();
-          final endTime = (settingsData!['endTime'] as Timestamp).toDate();
-          final travelPerHour = settingsData!['travelPerHour'] ?? 50.0;
+        // Update AnimationController duration
+        final startTime = (settingsData?['startTime'] as Timestamp).toDate();
+        final endTime = (settingsData?['endTime'] as Timestamp).toDate();
+        final travelPerHour = settingsData?['travelPerHour'] ?? 50.0;
 
-          _animationController.duration = Duration(
-            hours: ((100 / travelPerHour) *
-                    (endTime.difference(startTime).inHours))
-                .toInt(),
-          );
+        _animationController.duration = Duration(
+          hours:
+              ((100 / travelPerHour) * (endTime.hour - startTime.hour)).toInt(),
+        );
 
-          if (settingsData!['breakTime'] != null) {
-            final breakTime =
-                (settingsData!['breakTime'] as Timestamp).toDate();
-            final now = DateTime.now();
-            if (now.isBefore(breakTime)) {
-              final durationUntilBreak = breakTime.difference(now);
-              _scheduleBreak(durationUntilBreak, settingsData!['audioUrl']);
-            }
+        // Handle break time and audio
+        if (settingsData?['breakTime'] != null) {
+          final breakTime = (settingsData?['breakTime'] as Timestamp).toDate();
+          final now = DateTime.now();
+          if (now.isBefore(breakTime)) {
+            final durationUntilBreak = breakTime.difference(now);
+            _scheduleBreak(durationUntilBreak, settingsData?['beepAudio']);
           }
-        });
-      }
-    } catch (e) {
-      debugPrint("Failed to fetch settings: $e");
+        }
+      });
     }
   }
 
-  void _scheduleBreak(Duration durationUntilBreak, String? audioUrl) {
+  void _scheduleBreak(Duration durationUntilBreak, String? beepAudio) {
     breakTimer = Timer(durationUntilBreak, () async {
+      // Stop the animation and play the audio once
       _animationController.stop();
-      setState(() {
-        isPlaying = false;
-      });
+      isPlaying = false;
 
-      if (audioUrl != null && audioUrl.isNotEmpty) {
-        await audioPlayer!.play(UrlSource(audioUrl));
+      if (beepAudio != null && beepAudio.isNotEmpty) {
+        await audioPlayer!
+            .play(UrlSource(beepAudio)); // Correct usage for audio from URL
       }
+
+      // Do not resume the audio automatically. It plays once only.
     });
   }
 
@@ -109,6 +108,7 @@ class _SolutionFunctionState extends State<SolutionFunction>
   void stopAnimation() {
     setState(() {
       _animationController.reset();
+      ref.read(percentageProvider.notifier).state = 0;
       isPlaying = false;
       breakTimer?.cancel();
       audioPlayer?.stop();
@@ -123,24 +123,18 @@ class _SolutionFunctionState extends State<SolutionFunction>
     super.dispose();
   }
 
-  // String formatTimer(double value) {
-  //   final totalSeconds =
-  //       (value * _animationController.duration!.inSeconds).toInt();
-  //   final minutes = totalSeconds ~/ 60;
-  //   final seconds = totalSeconds % 60;
-  //   return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-  // }
-
   String formatTimer(double value) {
     final totalSeconds =
         (value * _animationController.duration!.inSeconds).toInt();
-    final hours = totalSeconds ~/ 3600;
-    final minutes = (totalSeconds % 3600) ~/ 60;
-    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
+    final minutes = totalSeconds ~/ 60;
+    final seconds = totalSeconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
   @override
   Widget build(BuildContext context) {
+    final percentage = ref.watch(percentageProvider);
+    final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     final travelWidth = screenWidth * 0.72;
     final dx = travelWidth * _animationController.value * cos(27 * pi / 180);
@@ -157,6 +151,7 @@ class _SolutionFunctionState extends State<SolutionFunction>
           ),
         ),
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
@@ -173,11 +168,10 @@ class _SolutionFunctionState extends State<SolutionFunction>
                     child: Text(
                       "Michale David Function Status",
                       style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontWeight: FontWeight.w700,
-                        fontSize: 15,
-                        height: 1.5,
-                      ),
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                          height: 1.5),
                     ),
                   ),
                   Stack(
@@ -192,6 +186,8 @@ class _SolutionFunctionState extends State<SolutionFunction>
                           width: screenWidth * 0.75,
                         ),
                       ),
+
+                      // Circular percentage indicator that moves
                       AnimatedBuilder(
                         animation: _animationController,
                         builder: (context, child) {
@@ -200,8 +196,6 @@ class _SolutionFunctionState extends State<SolutionFunction>
                             left: dx,
                             child: Column(
                               children: [
-                                // const Text('Solution Function'),
-                                // Text(formatTimer(_animationController.value)),
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -285,7 +279,7 @@ class _SolutionFunctionState extends State<SolutionFunction>
                                       ),
                                       const SizedBox(height: 10),
                                       Text(
-                                        '${percentage.toInt()}% Completed',
+                                        '$percentage% Completed',
                                         style: const TextStyle(
                                           fontFamily: 'Inter',
                                           fontSize: 12,
@@ -310,8 +304,24 @@ class _SolutionFunctionState extends State<SolutionFunction>
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           IconButton(
-                            onPressed: stopAnimation,
+                            onPressed: () {
+                              setState(() {
+                                _animationController.reset();
+                                ref.read(percentageProvider.notifier).state = 0;
+                                isPlaying = false;
+                                manualControl = false;
+                              });
+                            },
                             icon: const Icon(Icons.refresh, size: 32),
+                            style: ButtonStyle(
+                              shape: WidgetStateProperty.all(
+                                const CircleBorder(
+                                  side: BorderSide(
+                                    color: Color.fromARGB(255, 233, 234, 240),
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                           const SizedBox(width: 13),
                           ElevatedButton.icon(
@@ -339,6 +349,24 @@ class _SolutionFunctionState extends State<SolutionFunction>
                                 color: Colors.white,
                               ),
                             ),
+                          ),
+                          const SizedBox(width: 13),
+                          IconButton(
+                            onPressed: stopAnimation,
+                            icon: const Icon(Icons.stop,
+                                size: 32,
+                                color: Color.fromARGB(255, 0, 100, 209)),
+                            style: ButtonStyle(
+                              // backgroundColor: MaterialStateProperty.all(Colors.white),
+                              shape: WidgetStateProperty.all(
+                                const CircleBorder(
+                                  side: BorderSide(
+                                    color: Color.fromARGB(255, 233, 234, 240),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            tooltip: 'Stop',
                           ),
                         ],
                       ),
@@ -378,6 +406,8 @@ class _SolutionFunctionState extends State<SolutionFunction>
                             onChanged: (value) {
                               setState(() {
                                 _animationController.value = value / 100;
+                                ref.read(percentageProvider.notifier).state =
+                                    value.toInt();
                               });
                             },
                           ),
