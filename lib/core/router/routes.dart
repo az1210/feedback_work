@@ -1,0 +1,178 @@
+import 'package:feedback_work/core/router/navbar.dart';
+import 'package:feedback_work/features/network/presentation/screens/network_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../screens/onboard/splash_screen.dart';
+import '../../screens/onboard/onboard_screen.dart';
+import '../../screens/auth/sign_up_screen.dart';
+import '../../screens/auth/sign_in_screen.dart';
+import '../../screens/auth/complete_profile_screen.dart';
+import '../../screens/projects/projects_screen.dart';
+import '../../screens/projects/create_project_screen.dart';
+import '../../screens/projects/project_edit_screen.dart';
+import '../../screens/auth/forgot_pass_screen.dart';
+import '../../screens/feedback/feedback_screen.dart';
+import '../../screens/status/status_tab_screen.dart';
+import '../../screens/more/more_tab_screen.dart';
+import '../../screens/projects/solution_function.dart';
+import '../../screens/projects/settings_screen.dart';
+
+extension Convert on String {
+  String get p => '/$this';
+}
+
+class Routes {
+  Routes._();
+
+  static const splash = '/';
+  static const onboarding = 'onboarding';
+  static const signUp = 'sign-up';
+  static const signIn = 'sign-in';
+  static const forgotPassword = 'forgot-password';
+  static const completeProfile = 'complete-profile';
+  static const projects = 'projects';
+  static const createProject = 'create-project';
+  static const editProject = 'edit-project';
+  static const feedback = 'feedback';
+  static const network = 'network';
+  static const status = 'status';
+  static const more = 'more';
+  static const solutionFunction = 'solution-function';
+  static const solutionFunctionSettings = 'solution-function-settings';
+}
+
+final authProvider = StateProvider<bool>((ref) => false);
+
+final routerProvider = Provider<GoRouter>(
+  (ref) {
+    return GoRouter(
+      initialLocation: '/',
+      routes: [
+        GoRoute(
+          name: Routes.splash,
+          path: Routes.splash,
+          builder: (context, state) => const SplashScreen(),
+        ),
+        GoRoute(
+          name: Routes.onboarding,
+          path: Routes.onboarding.p,
+          builder: (context, state) => const OnboardingScreen(),
+        ),
+        GoRoute(
+          name: Routes.signIn,
+          path: Routes.signIn.p,
+          builder: (context, state) => const SignInScreen(),
+        ),
+        GoRoute(
+          name: Routes.signUp,
+          path: Routes.signUp.p,
+          builder: (context, state) => const SignUpScreen(),
+        ),
+        GoRoute(
+          name: Routes.completeProfile,
+          path: Routes.completeProfile.p,
+          builder: (context, state) {
+            final userId = state.extra as String;
+            return CompleteProfileScreen(userId: userId);
+          },
+        ),
+        GoRoute(
+          name: Routes.forgotPassword,
+          path: Routes.forgotPassword.p,
+          builder: (context, state) => ForgotPassScreen(),
+        ),
+        // GoRoute(
+        //   path: '/home-screen',
+        //   builder: (context, state) => MyHomePage(),
+        // ),
+        GoRoute(
+          name: Routes.createProject,
+          path: Routes.createProject.p,
+          builder: (context, state) => const CreateProjectScreen(),
+        ),
+        GoRoute(
+          name: Routes.editProject,
+          path: Routes.editProject.p,
+          builder: (context, state) => const ProjectEditScreen(),
+        ),
+        GoRoute(
+          name: Routes.solutionFunction,
+          path: '${Routes.solutionFunction.p}/:projectId',
+          builder: (context, state) {
+            final projectId = state.pathParameters['projectId']!;
+            return SolutionFunction(projectId: projectId);
+          },
+        ),
+        GoRoute(
+          name: Routes.solutionFunctionSettings,
+          path: '${Routes.solutionFunctionSettings.p}/:projectId',
+          builder: (context, state) {
+            final projectId = state.pathParameters['projectId']!;
+            return SettingsScreen(projectId: projectId);
+          },
+        ),
+
+        // NavBar Routes
+        StatefulShellRoute.indexedStack(
+          builder: (context, state, navigationShell) {
+            return ScaffoldWithNestedNavigation(
+              navigationShell: navigationShell,
+              context: context,
+            );
+          },
+          branches: [
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  name: Routes.projects,
+                  path: Routes.projects.p,
+                  builder: (context, state) {
+                    return const ProjectsScreen();
+                  },
+                  routes: const [],
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  name: Routes.feedback,
+                  path: Routes.feedback.p,
+                  builder: (context, state) => const FeedbackScreen(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  name: Routes.network,
+                  path: Routes.network.p,
+                  builder: (context, state) => const NetworkScreen(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  name: Routes.status,
+                  path: Routes.status.p,
+                  builder: (context, state) => const StatusTabScreen(),
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  name: Routes.more,
+                  path: Routes.more.p,
+                  builder: (context, state) => const MoreTabScreen(),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+  },
+);

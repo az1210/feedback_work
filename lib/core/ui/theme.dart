@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+part './colors.dart';
+
 class AppTheme {
   static const Color primaryColor = Color.fromARGB(255, 7, 25, 61);
   static const Color secondaryColor = Color.fromARGB(255, 8, 102, 255);
@@ -60,6 +62,15 @@ class AppTheme {
           color: bodyTextColor1),
     ),
     fontFamily: fontFamily,
+    scaffoldBackgroundColor: AppColors().background,
+    appBarTheme: AppBarTheme(
+      surfaceTintColor: AppColors().pureWhite,
+      titleTextStyle: const TextStyle(
+          fontFamily: fontFamily,
+          fontSize: 24,
+          fontWeight: FontWeight.w600,
+          color: bodyTextColor1),
+    ),
   );
 
   static final ThemeData darkTheme = ThemeData(

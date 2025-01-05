@@ -16,7 +16,7 @@ class ProjectsScreen extends ConsumerStatefulWidget {
 }
 
 class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
-  int _currentIndex = 0;
+  final int _currentIndex = 0;
 
   final List<String> _routes = [
     '/projects',
@@ -157,53 +157,6 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
             ],
           );
         },
-      ),
-      bottomNavigationBar: SizedBox(
-        height: 90,
-        child: BottomNavigationBar(
-          showUnselectedLabels: true,
-          selectedIconTheme: const IconThemeData(size: 30),
-          unselectedIconTheme: const IconThemeData(size: 23),
-          selectedLabelStyle:
-              const TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
-          unselectedLabelStyle:
-              const TextStyle(fontSize: 10, fontWeight: FontWeight.w700),
-          selectedItemColor: const Color.fromARGB(255, 8, 102, 255),
-          unselectedItemColor: const Color.fromARGB(255, 101, 103, 107),
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-            context.go(_routes[index]);
-          },
-          items: const [
-            BottomNavigationBarItem(
-              icon: ImageIcon(
-                AssetImage('assets/images/icons/nav-tab/tabIcon2.png'),
-              ),
-              label: 'Projects',
-            ),
-            BottomNavigationBarItem(
-              icon:
-                  ImageIcon(AssetImage('assets/images/icons/feedback-tab.png')),
-              label: 'Feedback',
-            ),
-            BottomNavigationBarItem(
-              icon:
-                  ImageIcon(AssetImage('assets/images/icons/network-tab.png')),
-              label: 'Network',
-            ),
-            BottomNavigationBarItem(
-              icon: ImageIcon(AssetImage('assets/images/icons/status-tab.png')),
-              label: 'Status',
-            ),
-            BottomNavigationBarItem(
-              icon: ImageIcon(AssetImage('assets/images/icons/more-tab.png')),
-              label: 'More',
-            ),
-          ],
-        ),
       ),
     );
   }
