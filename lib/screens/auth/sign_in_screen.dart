@@ -1,9 +1,8 @@
+import 'package:feedback_work/providers/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
-
-import '../../providers/auth_providers.dart';
 import './widgets/block_button.dart';
 import './widgets/or_divider.dart';
 import './widgets/third_party_icon_button.dart';
@@ -25,7 +24,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authService = ref.watch(authServiceProvider);
+    final authService = ref.watch(authServiceProvider.notifier);
     final isChecked = ref.watch(keepMeSignedInProvider);
 
     return Scaffold(
@@ -179,7 +178,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     const SizedBox(height: 16),
                     BlockButton(
                       onPressed: () async {
-                        final authService = ref.read(authServiceProvider);
+                        final authService =
+                            ref.read(authServiceProvider.notifier);
                         await handleSignIn(
                           context: context,
                           authService: authService,
@@ -250,7 +250,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 
 Future<void> handleSignIn({
   required BuildContext context,
-  required AuthService authService,
+  required AuthNotifier authService,
   required TextEditingController emailController,
   required TextEditingController passwordController,
 }) async {

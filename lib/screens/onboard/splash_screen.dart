@@ -10,7 +10,7 @@ class SplashScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Future<void> navigateBasedOnAuth() async {
-      final authService = ref.read(authServiceProvider);
+      final authService = ref.read(authServiceProvider.notifier);
 
       final isSignedIn = await authService.isUserSignedIn();
 

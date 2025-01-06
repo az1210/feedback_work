@@ -1,3 +1,4 @@
+import 'package:feedback_work/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -30,7 +31,7 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
 
   // Real-time username validation
   Future<void> _validateUsername() async {
-    final authService = ref.read(authServiceProvider);
+    final authService = ref.read(authServiceProvider.notifier);
 
     setState(() {
       _isCheckingUsername = true;
@@ -48,15 +49,17 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
 
   // Submit user profile
   Future<void> _submitProfile() async {
-    final authService = ref.read(authServiceProvider);
+    final authService = ref.read(authServiceProvider.notifier);
 
     try {
       await authService.completeUserProfile(
         uid: widget.userId,
-        username: _usernameController.text.trim(),
-        title: _titleController.text.trim(),
-        expertise: _expertiseController.text.trim(),
-        accountType: _selectedAccountType,
+        userModel: UserModel(
+          username: _usernameController.text.trim(),
+          title: _titleController.text.trim(),
+          expertise: _expertiseController.text.trim(),
+          accountType: _selectedAccountType,
+        ),
       );
 
       final snackBar = CustomSnackbar.build(

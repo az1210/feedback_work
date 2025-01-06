@@ -1,3 +1,4 @@
+import 'package:feedback_work/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,12 +44,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     });
 
     try {
-      await ref.read(authServiceProvider).signUp(
-            firstName: firstNameController.text.trim(),
-            lastName: lastNameController.text.trim(),
-            email: emailController.text.trim(),
+      await ref.read(authServiceProvider.notifier).signUp(
+            userModel: UserModel(
+                firstName: firstNameController.text.trim(),
+                lastName: lastNameController.text.trim(),
+                email: emailController.text.trim(),
+                phoneNumber: phoneNumberController.text.trim()),
             password: passwordController.text,
-            phoneNumber: phoneNumberController.text.trim(),
           );
 
       final userId = FirebaseAuth.instance.currentUser?.uid;
@@ -101,7 +103,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authService = ref.watch(authServiceProvider);
+    final authService = ref.watch(authServiceProvider.notifier);
 
     return Scaffold(
       backgroundColor: Colors.white,

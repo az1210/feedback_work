@@ -24,7 +24,7 @@ class _MoreTabScreenState extends ConsumerState<MoreTabScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authService = ref.watch(authServiceProvider);
+    final authService = ref.watch(authServiceProvider.notifier);
 
     return Scaffold(
       body: Center(

@@ -1,5 +1,7 @@
 import 'package:feedback_work/core/router/navbar.dart';
-import 'package:feedback_work/features/network/presentation/screens/network_screen.dart';
+import 'package:feedback_work/models/user_model.dart';
+import 'package:feedback_work/screens/network/network_profile_screen.dart';
+import 'package:feedback_work/screens/network/network_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -40,6 +42,7 @@ class Routes {
   static const more = 'more';
   static const solutionFunction = 'solution-function';
   static const solutionFunctionSettings = 'solution-function-settings';
+  static const networkProfile = 'network-profile';
 }
 
 final authProvider = StateProvider<bool>((ref) => false);
@@ -110,6 +113,16 @@ final routerProvider = Provider<GoRouter>(
           builder: (context, state) {
             final projectId = state.pathParameters['projectId']!;
             return SettingsScreen(projectId: projectId);
+          },
+        ),
+
+        GoRoute(
+          name: Routes.networkProfile,
+          path: Routes.networkProfile.p,
+          builder: (context, state) {
+            return NetworkProfileScreen(
+              user: state.extra as UserModel,
+            );
           },
         ),
 

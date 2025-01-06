@@ -1,28 +1,44 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
-import 'package:feedback_work/features/network/presentation/widgets/network_filter_content.dart';
+import 'package:feedback_work/core/extensions/string_extension.dart';
+import 'package:feedback_work/screens/feedback/widgets/feedback_filter_content.dart';
+import 'package:feedback_work/screens/network/widgets/network_filter_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class NetworkSearchAndFilter extends StatefulWidget {
-  const NetworkSearchAndFilter({
-    super.key,
-    this.onChanged,
-  });
-
-  final void Function(String)? onChanged;
-
-  @override
-  State<NetworkSearchAndFilter> createState() => _NetworkSearchAndFilterState();
+enum FeedbackScreenConnectionType {
+  all,
+  requested,
+  received,
+  applied,
+  provided,
 }
 
-class _NetworkSearchAndFilterState extends State<NetworkSearchAndFilter> {
-  List<String> networkTypes = [
-    "My Connections",
-    "Suggestions",
-    "Requests",
+class FeedbackSearchAndFilter extends StatefulWidget {
+  const FeedbackSearchAndFilter({
+    super.key,
+    this.onChangedSearchText,
+    this.onChangedConnectionState,
+  });
+
+  final void Function(String)? onChangedSearchText;
+  final void Function(FeedbackScreenConnectionType)? onChangedConnectionState;
+
+  @override
+  State<FeedbackSearchAndFilter> createState() =>
+      _FeedbackSearchAndFilterState();
+}
+
+class _FeedbackSearchAndFilterState extends State<FeedbackSearchAndFilter> {
+  List<FeedbackScreenConnectionType> networkTypes = [
+    FeedbackScreenConnectionType.all,
+    FeedbackScreenConnectionType.requested,
+    FeedbackScreenConnectionType.received,
+    FeedbackScreenConnectionType.applied,
+    FeedbackScreenConnectionType.provided,
   ];
 
-  String selectedNetworkType = "My Connections";
+  FeedbackScreenConnectionType selectedNetworkType =
+      FeedbackScreenConnectionType.all;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +52,7 @@ class _NetworkSearchAndFilterState extends State<NetworkSearchAndFilter> {
               children: [
                 Expanded(
                   child: TextFormField(
-                    onChanged: widget.onChanged,
+                    onChanged: widget.onChangedSearchText,
                     decoration: context.inputDecor.outlinedInputDecor(
                       prefix: Icon(
                         Icons.search,
@@ -49,7 +65,7 @@ class _NetworkSearchAndFilterState extends State<NetworkSearchAndFilter> {
                 8.pw,
                 InkWell(
                   onTap: () {
-                    showNetworkFilters(context);
+                    showFeedbackFilters(context);
                   },
                   borderRadius: BorderRadius.circular(40.r),
                   child: Container(
@@ -81,6 +97,7 @@ class _NetworkSearchAndFilterState extends State<NetworkSearchAndFilter> {
                   onTap: () {
                     setState(() {
                       selectedNetworkType = networkTypes[index];
+                      widget.onChangedConnectionState!(networkTypes[index]);
                     });
                   },
                   child: Container(
@@ -98,7 +115,7 @@ class _NetworkSearchAndFilterState extends State<NetworkSearchAndFilter> {
                     ),
                     child: Center(
                       child: Text(
-                        networkTypes[index],
+                        networkTypes[index].name.toTitleCase(),
                         style: Theme.of(context)
                             .textTheme
                             .titleMedium!
