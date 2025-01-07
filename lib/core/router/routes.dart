@@ -1,5 +1,6 @@
 import 'package:feedback_work/core/router/navbar.dart';
 import 'package:feedback_work/models/user_model.dart';
+import 'package:feedback_work/screens/feedback/received_feedback_details.dart';
 import 'package:feedback_work/screens/network/network_profile_screen.dart';
 import 'package:feedback_work/screens/network/network_screen.dart';
 import 'package:go_router/go_router.dart';
@@ -43,6 +44,7 @@ class Routes {
   static const solutionFunction = 'solution-function';
   static const solutionFunctionSettings = 'solution-function-settings';
   static const networkProfile = 'network-profile';
+  static const receivedFeedbackDetails = 'received-feedback-details';
 }
 
 final authProvider = StateProvider<bool>((ref) => false);
@@ -124,6 +126,11 @@ final routerProvider = Provider<GoRouter>(
               user: state.extra as UserModel,
             );
           },
+        ),
+        GoRoute(
+          name: Routes.receivedFeedbackDetails,
+          path: Routes.receivedFeedbackDetails.p,
+          builder: (context, state) => const ReceivedFeedbackDetails(),
         ),
 
         // NavBar Routes

@@ -9,4 +9,5 @@ class AppColors {
   final Color pureWhite = const Color(0xffffffff);
   final Color transparent = const Color(0x00ffffff);
   final Color successGreen = const Color(0xff00A14C);
+  final Color errorRed = Colors.red;
 }
