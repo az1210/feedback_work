@@ -28,29 +28,33 @@ class CheckProgressStatus extends StatelessWidget {
           ],
         ),
         const SizedBox(width: 7.93),
-        Transform.translate(
-          offset: const Offset(0, -5),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 13.6,
-                  fontWeight: FontWeight.w400,
+        Expanded(
+          child: Transform.translate(
+            offset: const Offset(0, -5),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 13.6,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              Text(
-                subtitle,
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 11.33,
-                  fontWeight: FontWeight.w400,
-                  color: Color.fromARGB(255, 101, 103, 107),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 11.33,
+                    fontWeight: FontWeight.w400,
+                    color: Color.fromARGB(255, 101, 103, 107),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],

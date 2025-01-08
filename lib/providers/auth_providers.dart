@@ -169,7 +169,7 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
 
       if (userCredential.additionalUserInfo!.isNewUser) {
         await firestore
-            .collection('users')
+            .collection(FirebaseConstants.userCollection)
             .doc(userCredential.user!.uid)
             .set(userModel.toMap());
       }
@@ -193,6 +193,10 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
           .collection(FirebaseConstants.userCollection)
           .doc(uid)
           .update(userModel.toMap());
+      await firestore
+          .collection(FirebaseConstants.categoryCollection)
+          .doc(uid)
+          .set({"expertise": userModel.expertise});
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());

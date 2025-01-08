@@ -1,3 +1,4 @@
+import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -6,10 +7,10 @@ class AppButton extends StatelessWidget {
     super.key,
     required this.label,
     this.labelTextStyle,
-    required this.bgColor,
-    required this.fgColor,
+    this.bgColor,
+    this.fgColor,
     this.borderRadius,
-    required this.isFilled,
+    this.isFilled = true,
     this.borderColor,
     this.onTap,
     this.child,
@@ -17,12 +18,16 @@ class AppButton extends StatelessWidget {
     this.suffix,
     this.horizontalPadding,
     this.verticalPadding,
+    this.height,
+    this.width,
   });
 
   final String label;
   final TextStyle? labelTextStyle;
-  final Color bgColor;
-  final Color fgColor;
+  final Color? bgColor;
+  final Color? fgColor;
+  final double? height;
+  final double? width;
   final double? borderRadius;
   final double? horizontalPadding;
   final double? verticalPadding;
@@ -32,6 +37,70 @@ class AppButton extends StatelessWidget {
   final Widget? child;
   final Widget? prefix;
   final Widget? suffix;
+
+  factory AppButton.filled({
+    required String label,
+    TextStyle? labelTextStyle,
+    Color? bgColor,
+    Color? fgColor,
+    double? height,
+    double? width,
+    double? borderRadius,
+    double? horizontalPadding,
+    double? verticalPadding,
+    Color? borderColor,
+    required void Function()? onTap,
+    Widget? child,
+    Widget? prefix,
+    Widget? suffix,
+  }) {
+    return AppButton(
+      label: label,
+      bgColor: bgColor,
+      fgColor: fgColor,
+      borderColor: borderColor,
+      borderRadius: borderRadius,
+      horizontalPadding: horizontalPadding,
+      labelTextStyle: labelTextStyle,
+      onTap: onTap,
+      prefix: prefix,
+      suffix: suffix,
+      verticalPadding: verticalPadding,
+      child: child,
+    );
+  }
+  factory AppButton.outlined({
+    required String label,
+    TextStyle? labelTextStyle,
+    Color? fgColor,
+    double? height,
+    double? width,
+    double? borderRadius,
+    double? horizontalPadding,
+    double? verticalPadding,
+    Color? borderColor,
+    required void Function()? onTap,
+    Widget? child,
+    Widget? prefix,
+    Widget? suffix,
+  }) {
+    return AppButton(
+      label: label,
+      isFilled: false,
+      borderColor: borderColor,
+      height: height,
+      width: width,
+      borderRadius: borderRadius,
+      fgColor: fgColor,
+      horizontalPadding: horizontalPadding,
+      labelTextStyle: labelTextStyle,
+      prefix: prefix,
+      onTap: onTap,
+      suffix: suffix,
+      verticalPadding: verticalPadding,
+      child: child,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +113,9 @@ class AppButton extends StatelessWidget {
           vertical: verticalPadding ?? 4.h,
         ),
         decoration: BoxDecoration(
-          color: bgColor,
+          color: isFilled
+              ? bgColor ?? context.colors.primaryBlue
+              : context.colors.transparent,
           borderRadius: BorderRadius.circular(borderRadius ?? 8.r),
           border: borderColor != null ? Border.all(color: borderColor!) : null,
         ),
@@ -56,10 +127,11 @@ class AppButton extends StatelessWidget {
                 Text(
                   label,
                   style: labelTextStyle ??
-                      Theme.of(context)
-                          .textTheme
-                          .bodyMedium!
-                          .copyWith(color: fgColor),
+                      Theme.of(context).textTheme.bodyMedium!.copyWith(
+                            color: isFilled
+                                ? fgColor ?? context.colors.pureWhite
+                                : fgColor ?? context.colors.primaryBlue,
+                          ),
                 ),
                 suffix ?? const SizedBox.shrink(),
               ],

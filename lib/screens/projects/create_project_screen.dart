@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:dotted_border/dotted_border.dart';
@@ -100,8 +101,7 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Project Created Successfully!')),
       );
-
-      context.push('/projects');
+      context.pop();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}')),
@@ -140,6 +140,7 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
     );
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: const Color.fromARGB(255, 240, 242, 245),
       appBar: AppBar(
         title: const Text('Create Project'),
@@ -267,7 +268,6 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
                   onTap: pickFile,
                   child: Container(
                     color: Colors.white,
-                    height: 120,
                     width: double.infinity,
                     child: DottedBorder(
                       borderType: BorderType.RRect,

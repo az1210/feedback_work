@@ -4,29 +4,16 @@ import 'package:feedback_work/core/utils/utils.dart';
 import 'package:flutter/material.dart';
 
 void showFeedbackFilters(BuildContext context) {
-  final categories = [
-    CategoryItem(
-      name: 'Social Media',
-      iconPath: 'assets/icons/social_media.png',
-      count: 12,
-    ),
-    CategoryItem(
-      name: 'Automotive & Mechanics',
-      iconPath: 'assets/icons/automotive.png',
-      count: 12,
-    ),
-    // ... add other categories
-  ];
   final sections = [
     FilterSection(
       title: 'Privacy',
       options: ['All', 'Private', 'Public', 'My Feedback'],
-      allowMultipleSelection: false, // Radio button behavior
+      allowMultipleSelection: false,
     ),
     FilterSection(
       title: 'Sort by',
       options: ['Date', 'A-Z'],
-      allowMultipleSelection: false, // Radio button behavior
+      allowMultipleSelection: false,
     ),
     FilterSection(
       title: 'Category',
@@ -55,18 +42,9 @@ void showFeedbackFilters(BuildContext context) {
         'Labor & Technical Support',
         'Fraud & Scams',
       ],
-      allowMultipleSelection: true, // Checkbox behavior
+      allowMultipleSelection: true,
     ),
   ];
-
-  final rangeSliderConfig = RangeSliderConfig(
-    title: 'Project Completion Status',
-    min: 0,
-    max: 100,
-    divisions: 100,
-    initialRange: const RangeValues(20, 80),
-    labelFormatter: (value) => value.round().toString(),
-  );
 
   showModalBottomSheet(
     context: context,
@@ -77,9 +55,7 @@ void showFeedbackFilters(BuildContext context) {
     useSafeArea: true,
     builder: (context) => FilterBottomSheetContent(
       title: 'Filters',
-      categories: categories,
       sections: sections,
-      rangeSliderConfig: rangeSliderConfig,
       initialFilters: const {
         'Expertise': {'Private'},
         'Connection Type': {'Student'},

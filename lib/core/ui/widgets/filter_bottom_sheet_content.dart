@@ -1,7 +1,9 @@
-import 'package:feedback_work/core/extensions/extensions.dart';
-import 'package:feedback_work/core/ui/theme.dart';
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import 'package:feedback_work/core/extensions/extensions.dart';
+import 'package:feedback_work/core/ui/theme.dart';
 
 class FilterSection {
   final String title;
@@ -13,6 +15,28 @@ class FilterSection {
     required this.options,
     this.allowMultipleSelection = true,
   });
+}
+
+class PeopleSection {
+  final String imageUrl;
+  final String name;
+  final bool isSelected;
+
+  PeopleSection({
+    required this.imageUrl,
+    required this.name,
+    this.isSelected = false,
+  });
+
+  PeopleSection copyWith({
+    bool? isSelected,
+  }) {
+    return PeopleSection(
+      imageUrl: imageUrl,
+      name: name,
+      isSelected: isSelected ?? this.isSelected,
+    );
+  }
 }
 
 class CategoryItem {
@@ -59,27 +83,34 @@ class RangeSliderConfig {
 typedef OnFiltersChanged = void Function(
     Map<String, Set<String>> selectedFilters);
 typedef OnCategoryChanged = void Function(Set<String> selectedCategories);
+typedef OnPeopleChanged = void Function(Set<String> selectedPeoples);
 typedef OnSliderChanged = void Function(double value);
 
 class FilterBottomSheetContent extends StatefulWidget {
-  final String title;
+  final String? title;
   final List<FilterSection>? sections;
   final List<CategoryItem>? categories;
+  final List<PeopleSection>? peoples;
   final RangeSliderConfig? rangeSliderConfig;
   final Map<String, Set<String>>? initialFilters;
   final Set<String>? initialCategories;
+  final Set<String>? initialPeoples;
   final double? initialSliderValue;
   final OnFiltersChanged? onFiltersChanged;
   final OnCategoryChanged? onCategoryChanged;
+  final OnPeopleChanged? onPeopleChanged;
   Function(RangeValues)? onRangeChanged;
   final VoidCallback? onApply;
   final VoidCallback? onReset;
   final String? applyButtonText;
   final String? resetButtonText;
+  final bool hasActionButton;
+  final bool hasHeader;
+  final bool hasSearchOption;
 
   FilterBottomSheetContent({
     super.key,
-    required this.title,
+    this.title,
     this.sections,
     this.categories,
     this.rangeSliderConfig,
@@ -93,6 +124,12 @@ class FilterBottomSheetContent extends StatefulWidget {
     this.applyButtonText,
     this.resetButtonText,
     this.initialCategories,
+    this.hasActionButton = true,
+    this.hasHeader = true,
+    this.hasSearchOption = true,
+    this.peoples,
+    this.initialPeoples,
+    this.onPeopleChanged,
   });
 
   @override
@@ -107,6 +144,8 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent> {
   late double sliderValue;
   late List<CategoryItem> _categories;
   late List<CategoryItem> _filteredCategories;
+  late List<PeopleSection> _peoples;
+  late List<PeopleSection> _filteredPeoples;
 
   @override
   void initState() {
@@ -139,6 +178,16 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent> {
         }
       }
     }
+
+    _peoples = widget.peoples ?? [];
+    _filteredPeoples = _peoples;
+    if (widget.initialPeoples != null) {
+      for (var i = 0; i < _peoples.length; i++) {
+        if (widget.initialPeoples!.contains(_peoples[i].name)) {
+          _peoples[i] = _peoples[i].copyWith(isSelected: true);
+        }
+      }
+    }
   }
 
   void _filterCategories(String query) {
@@ -150,10 +199,27 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent> {
     });
   }
 
+  void _filterPeoples(String query) {
+    setState(() {
+      _filteredPeoples = _peoples
+          .where((people) =>
+              people.name.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
+  }
+
   void _toggleCategory(int index) {
     setState(() {
       _categories[index] = _categories[index].copyWith(
         isSelected: !_categories[index].isSelected,
+      );
+    });
+  }
+
+  void _togglePeople(int index) {
+    setState(() {
+      _peoples[index] = _peoples[index].copyWith(
+        isSelected: !_peoples[index].isSelected,
       );
     });
 
@@ -162,10 +228,20 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent> {
         .where((category) => category.isSelected)
         .map((category) => category.name)
         .toSet();
+    // Get the set of selected category names
+    final selectedPeoples = _peoples
+        .where((people) => people.isSelected)
+        .map((people) => people.name)
+        .toSet();
 
     // Notify the parent widget about the change in selected categories
     if (widget.onCategoryChanged != null) {
       widget.onCategoryChanged!(selectedCategories);
+      // widget.onCategoryChanged(selectedCategories);
+    }
+    // Notify the parent widget about the change in selected categories
+    if (widget.onPeopleChanged != null) {
+      widget.onPeopleChanged!(selectedPeoples);
       // widget.onCategoryChanged(selectedCategories);
     }
 
@@ -173,6 +249,12 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent> {
     if (widget.onFiltersChanged != null) {
       widget.onFiltersChanged!({
         'categories': selectedCategories,
+      });
+    }
+    // Notify the parent widget of the overall filter changes
+    if (widget.onFiltersChanged != null) {
+      widget.onFiltersChanged!({
+        'peoples': selectedPeoples,
       });
     }
   }
@@ -188,6 +270,12 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent> {
       if (widget.categories != null) {
         selectedSectionFilters = {
           for (var category in widget.categories!) category.name: <String>{},
+        };
+      }
+
+      if (widget.peoples != null) {
+        selectedSectionFilters = {
+          for (var people in widget.peoples!) people.name: <String>{},
         };
       }
 
@@ -222,7 +310,11 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildHeader(),
+          widget.hasHeader ? _buildHeader() : const SizedBox.shrink(),
+          widget.hasSearchOption ? _buildSearchBar() : const SizedBox.shrink(),
+          widget.peoples != null
+              ? _buildPeopleSection()
+              : const SizedBox.shrink(),
           if (widget.categories != null) ...[
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
@@ -237,8 +329,6 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent> {
                 ],
               ),
             ),
-            12.ph,
-            _buildSearchBar(),
             16.ph,
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -255,7 +345,9 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent> {
                   _buildRangeSlider(widget.rangeSliderConfig!),
                   16.ph,
                 ],
-                _buildApplyButton(),
+                widget.hasActionButton
+                    ? _buildApplyButton()
+                    : const SizedBox.shrink(),
                 16.ph,
               ],
             ),
@@ -271,10 +363,12 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            widget.title,
-            style: Theme.of(context).textTheme.displaySmall,
-          ),
+          widget.title != null
+              ? Text(
+                  widget.title!,
+                  style: Theme.of(context).textTheme.displaySmall,
+                )
+              : const SizedBox.shrink(),
           TextButton(
             onPressed: _resetFilters,
             child: Text(
@@ -290,51 +384,52 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent> {
   }
 
   Widget _buildSearchBar() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(12),
-      ),
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: Row(
-        children: [
-          const Icon(Icons.search, color: Colors.grey),
-          const SizedBox(width: 8),
-          Expanded(
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                prefix: Icon(
-                  Icons.search,
-                  color: AppColors().primaryBlue,
+    return Padding(
+      padding: EdgeInsets.all(16.r),
+      child: SizedBox(
+        height: 43.h,
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  filled: true,
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: AppColors().primaryBlue,
+                  ),
+                  hintText: 'Search feedback category',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.r),
+                    borderSide: BorderSide.none,
+                  ),
+                  hintStyle: const TextStyle(color: Colors.grey),
+                  fillColor: context.colors.pureWhite,
                 ),
-                hintText: 'Search feedback category',
-                border: InputBorder.none,
-                hintStyle: const TextStyle(color: Colors.grey),
-                fillColor: context.colors.pureWhite,
-              ),
-              onChanged: _filterCategories,
-            ),
-          ),
-          InkWell(
-            onTap: () {},
-            borderRadius: BorderRadius.circular(40.r),
-            child: Container(
-              height: 43.r,
-              width: 43.r,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: context.colors.pureWhite,
-              ),
-              child: Center(
-                child: Icon(
-                  Icons.filter_list,
-                  color: context.colors.primaryBlue,
-                ),
+                onChanged: _filterCategories,
               ),
             ),
-          ),
-        ],
+            8.pw,
+            InkWell(
+              onTap: () {},
+              borderRadius: BorderRadius.circular(40.r),
+              child: Container(
+                width: 43.r,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: context.colors.pureWhite,
+                ),
+                child: Center(
+                  child: Icon(
+                    Icons.filter_list,
+                    color: context.colors.primaryBlue,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -374,8 +469,56 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent> {
               itemCount: section.options.length,
             ),
           ),
-          16.ph,
         ],
+      ),
+    );
+  }
+
+  Widget _buildPeopleSection() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20.r),
+          color: context.colors.pureWhite,
+        ),
+        child: ListView.separated(
+          padding: EdgeInsets.zero,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemBuilder: (context, index) => InkWell(
+            onTap: () => _togglePeople(index),
+            child: Padding(
+              padding: EdgeInsets.all(12.r),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Image.network(
+                        _peoples[index].imageUrl,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(Icons.person),
+                      ),
+                      8.pw,
+                      Text(_peoples[index].name),
+                    ],
+                  ),
+                  if (_peoples[index].isSelected)
+                    Icon(
+                      Icons.check,
+                      color: context.colors.primaryBlue,
+                    ),
+                ],
+              ),
+            ),
+          ),
+          separatorBuilder: (_, __) => Container(
+            height: 1,
+            color: context.colors.inputBorder,
+          ),
+          itemCount: _peoples.length,
+        ),
       ),
     );
   }

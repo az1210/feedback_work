@@ -1,5 +1,4 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
-import 'package:feedback_work/core/ui/assets/app_assets.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/user_providers.dart';
@@ -28,15 +27,15 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
   @override
   void initState() {
     Future.microtask(() {
-      ref.read(userServiceProvider.notifier).fetchAllUsers();
+      ref.read(userProvider.notifier).fetchAllUsers();
     });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final userState = ref.watch(userServiceProvider);
-    ref.listen(userServiceProvider, (_, newState) {
+    final userState = ref.watch(userProvider);
+    ref.listen(userProvider, (_, newState) {
       if (newState.state == AsyncState.success) {
         Log.info(newState.data!.length.toString());
         users = newState.data!;

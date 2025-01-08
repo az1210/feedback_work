@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-class RequestedFeedbackCard extends StatelessWidget {
+class PreviewFeedbackCard extends StatelessWidget {
   final String userName;
   final String project;
   final String problem;
@@ -13,7 +13,7 @@ class RequestedFeedbackCard extends StatelessWidget {
   final String description;
   final bool isGrid;
 
-  const RequestedFeedbackCard({
+  const PreviewFeedbackCard({
     super.key,
     this.isGrid = false,
     this.userName = "John Thompson",
@@ -26,12 +26,12 @@ class RequestedFeedbackCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      margin: EdgeInsets.zero,
+    return Container(
+      decoration: BoxDecoration(
+        color: context.colors.pureWhite,
+        borderRadius: BorderRadius.circular(4.r),
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             padding: EdgeInsets.symmetric(
@@ -39,8 +39,8 @@ class RequestedFeedbackCard extends StatelessWidget {
               vertical: 8.h,
             ),
             color: context.colors.primaryBlue.withValues(alpha: 0.1),
-            child: Wrap(
-              alignment: WrapAlignment.spaceBetween,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   "Feedback Requested",
@@ -48,27 +48,11 @@ class RequestedFeedbackCard extends StatelessWidget {
                         fontSize: 14,
                       ),
                 ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      "02:42 PM",
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontSize: 14,
-                          ),
-                    ),
-                    Text(
-                      " • ",
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontSize: 14,
-                          ),
-                    ),
-                    Icon(
-                      Icons.lock_outline,
-                      size: 16.r,
-                    ),
-                  ],
+                Text(
+                  "02:42 PM",
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 14,
+                      ),
                 ),
               ],
             ),
@@ -77,13 +61,10 @@ class RequestedFeedbackCard extends StatelessWidget {
             padding: EdgeInsets.all(8.w),
             child: Column(
               children: [
-                16.ph,
-                StaggeredGrid.count(
-                  crossAxisCount: isGrid ? 1 : 3,
+                Row(
                   children: [
-                    StaggeredGridTile.count(
-                      crossAxisCellCount: 1,
-                      mainAxisCellCount: isGrid ? 0.7 : 1,
+                    Expanded(
+                      flex: 1,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -112,9 +93,9 @@ class RequestedFeedbackCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    StaggeredGridTile.count(
-                      crossAxisCellCount: isGrid ? 1 : 2,
-                      mainAxisCellCount: isGrid ? 1 : 1.1,
+                    16.pw,
+                    Expanded(
+                      flex: 2,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -246,10 +227,9 @@ class RequestedFeedbackCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                16.ph,
+                Row(
                   children: [
-                    const SizedBox(height: 16),
                     Text(
                       description,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -257,14 +237,6 @@ class RequestedFeedbackCard extends StatelessWidget {
                             fontWeight: FontWeight.w500,
                           ),
                       textAlign: TextAlign.center,
-                    ),
-                    8.ph,
-                    AppButton(
-                      label: "Send Feedback",
-                      bgColor: context.colors.primaryBlue,
-                      fgColor: context.colors.pureWhite,
-                      isFilled: true,
-                      verticalPadding: 8.h,
                     ),
                   ],
                 )

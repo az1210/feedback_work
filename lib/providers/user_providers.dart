@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:feedback_work/core/utils/utils.dart';
 
-final userServiceProvider =
+final userProvider =
     NotifierProvider<UserNotifier, UserNotifierState>(UserNotifier.new);
 
 class UserNotifier extends Notifier<UserNotifierState> {
@@ -25,7 +25,26 @@ class UserNotifier extends Notifier<UserNotifierState> {
 
       final users =
           usersSnapshot.docs.map((u) => UserModel.fromMap(u.data())).toList();
-      Log.info(users.map((u) => u.email).toList().toString());
+      Log.info(users.map((u) => u.expertise).toList().toString());
+      state = state.copyWith(data: users, state: AsyncState.success);
+    } catch (e, stackTrace) {
+      Log.error(e.toString());
+      Log.error(stackTrace.toString());
+    }
+  }
+
+  Future<void> fetchUsersByExpertise({required String expertise}) async {
+    try {
+      state = state.copyWith(state: AsyncState.loading);
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('expertise', isEqualTo: expertise)
+          .get();
+
+      // Map each document to a list of user data
+      List<UserModel> users = querySnapshot.docs
+          .map((doc) => UserModel.fromMap(doc.data() as Map<String, dynamic>))
+          .toList();
       state = state.copyWith(data: users, state: AsyncState.success);
     } catch (e, stackTrace) {
       Log.error(e.toString());

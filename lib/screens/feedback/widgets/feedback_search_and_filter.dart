@@ -1,7 +1,6 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/extensions/string_extension.dart';
 import 'package:feedback_work/screens/feedback/widgets/feedback_filter_content.dart';
-import 'package:feedback_work/screens/network/widgets/network_filter_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
