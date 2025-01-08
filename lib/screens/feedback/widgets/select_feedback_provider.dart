@@ -25,9 +25,12 @@ class _SelectFeedbackProviderState
 
   @override
   void initState() {
-    ref
-        .read(userProvider.notifier)
-        .fetchUsersByExpertise(expertise: widget.category);
+    Future.microtask(() {
+      ref
+          .read(userProvider.notifier)
+          .fetchUsersByExpertise(expertise: widget.category);
+    });
+
     super.initState();
   }
 
