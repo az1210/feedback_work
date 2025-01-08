@@ -42,7 +42,8 @@ class _SelectFeedbackProviderState
         List<String> names = [];
         for (var i in newState.data!) {
           names.add(i.firstName!);
-          sections.add(PeopleSection(imageUrl: "", name: i.firstName!));
+          sections.add(PeopleSection(
+              imageUrl: "", name: "${i.firstName ?? ''} ${i.lastName ?? ''}"));
         }
       }
     });
