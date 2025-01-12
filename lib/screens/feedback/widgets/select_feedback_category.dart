@@ -1,10 +1,8 @@
-import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/core/ui/widgets/filter_bottom_sheet_content.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/providers/category_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class SelectFeedbackCategory extends ConsumerStatefulWidget {
   const SelectFeedbackCategory({
@@ -12,7 +10,7 @@ class SelectFeedbackCategory extends ConsumerStatefulWidget {
     super.key,
   });
 
-  final void Function(Map<String, Set<String>>)? onFiltersChanged;
+  final void Function(Map<String, Set<dynamic>>)? onFiltersChanged;
 
   @override
   ConsumerState<SelectFeedbackCategory> createState() =>
@@ -21,42 +19,12 @@ class SelectFeedbackCategory extends ConsumerStatefulWidget {
 
 class _SelectFeedbackCategoryState
     extends ConsumerState<SelectFeedbackCategory> {
-  List<FilterSection> sections = [
-    // FilterSection(
-    //   title: '',
-    //   options: [
-    //     'Social Media',
-    //     'Automotive & Mechanics',
-    //     'Accounting, Consulting & Finance',
-    //     'Education & Tutoring',
-    //     'Arts & Creative',
-    //     'IT, Data & Analytics',
-    //     'Engineering & Architecture',
-    //     'Web, Mobile & Software Development',
-    //     'Business Support & Admin',
-    //     'Sales & Marketing',
-    //     'Legal Services',
-    //     'Writing & Translation',
-    //     'Health & Beauty',
-    //     'Home & Real Estate',
-    //     'Lifestyle',
-    //     'Sports & Outdoors',
-    //     'Books & Publishing',
-    //     'Electronics & Gadgets',
-    //     'Antiques & Collectibles',
-    //     'Tools & Equipment',
-    //     'Security Services',
-    //     'Labor & Technical Support',
-    //     'Fraud & Scams',
-    //   ],
-    //   allowMultipleSelection: true, // Checkbox behavior
-    // ),
-  ];
+  List<FilterSection> sections = [];
 
   @override
   void initState() {
     Future.microtask(() {
-      ref.read(categoryProvider.notifier).fetchAllExpertise();
+      ref.read(categoryProvider.notifier).fetchAllCategories();
     });
     super.initState();
   }
@@ -71,14 +39,13 @@ class _SelectFeedbackCategoryState
         List<String> options = [];
         if (data != null || data!.isNotEmpty) {
           for (var i in data) {
-            if (i != null && !options.contains(i)) {
-              options.add(i);
-            }
+            options.add(i.categoryTitle);
           }
           sections = [
             FilterSection(
                 title: "category",
-                options: options,
+                values: options,
+                labels: options,
                 allowMultipleSelection: false),
           ];
         }

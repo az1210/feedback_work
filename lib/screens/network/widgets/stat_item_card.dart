@@ -1,5 +1,6 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class StatItemCard extends StatelessWidget {
   const StatItemCard(
@@ -15,9 +16,8 @@ class StatItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(4.r),
         border: Border.all(color: context.colors.inputBorder),
-        color: Colors.white,
       ),
       padding: const EdgeInsets.all(8),
       child: Column(
@@ -27,6 +27,7 @@ class StatItemCard extends StatelessWidget {
             value,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: valueColor,
+                  fontWeight: FontWeight.bold,
                 ),
           ),
           const SizedBox(height: 4),
@@ -34,6 +35,7 @@ class StatItemCard extends StatelessWidget {
             label,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   fontSize: 14,
+                  fontWeight: FontWeight.bold,
                 ),
             textAlign: TextAlign.center,
           ),

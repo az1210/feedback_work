@@ -1,8 +1,6 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
-import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class PreviewFeedbackCard extends StatelessWidget {
   final String userName;

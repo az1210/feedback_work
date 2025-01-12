@@ -7,17 +7,31 @@ void showNetworkFilters(BuildContext context) {
   final sections = [
     FilterSection(
       title: 'Expertise',
-      options: ['All', 'Private', 'Public', 'My Feedback'],
+      values: ['All', 'Private', 'Public', 'My Feedback'],
+      labels: ['All', 'Private', 'Public', 'My Feedback'],
       allowMultipleSelection: true,
     ),
     FilterSection(
       title: 'Sort by Feedback Type',
-      options: ['Feedback Provided', 'Feedback Applied', 'Feedback Requested'],
+      values: ['Feedback Provided', 'Feedback Applied', 'Feedback Requested'],
+      labels: ['Feedback Provided', 'Feedback Applied', 'Feedback Requested'],
       allowMultipleSelection: false,
     ),
     FilterSection(
       title: 'Connection Type',
-      options: [
+      values: [
+        'Teacher',
+        'Student',
+        'Manager',
+        'Coworker',
+        'Employee',
+        'Friend',
+        'Classmate',
+        'My Customer',
+        'My Client',
+        'Other',
+      ],
+      labels: [
         'Teacher',
         'Student',
         'Manager',
@@ -33,7 +47,8 @@ void showNetworkFilters(BuildContext context) {
     ),
     FilterSection(
       title: 'Sort by Feedback Count',
-      options: ['Feedback Provided', 'Feedback Applied', 'Feedback Requested'],
+      values: ['Feedback Provided', 'Feedback Applied', 'Feedback Requested'],
+      labels: ['Feedback Provided', 'Feedback Applied', 'Feedback Requested'],
       allowMultipleSelection: false,
     ),
   ];

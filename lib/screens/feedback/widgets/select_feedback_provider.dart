@@ -1,10 +1,8 @@
-import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/core/ui/widgets/filter_bottom_sheet_content.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/providers/user_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class SelectFeedbackProvider extends ConsumerStatefulWidget {
   const SelectFeedbackProvider({
@@ -21,7 +19,7 @@ class SelectFeedbackProvider extends ConsumerStatefulWidget {
 
 class _SelectFeedbackProviderState
     extends ConsumerState<SelectFeedbackProvider> {
-  List<PeopleSection> sections = [];
+  List<FilterSection> sections = [];
 
   @override
   void initState() {
@@ -41,10 +39,18 @@ class _SelectFeedbackProviderState
       if (newState.state == AsyncState.success) {
         List<String> names = [];
         for (var i in newState.data!) {
-          names.add(i.firstName!);
-          sections.add(PeopleSection(
-              imageUrl: "", name: "${i.firstName ?? ''} ${i.lastName ?? ''}"));
+          names.add("${i.firstName ?? ''} ${i.lastName ?? ''}");
         }
+        Log.info(names.first.toString());
+        sections.add(
+          FilterSection(
+            title: "provider",
+            values: names,
+            labels: names,
+            allowMultipleSelection: false,
+            showTitle: false,
+          ),
+        );
       }
     });
     return Builder(builder: (context) {
@@ -62,12 +68,7 @@ class _SelectFeedbackProviderState
             Expanded(
               child: FilterBottomSheetContent(
                 hasHeader: false,
-                peoples: sections,
-                initialFilters: const {
-                  'Expertise': {'Private'},
-                  'Connection Type': {'Student'},
-                },
-                initialSliderValue: 50,
+                sections: sections,
                 onFiltersChanged: (filters) {
                   Log.info('Filters updated: $filters');
                 },

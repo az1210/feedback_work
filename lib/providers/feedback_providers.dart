@@ -1,52 +1,49 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feedback_work/core/constants/firebase_constants.dart';
 import 'package:feedback_work/core/utils/utils.dart';
-import 'package:feedback_work/models/category_model.dart';
+import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final requestFeedbackStepProvider = StateProvider<int>((ref) => 1);
+final feedbackProvider =
+    NotifierProvider<FeedbackNotifier, FeedbackNotifierState>(
+        FeedbackNotifier.new);
 
-final categoryProvider =
-    NotifierProvider<CategoryNotifier, CategoryNotifierState>(
-        CategoryNotifier.new);
-
-class CategoryNotifier extends Notifier<CategoryNotifierState> {
+class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
   @override
-  CategoryNotifierState build() {
-    return CategoryNotifierState(state: AsyncState.initial);
+  FeedbackNotifierState build() {
+    return FeedbackNotifierState(state: AsyncState.initial);
   }
 
-  Future<void> fetchAllCategories() async {
+  Future<void> fetchAllFeedbacks() async {
     state = state.copyWith(state: AsyncState.loading);
     FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
-      final categoriesSnapshot = await firestore
-          .collection(FirebaseConstants.categoryCollection)
-          .orderBy("categoryTitle")
+      final feedbacksSnapshot = await firestore
+          .collection(FirebaseConstants.feedbackCollection)
           .get();
 
-      final categories = categoriesSnapshot.docs
-          .map((c) => CategoryModel.fromMap(c.data()))
+      final feedbacks = feedbacksSnapshot.docs
+          .map((f) => FeedbackModel.fromMap(f.data()))
           .toList();
-      state = state.copyWith(data: categories, state: AsyncState.success);
+      state = state.copyWith(data: feedbacks, state: AsyncState.success);
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
     }
   }
 
-  Future<void> createCategory({required CategoryModel categoryModel}) async {
+  Future<void> createFeedback({required FeedbackModel feedback}) async {
     state = state.copyWith(state: AsyncState.loading);
     FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
       state = state.copyWith(state: AsyncState.loading);
       await firestore
-          .collection(FirebaseConstants.categoryCollection)
-          .doc(categoryModel.categoryTitle)
-          .set(categoryModel.toMap())
+          .collection(FirebaseConstants.feedbackCollection)
+          .doc(feedback.projectOwnerId)
+          .set(feedback.toMap())
           .then((_) {
-        fetchAllCategories();
+        // fetchAllFeedbacks();
       });
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {
@@ -56,23 +53,23 @@ class CategoryNotifier extends Notifier<CategoryNotifierState> {
   }
 }
 
-class CategoryNotifierState {
+class FeedbackNotifierState {
   final String? error;
-  final List<CategoryModel>? data;
+  final List<FeedbackModel>? data;
   final AsyncState state;
 
-  CategoryNotifierState({
+  FeedbackNotifierState({
     this.error,
     this.data,
     required this.state,
   });
 
-  CategoryNotifierState copyWith({
+  FeedbackNotifierState copyWith({
     String? error,
-    List<CategoryModel>? data,
+    List<FeedbackModel>? data,
     AsyncState? state,
   }) {
-    return CategoryNotifierState(
+    return FeedbackNotifierState(
       error: error ?? this.error,
       data: data ?? this.data,
       state: state ?? this.state,

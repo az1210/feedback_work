@@ -1,3 +1,4 @@
+import 'package:feedback_work/providers/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -36,12 +37,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   ];
 
   void _navigateToNextScreen(BuildContext context, String defaultRoute) {
-    final isLoggedIn = ref.read(authProvider);
+    final isLoggedIn = ref.watch(authProvider);
 
     if (isLoggedIn) {
       context.go('/projects');
     } else {
-      context.go(defaultRoute);
+      context.goNamed(Routes.signIn);
     }
   }
 
@@ -61,12 +62,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoggedIn = ref.read(authProvider);
-
-    if (isLoggedIn) {
-      Future.microtask(() => context.go('/home'));
-    }
-
     return Scaffold(
       body: Stack(
         children: [

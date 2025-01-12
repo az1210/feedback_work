@@ -1,6 +1,5 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
-import 'package:feedback_work/core/ui/widgets/filter_bottom_sheet_content.dart';
 import 'package:feedback_work/providers/category_providers.dart';
 import 'package:feedback_work/screens/feedback/widgets/preview_feedback_request.dart';
 import 'package:feedback_work/screens/feedback/widgets/select_feedback_category.dart';

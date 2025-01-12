@@ -5,19 +5,46 @@ import 'package:flutter/material.dart';
 
 void showFeedbackFilters(BuildContext context) {
   final sections = [
-    FilterSection(
+    FilterSection<String>(
       title: 'Privacy',
-      options: ['All', 'Private', 'Public', 'My Feedback'],
+      values: ['All', 'Private', 'Public', 'My Feedback'],
+      labels: ['All', 'Private', 'Public', 'My Feedback'],
       allowMultipleSelection: false,
     ),
     FilterSection(
       title: 'Sort by',
-      options: ['Date', 'A-Z'],
+      values: ['Date', 'A-Z'],
+      labels: ['Date', 'A-Z'],
       allowMultipleSelection: false,
     ),
     FilterSection(
       title: 'Category',
-      options: [
+      values: [
+        'Social Media',
+        'Automotive & Mechanics',
+        'Accounting, Consulting & Finance',
+        'Education & Tutoring',
+        'Arts & Creative',
+        'IT, Data & Analytics',
+        'Engineering & Architecture',
+        'Web, Mobile & Software Development',
+        'Business Support & Admin',
+        'Sales & Marketing',
+        'Legal Services',
+        'Writing & Translation',
+        'Health & Beauty',
+        'Home & Real Estate',
+        'Lifestyle',
+        'Sports & Outdoors',
+        'Books & Publishing',
+        'Electronics & Gadgets',
+        'Antiques & Collectibles',
+        'Tools & Equipment',
+        'Security Services',
+        'Labor & Technical Support',
+        'Fraud & Scams',
+      ],
+      labels: [
         'Social Media',
         'Automotive & Mechanics',
         'Accounting, Consulting & Finance',

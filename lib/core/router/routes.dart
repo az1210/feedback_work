@@ -1,9 +1,13 @@
 import 'package:feedback_work/core/router/navbar.dart';
 import 'package:feedback_work/models/user_model.dart';
+import 'package:feedback_work/screens/auth/profile_screen.dart';
 import 'package:feedback_work/screens/feedback/received_feedback_details.dart';
 import 'package:feedback_work/screens/feedback/request_feedback_screen.dart';
+import 'package:feedback_work/screens/groups/groups_screen.dart';
+import 'package:feedback_work/screens/groups/monitor_group_screen.dart';
 import 'package:feedback_work/screens/network/network_profile_screen.dart';
 import 'package:feedback_work/screens/network/network_screen.dart';
+import 'package:feedback_work/screens/status/status_report_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,8 +21,8 @@ import '../../screens/projects/create_project_screen.dart';
 import '../../screens/projects/project_edit_screen.dart';
 import '../../screens/auth/forgot_pass_screen.dart';
 import '../../screens/feedback/feedback_screen.dart';
-import '../../screens/status/status_tab_screen.dart';
-import '../../screens/more/more_tab_screen.dart';
+import '../../screens/status/status_screen.dart';
+import '../../screens/more/more_drawer.dart';
 import '../../screens/projects/solution_function.dart';
 import '../../screens/projects/settings_screen.dart';
 
@@ -47,6 +51,10 @@ class Routes {
   static const networkProfile = 'network-profile';
   static const receivedFeedbackDetails = 'received-feedback-details';
   static const requestFeedback = 'request-feedback';
+  static const statusReport = 'status-report';
+  static const groups = 'groups';
+  static const monitorGroup = 'monitor-group';
+  static const profile = 'profile';
 }
 
 final authProvider = StateProvider<bool>((ref) => false);
@@ -139,6 +147,26 @@ final routerProvider = Provider<GoRouter>(
           path: Routes.requestFeedback.p,
           builder: (context, state) => const RequestFeedbackScreen(),
         ),
+        GoRoute(
+          name: Routes.statusReport,
+          path: Routes.statusReport.p,
+          builder: (context, state) => const StatusReportScreen(),
+        ),
+        GoRoute(
+          name: Routes.groups,
+          path: Routes.groups.p,
+          builder: (context, state) => const GroupsScreen(),
+        ),
+        GoRoute(
+          name: Routes.monitorGroup,
+          path: Routes.monitorGroup.p,
+          builder: (context, state) => const MonitorGroupScreen(),
+        ),
+        GoRoute(
+          name: Routes.profile,
+          path: Routes.profile.p,
+          builder: (context, state) => const ProfileScreen(),
+        ),
 
         // NavBar Routes
         StatefulShellRoute.indexedStack(
@@ -193,13 +221,29 @@ final routerProvider = Provider<GoRouter>(
                 GoRoute(
                   name: Routes.more,
                   path: Routes.more.p,
-                  builder: (context, state) => const MoreTabScreen(),
+                  builder: (context, state) => const MoreDrawer(),
                 ),
               ],
             ),
           ],
         ),
       ],
+      redirect: (context, state) {
+        final loggedIn = ref.watch(authProvider);
+
+        final loggingIn = state.uri.toString() == Routes.onboarding.p;
+
+        // If not logged in and trying to access a restricted route, redirect to /login
+        if (!loggedIn && loggingIn) {
+          return Routes.onboarding.p;
+        }
+
+        // If logged in and trying to access login page, redirect to /home
+        if (loggedIn && loggingIn) {
+          return Routes.projects.p;
+        }
+        return null;
+      },
     );
   },
 );

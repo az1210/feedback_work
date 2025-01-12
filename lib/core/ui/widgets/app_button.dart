@@ -20,6 +20,10 @@ class AppButton extends StatelessWidget {
     this.verticalPadding,
     this.height,
     this.width,
+    this.isLoading = false,
+    this.loadingSize,
+    this.icon,
+    this.iconSize,
   });
 
   final String label;
@@ -37,6 +41,10 @@ class AppButton extends StatelessWidget {
   final Widget? child;
   final Widget? prefix;
   final Widget? suffix;
+  final bool isLoading;
+  final double? loadingSize;
+  final IconData? icon;
+  final double? iconSize;
 
   factory AppButton.filled({
     required String label,
@@ -53,6 +61,8 @@ class AppButton extends StatelessWidget {
     Widget? child,
     Widget? prefix,
     Widget? suffix,
+    bool isLoading = false,
+    double? loadingSize,
   }) {
     return AppButton(
       label: label,
@@ -66,9 +76,12 @@ class AppButton extends StatelessWidget {
       prefix: prefix,
       suffix: suffix,
       verticalPadding: verticalPadding,
+      isLoading: isLoading,
+      loadingSize: loadingSize,
       child: child,
     );
   }
+
   factory AppButton.outlined({
     required String label,
     TextStyle? labelTextStyle,
@@ -83,6 +96,8 @@ class AppButton extends StatelessWidget {
     Widget? child,
     Widget? prefix,
     Widget? suffix,
+    bool isLoading = false,
+    double? loadingSize,
   }) {
     return AppButton(
       label: label,
@@ -98,18 +113,74 @@ class AppButton extends StatelessWidget {
       onTap: onTap,
       suffix: suffix,
       verticalPadding: verticalPadding,
+      isLoading: isLoading,
+      loadingSize: loadingSize,
       child: child,
+    );
+  }
+
+  factory AppButton.text({
+    required String label,
+    TextStyle? labelTextStyle,
+    Color? fgColor,
+    double? borderRadius,
+    required void Function()? onTap,
+    bool isLoading = false,
+    double? loadingSize,
+  }) {
+    return AppButton(
+      label: label,
+      isFilled: false,
+      borderRadius: borderRadius,
+      fgColor: fgColor,
+      labelTextStyle: labelTextStyle,
+      onTap: onTap,
+      isLoading: isLoading,
+      loadingSize: loadingSize,
+      horizontalPadding: 8.w,
+    );
+  }
+
+  factory AppButton.icon({
+    required String label,
+    required IconData icon,
+    TextStyle? labelTextStyle,
+    Color? fgColor,
+    double? iconSize,
+    double? borderRadius,
+    required void Function()? onTap,
+    bool isLoading = false,
+    double? loadingSize,
+  }) {
+    return AppButton(
+      label: label,
+      isFilled: false,
+      borderRadius: borderRadius,
+      fgColor: fgColor,
+      labelTextStyle: labelTextStyle,
+      onTap: onTap,
+      icon: icon,
+      iconSize: iconSize,
+      isLoading: isLoading,
+      loadingSize: loadingSize,
+      horizontalPadding: 8.w,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final Color foregroundColor = isFilled
+        ? fgColor ?? context.colors.pureWhite
+        : fgColor ?? context.colors.primaryBlue;
+
     return InkWell(
-      onTap: onTap,
+      onTap: isLoading ? null : onTap,
       borderRadius: BorderRadius.circular(borderRadius ?? 8.r),
       child: Container(
+        height: height,
+        width: width,
         padding: EdgeInsets.symmetric(
-          horizontal: horizontalPadding ?? 0,
+          horizontal: horizontalPadding ?? 16.w,
           vertical: verticalPadding ?? 4.h,
         ),
         decoration: BoxDecoration(
@@ -119,23 +190,48 @@ class AppButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(borderRadius ?? 8.r),
           border: borderColor != null ? Border.all(color: borderColor!) : null,
         ),
-        child: child ??
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                prefix ?? const SizedBox.shrink(),
-                Text(
-                  label,
-                  style: labelTextStyle ??
-                      Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            color: isFilled
-                                ? fgColor ?? context.colors.pureWhite
-                                : fgColor ?? context.colors.primaryBlue,
-                          ),
+        child: isLoading
+            ? Center(
+                child: SizedBox(
+                  height: loadingSize ?? 20.h,
+                  width: loadingSize ?? 20.h,
+                  child: CircularProgressIndicator(
+                    color: foregroundColor,
+                    strokeWidth: 2,
+                  ),
                 ),
-                suffix ?? const SizedBox.shrink(),
-              ],
-            ),
+              )
+            : child ??
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (icon != null) ...[
+                      Icon(
+                        icon,
+                        size: iconSize ?? 20.h,
+                        color: foregroundColor,
+                      ),
+                      SizedBox(width: 8.w),
+                    ],
+                    if (prefix != null) ...[
+                      prefix!,
+                      SizedBox(width: 8.w),
+                    ],
+                    Text(
+                      label,
+                      style: labelTextStyle ??
+                          Theme.of(context).textTheme.titleMedium!.copyWith(
+                                color: context.colors.primaryBlue,
+                                fontSize: 14,
+                              ),
+                    ),
+                    if (suffix != null) ...[
+                      SizedBox(width: 8.w),
+                      suffix!,
+                    ],
+                  ],
+                ),
       ),
     );
   }

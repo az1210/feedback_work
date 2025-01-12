@@ -17,8 +17,9 @@ class _SelectFeedbackPrivacyState extends State<SelectFeedbackPrivacy> {
   final sections = [
     FilterSection(
       title: 'Privacy',
-      options: ['All', 'Private', 'Public', 'My Feedback'],
-      allowMultipleSelection: false, // Radio button behavior
+      values: ['All', 'Private', 'Public', 'My Feedback'],
+      labels: ['All', 'Private', 'Public', 'My Feedback'],
+      allowMultipleSelection: false,
     ),
   ];
 

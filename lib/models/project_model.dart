@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProjectModel {
+  final String? id;
   final String? projectName;
   final String? problemName;
   final String? solutionName;
@@ -8,10 +9,14 @@ class ProjectModel {
   final String? projectDescription;
   final String? youtubeLink;
   final String? imageUrl;
-  final FieldValue? createdAt;
   final String? creatorId;
-  final CreatorDetailsModel creatorDetails;
+  final FieldValue? startDateTime;
+  final FieldValue? finishDateTime;
+  final FieldValue? breakDateTime;
+  final String? audioUrl;
+  final String? popUpText;
   ProjectModel({
+    this.id,
     this.projectName,
     this.problemName,
     this.solutionName,
@@ -19,12 +24,16 @@ class ProjectModel {
     this.projectDescription,
     this.youtubeLink,
     this.imageUrl,
-    this.createdAt,
     this.creatorId,
-    required this.creatorDetails,
+    this.startDateTime,
+    this.finishDateTime,
+    this.breakDateTime,
+    this.audioUrl,
+    this.popUpText,
   });
 
   ProjectModel copyWith({
+    String? id,
     String? projectName,
     String? problemName,
     String? solutionName,
@@ -32,11 +41,15 @@ class ProjectModel {
     String? projectDescription,
     String? youtubeLink,
     String? imageUrl,
-    FieldValue? createdAt,
     String? creatorId,
-    CreatorDetailsModel? creatorDetails,
+    FieldValue? startDateTime,
+    FieldValue? finishDateTime,
+    FieldValue? breakDateTime,
+    String? audioUrl,
+    String? popUpText,
   }) {
     return ProjectModel(
+      id: id ?? this.id,
       projectName: projectName ?? this.projectName,
       problemName: problemName ?? this.problemName,
       solutionName: solutionName ?? this.solutionName,
@@ -44,14 +57,18 @@ class ProjectModel {
       projectDescription: projectDescription ?? this.projectDescription,
       youtubeLink: youtubeLink ?? this.youtubeLink,
       imageUrl: imageUrl ?? this.imageUrl,
-      createdAt: createdAt ?? this.createdAt,
       creatorId: creatorId ?? this.creatorId,
-      creatorDetails: creatorDetails ?? this.creatorDetails,
+      startDateTime: startDateTime ?? this.startDateTime,
+      finishDateTime: finishDateTime ?? this.finishDateTime,
+      breakDateTime: breakDateTime ?? this.breakDateTime,
+      audioUrl: audioUrl ?? this.audioUrl,
+      popUpText: popUpText ?? this.popUpText,
     );
   }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
+      'id': id,
       'projectName': projectName,
       'problemName': problemName,
       'solutionName': solutionName,
@@ -59,14 +76,18 @@ class ProjectModel {
       'projectDescription': projectDescription,
       'youtubeLink': youtubeLink,
       'imageUrl': imageUrl,
-      'createdAt': createdAt,
       'creatorId': creatorId,
-      'creatorDetails': creatorDetails.toMap(),
+      'startDateTime': startDateTime,
+      'finishDateTime': finishDateTime,
+      'breakDateTime': breakDateTime,
+      'audioUrl': audioUrl,
+      'popUpText': popUpText,
     };
   }
 
   factory ProjectModel.fromMap(Map<String, dynamic> map) {
     return ProjectModel(
+      id: map['id'] != null ? map['id'] as String : null,
       projectName:
           map['projectName'] != null ? map['projectName'] as String : null,
       problemName:
@@ -82,50 +103,53 @@ class ProjectModel {
       youtubeLink:
           map['youtubeLink'] != null ? map['youtubeLink'] as String : null,
       imageUrl: map['imageUrl'] != null ? map['imageUrl'] as String : null,
-      createdAt:
-          map['createdAt'] != null ? map['createdAt'] as FieldValue : null,
       creatorId: map['creatorId'] != null ? map['creatorId'] as String : null,
-      creatorDetails: CreatorDetailsModel.fromMap(
-          map['creatorDetails'] as Map<String, dynamic>),
+      startDateTime: map['startDateTime'] != null
+          ? map['startDateTime'] as FieldValue
+          : null,
+      finishDateTime: map['finishDateTime'] != null
+          ? map['finishDateTime'] as FieldValue
+          : null,
+      breakDateTime: map['breakDateTime'] != null
+          ? map['breakDateTime'] as FieldValue
+          : null,
+      audioUrl: map['audioUrl'] != null ? map['audioUrl'] as String : null,
+      popUpText: map['popUpText'] != null ? map['popUpText'] as String : null,
     );
   }
 }
 
-class CreatorDetailsModel {
-  final String? username;
-  final String? title;
-  final String? expertise;
-  CreatorDetailsModel({
-    this.username,
-    this.title,
-    this.expertise,
+class ProgressModel {
+  final String? projectStatus;
+  final FieldValue? modifiedAt;
+  ProgressModel({
+    this.projectStatus,
+    this.modifiedAt,
   });
 
-  CreatorDetailsModel copyWith({
-    String? username,
-    String? title,
-    String? expertise,
+  ProgressModel copyWith({
+    String? projectStatus,
+    FieldValue? modifiedAt,
   }) {
-    return CreatorDetailsModel(
-      username: username ?? this.username,
-      title: title ?? this.title,
-      expertise: expertise ?? this.expertise,
+    return ProgressModel(
+      projectStatus: projectStatus ?? this.projectStatus,
+      modifiedAt: modifiedAt ?? this.modifiedAt,
     );
   }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'username': username,
-      'title': title,
-      'expertise': expertise,
+      'projectStatus': projectStatus,
+      'modifiedAt': modifiedAt,
     };
   }
 
-  factory CreatorDetailsModel.fromMap(Map<String, dynamic> map) {
-    return CreatorDetailsModel(
-      username: map['username'] != null ? map['username'] as String : null,
-      title: map['title'] != null ? map['title'] as String : null,
-      expertise: map['expertise'] != null ? map['expertise'] as String : null,
+  factory ProgressModel.fromMap(Map<String, dynamic> map) {
+    return ProgressModel(
+      projectStatus:
+          map['projectStatus'] != null ? map['projectStatus'] as String : null,
+      modifiedAt:
+          map['modifiedAt'] != null ? map['modifiedAt'] as FieldValue : null,
     );
   }
 }

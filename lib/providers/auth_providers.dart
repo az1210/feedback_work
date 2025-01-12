@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feedback_work/core/constants/firebase_constants.dart';
+import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -128,12 +129,12 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
 
       // Sign in with the resolved email
       await auth.signInWithEmailAndPassword(email: email, password: password);
-
       // Save session after sign-in
       final user = auth.currentUser;
       if (user != null) {
         await saveSession(user);
       }
+      ref.read(authProvider.notifier).state = true;
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
@@ -176,6 +177,7 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
 
       // Save session after sign-in
       await saveSession(userCredential.user!);
+      ref.read(authProvider.notifier).state = true;
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
@@ -192,11 +194,15 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
       await firestore
           .collection(FirebaseConstants.userCollection)
           .doc(uid)
-          .update(userModel.toMap());
-      await firestore
-          .collection(FirebaseConstants.categoryCollection)
-          .doc(uid)
-          .set({"expertise": userModel.expertise});
+          .update({
+        "id": uid,
+        "username": userModel.username,
+        "title": userModel.title,
+        "expertise": userModel.expertise,
+        "accountType": userModel.accountType,
+        "createdAt": FieldValue.serverTimestamp(),
+        "minimumRate": userModel.minimumRate,
+      });
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
@@ -254,6 +260,7 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
 
         // Save session after sign-in
         await saveSession(userCredential.user!);
+        ref.read(authProvider.notifier).state = true;
       } else if (result.status == LoginStatus.cancelled) {
         throw Exception('Facebook sign-in was cancelled.');
       } else {
@@ -273,6 +280,7 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
       await auth.signOut();
       await googleSignIn.signOut();
       await facebookAuth.logOut();
+      ref.read(authProvider.notifier).state = false;
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());

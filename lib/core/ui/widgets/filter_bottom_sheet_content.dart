@@ -1,64 +1,630 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
+// import 'package:flutter/material.dart';
+// import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+// import 'package:feedback_work/core/extensions/extensions.dart';
+// import 'package:feedback_work/core/ui/theme.dart';
+
+// class FilterSection {
+//   final String title;
+//   final List<String> options;
+//   final List<String>? imageUrls;
+//   final List<String>? counts;
+
+//   /// Default value is true
+//   final bool allowMultipleSelection;
+
+//   /// Default value is true
+//   final bool showTitle;
+
+//   FilterSection({
+//     this.imageUrls,
+//     this.counts,
+//     required this.title,
+//     required this.options,
+//     this.allowMultipleSelection = true,
+//     this.showTitle = true,
+//   });
+// }
+
+// class RangeSliderConfig {
+//   final String title;
+//   final double min;
+//   final double max;
+//   final int? divisions;
+//   final String Function(double)? labelFormatter;
+//   final RangeValues? initialRange;
+
+//   RangeSliderConfig({
+//     required this.title,
+//     this.min = 0,
+//     this.max = 100,
+//     this.divisions,
+//     this.labelFormatter,
+//     this.initialRange,
+//   });
+// }
+
+// typedef OnFiltersChanged = void Function(
+//     Map<String, Set<String>> selectedFilters);
+// typedef OnSliderChanged = void Function(double value);
+
+// class FilterBottomSheetContent extends StatefulWidget {
+//   final String? title;
+//   final List<FilterSection>? sections;
+//   final RangeSliderConfig? rangeSliderConfig;
+//   final Map<String, Set<String>>? initialFilters;
+//   final double? initialSliderValue;
+//   final OnFiltersChanged? onFiltersChanged;
+//   Function(RangeValues)? onRangeChanged;
+//   final VoidCallback? onApply;
+//   final VoidCallback? onReset;
+//   final String? applyButtonText;
+//   final String? resetButtonText;
+//   final bool hasActionButton;
+//   final bool hasHeader;
+//   final bool hasSearchOption;
+//   final bool isGrid;
+
+//   FilterBottomSheetContent({
+//     super.key,
+//     this.title,
+//     this.sections,
+//     this.rangeSliderConfig,
+//     this.initialFilters,
+//     this.initialSliderValue,
+//     this.onFiltersChanged,
+//     this.onRangeChanged,
+//     this.onApply,
+//     this.onReset,
+//     this.applyButtonText,
+//     this.resetButtonText,
+//     this.hasActionButton = true,
+//     this.hasHeader = true,
+//     this.hasSearchOption = true,
+//     this.isGrid = false,
+//   });
+
+//   @override
+//   _FilterBottomSheetContentState createState() =>
+//       _FilterBottomSheetContentState();
+// }
+
+// class _FilterBottomSheetContentState extends State<FilterBottomSheetContent> {
+//   late TextEditingController _searchController;
+//   late Map<String, Set<String>> selectedSectionFilters;
+//   late RangeValues rangeValues;
+//   late double sliderValue;
+//   String _searchQuery = '';
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _searchController = TextEditingController();
+//     _searchController.addListener(_onSearchChanged);
+//     if (widget.sections != null) {
+//       selectedSectionFilters = widget.initialFilters?.map(
+//             (key, value) => MapEntry(key, Set<String>.from(value)),
+//           ) ??
+//           {
+//             for (var section in widget.sections!) section.title: <String>{},
+//           };
+//     }
+
+//     if (widget.rangeSliderConfig != null) {
+//       rangeValues = widget.rangeSliderConfig!.initialRange ??
+//           RangeValues(
+//             widget.rangeSliderConfig!.min,
+//             widget.rangeSliderConfig!.max,
+//           );
+//     }
+//   }
+
+//   @override
+//   void dispose() {
+//     _searchController.removeListener(_onSearchChanged);
+//     _searchController.dispose();
+//     super.dispose();
+//   }
+
+//   void _onSearchChanged() {
+//     setState(() {
+//       _searchQuery = _searchController.text.toLowerCase();
+//     });
+//   }
+
+//   List<String> _getFilteredOptions(FilterSection section) {
+//     if (_searchQuery.isEmpty) {
+//       return section.options;
+//     }
+
+//     return section.options.where((option) {
+//       return option.toLowerCase().contains(_searchQuery);
+//     }).toList();
+//   }
+
+//   void _resetFilters() {
+//     setState(() {
+//       if (widget.sections != null) {
+//         selectedSectionFilters = {
+//           for (var section in widget.sections!) section.title: <String>{},
+//         };
+//       }
+
+//       sliderValue = widget.rangeSliderConfig?.min ?? 0.0;
+//     });
+//     widget.onReset?.call();
+//   }
+
+//   void _updateFilters(String section, String option) {
+//     FilterSection? sectionConfig;
+//     setState(() {
+//       if (widget.sections != null) {
+//         sectionConfig = widget.sections!.firstWhere((s) => s.title == section);
+//         if (sectionConfig!.allowMultipleSelection) {
+//           if (selectedSectionFilters[section]!.contains(option)) {
+//             selectedSectionFilters[section]!.remove(option);
+//           } else {
+//             selectedSectionFilters[section]!.add(option);
+//           }
+//         } else {
+//           selectedSectionFilters[section] = {option};
+//         }
+
+//         widget.onFiltersChanged?.call(selectedSectionFilters);
+//       }
+//     });
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return SingleChildScrollView(
+//       child: Column(
+//         mainAxisSize: MainAxisSize.min,
+//         children: [
+//           widget.hasHeader ? const BuildHeader() : const SizedBox.shrink(),
+//           widget.hasSearchOption
+//               ? BuildSearchBar(
+//                   searchController: _searchController, context: context)
+//               : const SizedBox.shrink(),
+//           SingleChildScrollView(
+//             child: Column(
+//               crossAxisAlignment: CrossAxisAlignment.start,
+//               children: [
+//                 if (widget.sections != null)
+//                   ...widget.sections!.map((section) => _buildSection(section)),
+//                 if (widget.rangeSliderConfig != null) ...[
+//                   _buildRangeSlider(widget.rangeSliderConfig!),
+//                   16.ph,
+//                 ],
+//               ],
+//             ),
+//           ),
+//           widget.hasActionButton
+//               ? _buildApplyButton()
+//               : const SizedBox.shrink(),
+//           16.ph,
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _buildSection(FilterSection section) {
+//     final filteredOptions = _getFilteredOptions(section);
+
+//     if (filteredOptions.isEmpty) {
+//       return const SizedBox.shrink();
+//     }
+//     return Padding(
+//       padding: EdgeInsets.symmetric(horizontal: 16.w),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           section.showTitle
+//               ? Padding(
+//                   padding: EdgeInsets.symmetric(
+//                     vertical: 8.h,
+//                   ),
+//                   child: Text(
+//                     section.title,
+//                     style: Theme.of(context).textTheme.bodySmall!.copyWith(
+//                           color: context.colors.darkGrey,
+//                         ),
+//                   ),
+//                 )
+//               : const SizedBox.shrink(),
+//           widget.isGrid
+//               ? GridView.builder(
+//                   shrinkWrap: true,
+//                   physics: const NeverScrollableScrollPhysics(),
+//                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+//                     crossAxisCount: 2,
+//                     childAspectRatio: 1,
+//                     crossAxisSpacing: 12,
+//                     mainAxisSpacing: 12,
+//                   ),
+//                   itemCount: filteredOptions.length,
+//                   itemBuilder: (context, index) {
+//                     final optionIndex =
+//                         section.options.indexOf(filteredOptions[index]);
+//                     return _buildGridFilterOption(
+//                       sectionTitle: section.title,
+//                       option: filteredOptions[index],
+//                       imageUrl: section.imageUrls?[optionIndex],
+//                       counts: section.counts?[optionIndex],
+//                     );
+//                   },
+//                 )
+//               : Container(
+//                   decoration: BoxDecoration(
+//                     borderRadius: BorderRadius.circular(20.r),
+//                     color: context.colors.pureWhite,
+//                   ),
+//                   child: ListView.separated(
+//                     padding: EdgeInsets.zero,
+//                     shrinkWrap: true,
+//                     physics: const NeverScrollableScrollPhysics(),
+//                     itemBuilder: (context, index) {
+//                       final optionIndex =
+//                           section.options.indexOf(filteredOptions[index]);
+//                       return _buildListFilterOption(
+//                         sectionTitle: section.title,
+//                         option: filteredOptions[index],
+//                         imageUrl: section.imageUrls?[optionIndex],
+//                         counts: section.counts?[optionIndex],
+//                       );
+//                     },
+//                     separatorBuilder: (_, __) => Container(
+//                       height: 1,
+//                       color: context.colors.inputBorder,
+//                     ),
+//                     itemCount: filteredOptions.length,
+//                   ),
+//                 ),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _buildListFilterOption({
+//     required String sectionTitle,
+//     required String option,
+//     String? imageUrl,
+//     String? counts,
+//   }) {
+//     final isSelected =
+//         selectedSectionFilters[sectionTitle]?.contains(option) ?? false;
+//     return InkWell(
+//       onTap: () => _updateFilters(sectionTitle, option),
+//       child: Padding(
+//         padding: EdgeInsets.all(16.r),
+//         child: Row(
+//           children: [
+//             if (imageUrl != null)
+//               Image.network(
+//                 imageUrl,
+//                 errorBuilder: (context, error, stackTrace) =>
+//                     const Icon(Icons.image),
+//               ),
+//             8.pw,
+//             Expanded(
+//               child: RichText(
+//                 text: TextSpan(
+//                   children: [
+//                     TextSpan(
+//                       text: option,
+//                       style: Theme.of(context).textTheme.bodySmall,
+//                     ),
+//                     if (counts != null)
+//                       TextSpan(
+//                         text: ' ($counts)',
+//                         style: Theme.of(context).textTheme.bodySmall!.copyWith(
+//                               color: context.colors.primaryBlue,
+//                               decoration: TextDecoration.underline,
+//                             ),
+//                       ),
+//                   ],
+//                 ),
+//                 maxLines: 1,
+//                 overflow: TextOverflow.ellipsis,
+//               ),
+//             ),
+//             if (isSelected)
+//               Icon(
+//                 Icons.check,
+//                 color: context.colors.primaryBlue,
+//               ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _buildGridFilterOption({
+//     required String sectionTitle,
+//     required String option,
+//     String? imageUrl,
+//     String? counts,
+//   }) {
+//     final isSelected =
+//         selectedSectionFilters[sectionTitle]?.contains(option) ?? false;
+//     return InkWell(
+//       onTap: () => _updateFilters(sectionTitle, option),
+//       child: Container(
+//         decoration: BoxDecoration(
+//           borderRadius: BorderRadius.circular(12.r),
+//           border: Border.all(
+//             color: isSelected
+//                 ? context.colors.primaryBlue
+//                 : context.colors.inputBorder,
+//             width: 1.5,
+//           ),
+//           color: AppColors().pureWhite,
+//         ),
+//         child: Padding(
+//           padding: EdgeInsets.all(8.r),
+//           child: Column(
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             children: [
+//               if (imageUrl != null)
+//                 Image.network(
+//                   imageUrl,
+//                   width: 32.w,
+//                   height: 32.h,
+//                   errorBuilder: (context, error, stackTrace) =>
+//                       const Icon(Icons.image),
+//                 ),
+//               8.ph,
+//               Text(
+//                 option,
+//                 textAlign: TextAlign.center,
+//                 style: Theme.of(context).textTheme.bodySmall,
+//               ),
+//               if (counts != null)
+//                 Text(
+//                   ' ($counts)',
+//                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
+//                         color: context.colors.primaryBlue,
+//                         decoration: TextDecoration.underline,
+//                       ),
+//                 ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _buildRangeSlider(RangeSliderConfig config) {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Padding(
+//           padding: EdgeInsets.symmetric(
+//             vertical: 8.h,
+//             horizontal: 16.w,
+//           ),
+//           child: Text(
+//             config.title,
+//             style: Theme.of(context).textTheme.bodySmall!.copyWith(
+//                   color: context.colors.darkGrey,
+//                 ),
+//           ),
+//         ),
+//         Column(
+//           children: [
+//             SliderTheme(
+//               data: SliderThemeData(
+//                 rangeTrackShape: const RoundedRectRangeSliderTrackShape(),
+//                 activeTrackColor: context.colors.primaryBlue,
+//                 inactiveTrackColor: context.colors.inputBorder,
+//                 rangeThumbShape: const RoundRangeSliderThumbShape(
+//                   elevation: 4,
+//                 ),
+//                 thumbColor: context.colors.pureWhite,
+//                 overlayColor: context.colors.primaryBlue,
+//                 activeTickMarkColor: Colors.transparent,
+//                 inactiveTickMarkColor: Colors.transparent,
+//               ),
+//               child: RangeSlider(
+//                 values: rangeValues,
+//                 min: config.min,
+//                 max: config.max,
+//                 divisions: config.divisions,
+//                 onChanged: (RangeValues values) {
+//                   setState(() {
+//                     rangeValues = values;
+//                     widget.onRangeChanged?.call(values);
+//                   });
+//                 },
+//               ),
+//             ),
+//             Padding(
+//               padding: EdgeInsets.symmetric(
+//                 horizontal: 16.w,
+//               ),
+//               child: Row(
+//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                 children: [
+//                   Text(
+//                     config.labelFormatter?.call(config.min) ??
+//                         config.min.round().toString(),
+//                     style: Theme.of(context).textTheme.bodySmall!.copyWith(
+//                           color: context.colors.darkGrey,
+//                         ),
+//                   ),
+//                   Text(
+//                     config.labelFormatter
+//                             ?.call((config.min + config.max) / 2) ??
+//                         ((config.min + config.max) / 2).round().toString(),
+//                     style: Theme.of(context).textTheme.bodySmall!.copyWith(
+//                           color: context.colors.darkGrey,
+//                         ),
+//                   ),
+//                   Text(
+//                     config.labelFormatter?.call(config.max) ??
+//                         config.max.round().toString(),
+//                     style: Theme.of(context).textTheme.bodySmall!.copyWith(
+//                           color: context.colors.darkGrey,
+//                         ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ],
+//         ),
+//       ],
+//     );
+//   }
+
+//   Widget _buildApplyButton() {
+//     return Container(
+//       margin: EdgeInsets.symmetric(horizontal: 16.w),
+//       height: 52.h,
+//       width: double.infinity,
+//       decoration: BoxDecoration(
+//         borderRadius: BorderRadius.circular(8.r),
+//         color: context.colors.primaryBlue,
+//       ),
+//       child: Center(
+//         child: Text(
+//           widget.applyButtonText ?? 'Apply',
+//           style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+//                 color: context.colors.pureWhite,
+//               ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+// class BuildSearchBar extends StatelessWidget {
+//   const BuildSearchBar({
+//     super.key,
+//     required TextEditingController searchController,
+//     required this.context,
+//   }) : _searchController = searchController;
+
+//   final TextEditingController _searchController;
+//   final BuildContext context;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(
+//       padding: EdgeInsets.all(16.r),
+//       child: SizedBox(
+//         height: 43.h,
+//         child: Row(
+//           children: [
+//             Expanded(
+//               child: TextField(
+//                 controller: _searchController,
+//                 decoration: InputDecoration(
+//                   filled: true,
+//                   prefixIcon: Icon(
+//                     Icons.search,
+//                     color: AppColors().primaryBlue,
+//                   ),
+//                   hintText: 'Search feedback category',
+//                   border: OutlineInputBorder(
+//                     borderRadius: BorderRadius.circular(30.r),
+//                     borderSide: BorderSide.none,
+//                   ),
+//                   hintStyle: const TextStyle(color: Colors.grey),
+//                   fillColor: context.colors.pureWhite,
+//                 ),
+//               ),
+//             ),
+//             8.pw,
+//             InkWell(
+//               onTap: () {},
+//               borderRadius: BorderRadius.circular(40.r),
+//               child: Container(
+//                 width: 43.r,
+//                 decoration: BoxDecoration(
+//                   shape: BoxShape.circle,
+//                   color: context.colors.pureWhite,
+//                 ),
+//                 child: Center(
+//                   child: Icon(
+//                     Icons.filter_list,
+//                     color: context.colors.primaryBlue,
+//                   ),
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+// class BuildHeader extends StatelessWidget {
+//   const BuildHeader(
+//       {super.key, this.title, this.resetFilter, this.resetButtonText});
+
+//   final String? title;
+//   final String? resetButtonText;
+//   final void Function()? resetFilter;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(
+//       padding: EdgeInsets.symmetric(horizontal: 16.w),
+//       child: Row(
+//         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//         children: [
+//           title != null
+//               ? Text(
+//                   title!,
+//                   style: Theme.of(context).textTheme.displaySmall,
+//                 )
+//               : const SizedBox.shrink(),
+//           TextButton(
+//             onPressed: resetFilter,
+//             child: Text(
+//               resetButtonText ?? 'Reset Filters',
+//               style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+//                     color: context.colors.primaryBlue,
+//                   ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/ui/theme.dart';
 
-class FilterSection {
+class FilterSection<T> {
   final String title;
-  final List<String> options;
+  final List<T> values;
+  final List<String> labels;
+  final List<String>? imageUrls;
+  final List<String>? counts;
   final bool allowMultipleSelection;
+  final bool showTitle;
 
   FilterSection({
+    this.imageUrls,
+    this.counts,
     required this.title,
-    required this.options,
+    required this.values,
+    required this.labels,
     this.allowMultipleSelection = true,
-  });
-}
-
-class PeopleSection {
-  final String imageUrl;
-  final String name;
-  final bool isSelected;
-
-  PeopleSection({
-    required this.imageUrl,
-    required this.name,
-    this.isSelected = false,
-  });
-
-  PeopleSection copyWith({
-    bool? isSelected,
+    this.showTitle = true,
   }) {
-    return PeopleSection(
-      imageUrl: imageUrl,
-      name: name,
-      isSelected: isSelected ?? this.isSelected,
-    );
-  }
-}
-
-class CategoryItem {
-  final String name;
-  final String iconPath;
-  final int count;
-  final bool isSelected;
-
-  CategoryItem({
-    required this.name,
-    required this.iconPath,
-    required this.count,
-    this.isSelected = false,
-  });
-
-  CategoryItem copyWith({bool? isSelected}) {
-    return CategoryItem(
-      name: name,
-      iconPath: iconPath,
-      count: count,
-      isSelected: isSelected ?? this.isSelected,
-    );
+    assert(values.length == labels.length,
+        'Values and labels must have the same length');
+    assert(imageUrls == null || imageUrls!.length == values.length,
+        'ImageUrls must have the same length as values');
+    assert(counts == null || counts!.length == values.length,
+        'Counts must have the same length as values');
   }
 }
 
@@ -80,26 +646,17 @@ class RangeSliderConfig {
   });
 }
 
-typedef OnFiltersChanged = void Function(
-    Map<String, Set<String>> selectedFilters);
-typedef OnCategoryChanged = void Function(Set<String> selectedCategories);
-typedef OnPeopleChanged = void Function(Set<String> selectedPeoples);
-typedef OnSliderChanged = void Function(double value);
+typedef OnFiltersChanged<T> = void Function(
+    Map<String, Set<T>> selectedFilters);
 
-class FilterBottomSheetContent extends StatefulWidget {
+class FilterBottomSheetContent<T> extends StatefulWidget {
   final String? title;
-  final List<FilterSection>? sections;
-  final List<CategoryItem>? categories;
-  final List<PeopleSection>? peoples;
+  final List<FilterSection<T>>? sections;
   final RangeSliderConfig? rangeSliderConfig;
-  final Map<String, Set<String>>? initialFilters;
-  final Set<String>? initialCategories;
-  final Set<String>? initialPeoples;
+  final Map<String, Set<T>>? initialFilters;
   final double? initialSliderValue;
-  final OnFiltersChanged? onFiltersChanged;
-  final OnCategoryChanged? onCategoryChanged;
-  final OnPeopleChanged? onPeopleChanged;
-  Function(RangeValues)? onRangeChanged;
+  final OnFiltersChanged<T>? onFiltersChanged;
+  final Function(RangeValues)? onRangeChanged;
   final VoidCallback? onApply;
   final VoidCallback? onReset;
   final String? applyButtonText;
@@ -107,56 +664,51 @@ class FilterBottomSheetContent extends StatefulWidget {
   final bool hasActionButton;
   final bool hasHeader;
   final bool hasSearchOption;
+  final bool isGrid;
 
-  FilterBottomSheetContent({
+  const FilterBottomSheetContent({
     super.key,
     this.title,
     this.sections,
-    this.categories,
     this.rangeSliderConfig,
     this.initialFilters,
     this.initialSliderValue,
     this.onFiltersChanged,
-    this.onCategoryChanged,
     this.onRangeChanged,
     this.onApply,
     this.onReset,
     this.applyButtonText,
     this.resetButtonText,
-    this.initialCategories,
     this.hasActionButton = true,
     this.hasHeader = true,
     this.hasSearchOption = true,
-    this.peoples,
-    this.initialPeoples,
-    this.onPeopleChanged,
+    this.isGrid = false,
   });
 
   @override
-  _FilterBottomSheetContentState createState() =>
-      _FilterBottomSheetContentState();
+  _FilterBottomSheetContentState<T> createState() =>
+      _FilterBottomSheetContentState<T>();
 }
 
-class _FilterBottomSheetContentState extends State<FilterBottomSheetContent> {
+class _FilterBottomSheetContentState<T>
+    extends State<FilterBottomSheetContent<T>> {
   late TextEditingController _searchController;
-  late Map<String, Set<String>> selectedSectionFilters;
+  late Map<String, Set<T>> selectedSectionFilters;
   late RangeValues rangeValues;
-  late double sliderValue;
-  late List<CategoryItem> _categories;
-  late List<CategoryItem> _filteredCategories;
-  late List<PeopleSection> _peoples;
-  late List<PeopleSection> _filteredPeoples;
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
     _searchController = TextEditingController();
+    _searchController.addListener(_onSearchChanged);
+
     if (widget.sections != null) {
       selectedSectionFilters = widget.initialFilters?.map(
-            (key, value) => MapEntry(key, Set<String>.from(value)),
+            (key, value) => MapEntry(key, Set<T>.from(value)),
           ) ??
           {
-            for (var section in widget.sections!) section.title: <String>{},
+            for (var section in widget.sections!) section.title: <T>{},
           };
     }
 
@@ -167,136 +719,69 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent> {
             widget.rangeSliderConfig!.max,
           );
     }
-
-    // Initialize the categories with default values or from the initialCategories
-    _categories = widget.categories ?? [];
-    _filteredCategories = _categories;
-    if (widget.initialCategories != null) {
-      for (var i = 0; i < _categories.length; i++) {
-        if (widget.initialCategories!.contains(_categories[i].name)) {
-          _categories[i] = _categories[i].copyWith(isSelected: true);
-        }
-      }
-    }
-
-    _peoples = widget.peoples ?? [];
-    _filteredPeoples = _peoples;
-    if (widget.initialPeoples != null) {
-      for (var i = 0; i < _peoples.length; i++) {
-        if (widget.initialPeoples!.contains(_peoples[i].name)) {
-          _peoples[i] = _peoples[i].copyWith(isSelected: true);
-        }
-      }
-    }
   }
 
-  void _filterCategories(String query) {
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
     setState(() {
-      _filteredCategories = _categories
-          .where((category) =>
-              category.name.toLowerCase().contains(query.toLowerCase()))
-          .toList();
+      _searchQuery = _searchController.text.toLowerCase();
     });
   }
 
-  void _filterPeoples(String query) {
-    setState(() {
-      _filteredPeoples = _peoples
-          .where((people) =>
-              people.name.toLowerCase().contains(query.toLowerCase()))
-          .toList();
-    });
-  }
-
-  void _toggleCategory(int index) {
-    setState(() {
-      _categories[index] = _categories[index].copyWith(
-        isSelected: !_categories[index].isSelected,
+  List<FilterItem<T>> _getFilteredOptions(FilterSection<T> section) {
+    if (_searchQuery.isEmpty) {
+      return List.generate(
+        section.values.length,
+        (i) => FilterItem(
+          value: section.values[i],
+          label: section.labels[i],
+          imageUrl: section.imageUrls?[i],
+          count: section.counts?[i],
+        ),
       );
-    });
-  }
-
-  void _togglePeople(int index) {
-    setState(() {
-      _peoples[index] = _peoples[index].copyWith(
-        isSelected: !_peoples[index].isSelected,
-      );
-    });
-
-    // Get the set of selected category names
-    final selectedCategories = _categories
-        .where((category) => category.isSelected)
-        .map((category) => category.name)
-        .toSet();
-    // Get the set of selected category names
-    final selectedPeoples = _peoples
-        .where((people) => people.isSelected)
-        .map((people) => people.name)
-        .toSet();
-
-    // Notify the parent widget about the change in selected categories
-    if (widget.onCategoryChanged != null) {
-      widget.onCategoryChanged!(selectedCategories);
-      // widget.onCategoryChanged(selectedCategories);
-    }
-    // Notify the parent widget about the change in selected categories
-    if (widget.onPeopleChanged != null) {
-      widget.onPeopleChanged!(selectedPeoples);
-      // widget.onCategoryChanged(selectedCategories);
     }
 
-    // Notify the parent widget of the overall filter changes
-    if (widget.onFiltersChanged != null) {
-      widget.onFiltersChanged!({
-        'categories': selectedCategories,
-      });
-    }
-    // Notify the parent widget of the overall filter changes
-    if (widget.onFiltersChanged != null) {
-      widget.onFiltersChanged!({
-        'peoples': selectedPeoples,
-      });
-    }
+    return List.generate(
+      section.values.length,
+      (i) => FilterItem(
+        value: section.values[i],
+        label: section.labels[i],
+        imageUrl: section.imageUrls?[i],
+        count: section.counts?[i],
+      ),
+    ).where((item) => item.label.toLowerCase().contains(_searchQuery)).toList();
   }
 
   void _resetFilters() {
     setState(() {
       if (widget.sections != null) {
         selectedSectionFilters = {
-          for (var section in widget.sections!) section.title: <String>{},
+          for (var section in widget.sections!) section.title: <T>{},
         };
       }
-
-      if (widget.categories != null) {
-        selectedSectionFilters = {
-          for (var category in widget.categories!) category.name: <String>{},
-        };
-      }
-
-      if (widget.peoples != null) {
-        selectedSectionFilters = {
-          for (var people in widget.peoples!) people.name: <String>{},
-        };
-      }
-
-      sliderValue = widget.rangeSliderConfig?.min ?? 0.0;
     });
     widget.onReset?.call();
   }
 
-  void _updateFilters(String section, String option) {
-    FilterSection? sectionConfig;
+  void _updateFilters(String section, T value) {
     setState(() {
       if (widget.sections != null) {
-        sectionConfig = widget.sections!.firstWhere((s) => s.title == section);
-        if (sectionConfig!.allowMultipleSelection) {
-          if (selectedSectionFilters[section]!.contains(option)) {
-            selectedSectionFilters[section]!.remove(option);
+        final sectionConfig =
+            widget.sections!.firstWhere((s) => s.title == section);
+        if (sectionConfig.allowMultipleSelection) {
+          if (selectedSectionFilters[section]!.contains(value)) {
+            selectedSectionFilters[section]!.remove(value);
           } else {
-            selectedSectionFilters[section]!.add(option);
+            selectedSectionFilters[section]!.add(value);
           }
         } else {
-          selectedSectionFilters[section] = {option};
+          selectedSectionFilters[section] = {value};
         }
 
         widget.onFiltersChanged?.call(selectedSectionFilters);
@@ -310,31 +795,17 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          widget.hasHeader ? _buildHeader() : const SizedBox.shrink(),
-          widget.hasSearchOption ? _buildSearchBar() : const SizedBox.shrink(),
-          widget.peoples != null
-              ? _buildPeopleSection()
-              : const SizedBox.shrink(),
-          if (widget.categories != null) ...[
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-              child: Row(
-                children: [
-                  Text(
-                    'Category',
-                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                          color: context.colors.darkGrey,
-                        ),
-                  ),
-                ],
-              ),
+          if (widget.hasHeader)
+            BuildHeader(
+              title: widget.title,
+              resetButtonText: widget.resetButtonText,
+              resetFilter: _resetFilters,
             ),
-            16.ph,
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: _buildCategoryGrid(),
+          if (widget.hasSearchOption)
+            BuildSearchBar(
+              searchController: _searchController,
+              context: context,
             ),
-          ],
           SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -345,210 +816,160 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent> {
                   _buildRangeSlider(widget.rangeSliderConfig!),
                   16.ph,
                 ],
-                widget.hasActionButton
-                    ? _buildApplyButton()
-                    : const SizedBox.shrink(),
-                16.ph,
               ],
             ),
           ),
+          if (widget.hasActionButton) _buildApplyButton(),
+          16.ph,
         ],
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildSection(FilterSection<T> section) {
+    final filteredOptions = _getFilteredOptions(section);
+
+    if (filteredOptions.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          widget.title != null
-              ? Text(
-                  widget.title!,
-                  style: Theme.of(context).textTheme.displaySmall,
-                )
-              : const SizedBox.shrink(),
-          TextButton(
-            onPressed: _resetFilters,
-            child: Text(
-              widget.resetButtonText ?? 'Reset Filters',
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: context.colors.primaryBlue,
-                  ),
+          if (section.showTitle)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 8.h),
+              child: Text(
+                section.title,
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                      color: context.colors.darkGrey,
+                    ),
+              ),
             ),
-          ),
+          widget.isGrid
+              ? _buildGridView(section, filteredOptions)
+              : _buildListView(section, filteredOptions),
         ],
       ),
     );
   }
 
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: EdgeInsets.all(16.r),
-      child: SizedBox(
-        height: 43.h,
+  Widget _buildGridView(FilterSection<T> section, List<FilterItem<T>> items) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 1,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+      ),
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        final item = items[index];
+        return _buildGridFilterOption(
+          sectionTitle: section.title,
+          item: item,
+        );
+      },
+    );
+  }
+
+  Widget _buildListView(FilterSection<T> section, List<FilterItem<T>> items) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20.r),
+        color: context.colors.pureWhite,
+      ),
+      child: ListView.separated(
+        padding: EdgeInsets.zero,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemBuilder: (context, index) {
+          final item = items[index];
+          return _buildListFilterOption(
+            sectionTitle: section.title,
+            item: item,
+          );
+        },
+        separatorBuilder: (_, __) => Container(
+          height: 1,
+          color: context.colors.inputBorder,
+        ),
+        itemCount: items.length,
+      ),
+    );
+  }
+
+  Widget _buildListFilterOption({
+    required String sectionTitle,
+    required FilterItem<T> item,
+  }) {
+    final isSelected =
+        selectedSectionFilters[sectionTitle]?.contains(item.value) ?? false;
+
+    return InkWell(
+      onTap: () => _updateFilters(sectionTitle, item.value),
+      child: Padding(
+        padding: EdgeInsets.all(16.r),
         child: Row(
           children: [
-            Expanded(
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  filled: true,
-                  prefixIcon: Icon(
-                    Icons.search,
-                    color: AppColors().primaryBlue,
-                  ),
-                  hintText: 'Search feedback category',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.r),
-                    borderSide: BorderSide.none,
-                  ),
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  fillColor: context.colors.pureWhite,
-                ),
-                onChanged: _filterCategories,
+            if (item.imageUrl != null)
+              Image.network(
+                item.imageUrl!,
+                errorBuilder: (context, error, stackTrace) =>
+                    const Icon(Icons.image),
               ),
-            ),
             8.pw,
-            InkWell(
-              onTap: () {},
-              borderRadius: BorderRadius.circular(40.r),
-              child: Container(
-                width: 43.r,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: context.colors.pureWhite,
+            Expanded(
+              child: RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: item.label,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    if (item.count != null)
+                      TextSpan(
+                        text: ' (${item.count})',
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                              color: context.colors.primaryBlue,
+                              decoration: TextDecoration.underline,
+                            ),
+                      ),
+                  ],
                 ),
-                child: Center(
-                  child: Icon(
-                    Icons.filter_list,
-                    color: context.colors.primaryBlue,
-                  ),
-                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
+            if (isSelected)
+              Icon(
+                Icons.check,
+                color: context.colors.primaryBlue,
+              ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSection(FilterSection section) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: 8.h,
-            ),
-            child: Text(
-              section.title,
-              style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    color: context.colors.darkGrey,
-                  ),
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20.r),
-              color: context.colors.pureWhite,
-            ),
-            child: ListView.separated(
-              padding: EdgeInsets.zero,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index) =>
-                  _buildFilterOption(section.title, section.options[index]),
-              separatorBuilder: (_, __) => Container(
-                height: 1,
-                color: context.colors.inputBorder,
-              ),
-              itemCount: section.options.length,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildGridFilterOption({
+    required String sectionTitle,
+    required FilterItem<T> item,
+  }) {
+    final isSelected =
+        selectedSectionFilters[sectionTitle]?.contains(item.value) ?? false;
 
-  Widget _buildPeopleSection() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20.r),
-          color: context.colors.pureWhite,
-        ),
-        child: ListView.separated(
-          padding: EdgeInsets.zero,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) => InkWell(
-            onTap: () => _togglePeople(index),
-            child: Padding(
-              padding: EdgeInsets.all(12.r),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Image.network(
-                        _peoples[index].imageUrl,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.person),
-                      ),
-                      8.pw,
-                      Text(_peoples[index].name),
-                    ],
-                  ),
-                  if (_peoples[index].isSelected)
-                    Icon(
-                      Icons.check,
-                      color: context.colors.primaryBlue,
-                    ),
-                ],
-              ),
-            ),
-          ),
-          separatorBuilder: (_, __) => Container(
-            height: 1,
-            color: context.colors.inputBorder,
-          ),
-          itemCount: _peoples.length,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCategoryGrid() {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 1, // Adjust aspect ratio for tile size
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-      ),
-      itemCount: _categories.length,
-      itemBuilder: (context, index) {
-        final category = _categories[index];
-        return _buildCategoryTile(category, index);
-      },
-    );
-  }
-
-  Widget _buildCategoryTile(CategoryItem category, int index) {
     return InkWell(
-      onTap: () => _toggleCategory(index),
+      onTap: () => _updateFilters(sectionTitle, item.value),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
-            color: category.isSelected
+            color: isSelected
                 ? context.colors.primaryBlue
                 : context.colors.inputBorder,
             width: 1.5,
@@ -560,53 +981,30 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.network(
-                category.iconPath,
-                width: 32.w,
-                height: 32.h,
-                errorBuilder: (context, error, stackTrace) =>
-                    const Icon(Icons.image),
-              ),
-              SizedBox(height: 8.h),
+              if (item.imageUrl != null)
+                Image.network(
+                  item.imageUrl!,
+                  width: 32.w,
+                  height: 32.h,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.image),
+                ),
+              8.ph,
               Text(
-                category.name,
+                item.label,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
-              Text(
-                '(${category.count})',
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                      color: context.colors.primaryBlue,
-                      decoration: TextDecoration.underline,
-                    ),
-              ),
+              if (item.count != null)
+                Text(
+                  ' (${item.count})',
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        color: context.colors.primaryBlue,
+                        decoration: TextDecoration.underline,
+                      ),
+                ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFilterOption(String section, String option) {
-    final isSelected =
-        selectedSectionFilters[section]?.contains(option) ?? false;
-    return InkWell(
-      onTap: () => _updateFilters(section, option),
-      child: Padding(
-        padding: EdgeInsets.all(16.r),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              option,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            if (isSelected)
-              Icon(
-                Icons.check,
-                color: context.colors.primaryBlue,
-              ),
-          ],
         ),
       ),
     );
@@ -703,13 +1101,131 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent> {
         borderRadius: BorderRadius.circular(8.r),
         color: context.colors.primaryBlue,
       ),
-      child: Center(
-        child: Text(
-          widget.applyButtonText ?? 'Apply',
-          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                color: context.colors.pureWhite,
-              ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: widget.onApply,
+          child: Center(
+            child: Text(
+              widget.applyButtonText ?? 'Apply',
+              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                    color: context.colors.pureWhite,
+                  ),
+            ),
+          ),
         ),
+      ),
+    );
+  }
+}
+
+class FilterItem<T> {
+  final T value;
+  final String label;
+  final String? imageUrl;
+  final String? count;
+
+  FilterItem({
+    required this.value,
+    required this.label,
+    this.imageUrl,
+    this.count,
+  });
+}
+
+class BuildSearchBar extends StatelessWidget {
+  const BuildSearchBar({
+    super.key,
+    required TextEditingController searchController,
+    required this.context,
+  }) : _searchController = searchController;
+
+  final TextEditingController _searchController;
+  final BuildContext context;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(16.r),
+      child: SizedBox(
+        height: 43.h,
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  filled: true,
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: AppColors().primaryBlue,
+                  ),
+                  hintText: 'Search feedback category',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.r),
+                    borderSide: BorderSide.none,
+                  ),
+                  hintStyle: const TextStyle(color: Colors.grey),
+                  fillColor: context.colors.pureWhite,
+                ),
+              ),
+            ),
+            8.pw,
+            InkWell(
+              onTap: () {},
+              borderRadius: BorderRadius.circular(40.r),
+              child: Container(
+                width: 43.r,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: context.colors.pureWhite,
+                ),
+                child: Center(
+                  child: Icon(
+                    Icons.filter_list,
+                    color: context.colors.primaryBlue,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class BuildHeader extends StatelessWidget {
+  const BuildHeader(
+      {super.key, this.title, this.resetFilter, this.resetButtonText});
+
+  final String? title;
+  final String? resetButtonText;
+  final void Function()? resetFilter;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          title != null
+              ? Text(
+                  title!,
+                  style: Theme.of(context).textTheme.displaySmall,
+                )
+              : const SizedBox.shrink(),
+          TextButton(
+            onPressed: resetFilter,
+            child: Text(
+              resetButtonText ?? 'Reset Filters',
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: context.colors.primaryBlue,
+                  ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -9,9 +9,14 @@ import 'package:feedback_work/core/utils/utils.dart';
 final userProvider =
     NotifierProvider<UserNotifier, UserNotifierState>(UserNotifier.new);
 
+final currentUserProvider = StateProvider<UserModel?>((ref) => null);
+
 class UserNotifier extends Notifier<UserNotifierState> {
   @override
   UserNotifierState build() {
+    Future.microtask(() async {
+      ref.read(currentUserProvider.notifier).state = await currentUser();
+    });
     return UserNotifierState(state: AsyncState.initial);
   }
 
@@ -20,12 +25,30 @@ class UserNotifier extends Notifier<UserNotifierState> {
     state = state.copyWith(state: AsyncState.loading);
     FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
+      // final usersDoc =
+      //     firestore.collection(FirebaseConstants.userCollection).doc();
+
+      // await firestore
+      //     .collection(FirebaseConstants.userCollection)
+      //     .doc(usersDoc.id)
+      //     .update({"id": usersDoc.id, "minimumRate": 10});
+
+      // final usersCollection = FirebaseFirestore.instance.collection('users');
+
+      // final querySnapshot = await usersCollection.get();
+
+      // for (final doc in querySnapshot.docs) {
+      //   await usersCollection.doc(doc.id).update({
+      //     'id': doc.id,
+      //     "minimumRate": 10.0,
+      //   });
+      // }
+
       final usersSnapshot =
           await firestore.collection(FirebaseConstants.userCollection).get();
-
       final users =
           usersSnapshot.docs.map((u) => UserModel.fromMap(u.data())).toList();
-      Log.info(users.map((u) => u.expertise).toList().toString());
+      Log.info(users.map((u) => u.id).toList().toString());
       state = state.copyWith(data: users, state: AsyncState.success);
     } catch (e, stackTrace) {
       Log.error(e.toString());
@@ -37,7 +60,7 @@ class UserNotifier extends Notifier<UserNotifierState> {
     try {
       state = state.copyWith(state: AsyncState.loading);
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('users')
+          .collection(FirebaseConstants.userCollection)
           .where('expertise', isEqualTo: expertise)
           .get();
 
@@ -49,6 +72,25 @@ class UserNotifier extends Notifier<UserNotifierState> {
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+    }
+  }
+
+  Future<UserModel> currentUser() async {
+    try {
+      final firestore = ref.read(firestoreProvider);
+      final auth = ref.read(firebaseAuthProvider);
+      state = state.copyWith(state: AsyncState.loading);
+      final querySnapshot = await firestore
+          .collection(FirebaseConstants.userCollection)
+          .doc(auth.currentUser?.uid)
+          .get();
+
+      // Map each document to a list of user data
+      return UserModel.fromMap(querySnapshot.data() as Map<String, dynamic>);
+    } catch (e, stackTrace) {
+      Log.error(e.toString());
+      Log.error(stackTrace.toString());
+      return UserModel();
     }
   }
 }
