@@ -1,5 +1,5 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
-import 'package:feedback_work/core/ui/widgets/filter_bottom_sheet_content.dart';
+import 'package:feedback_work/core/ui/widgets/filter__content.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:flutter/material.dart';
 
@@ -80,7 +80,7 @@ void showFeedbackFilters(BuildContext context) {
     backgroundColor: context.colors.background,
     useRootNavigator: true,
     useSafeArea: true,
-    builder: (context) => FilterBottomSheetContent(
+    builder: (context) => FilterContent(
       title: 'Filters',
       sections: sections,
       initialFilters: const {

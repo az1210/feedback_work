@@ -1,5 +1,6 @@
 import 'package:feedback_work/core/router/navbar.dart';
 import 'package:feedback_work/models/user_model.dart';
+import 'package:feedback_work/screens/user/screens/add_child_screen.dart';
 import 'package:feedback_work/screens/user/screens/edit_profile_screen.dart';
 import 'package:feedback_work/screens/user/screens/feedback_receipt_screen.dart';
 import 'package:feedback_work/screens/user/screens/parent_and_children_screen.dart';
@@ -65,6 +66,7 @@ class Routes {
   static const feedbackReceipt = 'feedback-receipt';
   static const editProfile = 'edit-profile';
   static const parentAndChildren = 'parent-children';
+  static const addChild = 'add-child';
 }
 
 final authProvider = StateProvider<bool>((ref) => false);
@@ -202,7 +204,16 @@ final routerProvider = Provider<GoRouter>(
         GoRoute(
           name: Routes.parentAndChildren,
           path: Routes.parentAndChildren.p,
-          builder: (context, state) => const ParentAndChildrenScreen(),
+          builder: (context, state) => ParentAndChildrenScreen(
+            userId: state.extra as String,
+          ),
+        ),
+        GoRoute(
+          name: Routes.addChild,
+          path: Routes.addChild.p,
+          builder: (context, state) => AddChildScreen(
+            parentId: state.extra as String,
+          ),
         ),
 
         // NavBar Routes

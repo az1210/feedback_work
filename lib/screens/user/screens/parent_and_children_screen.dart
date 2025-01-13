@@ -1,23 +1,46 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
+import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/dotted_border_big_button.dart';
 import 'package:feedback_work/core/utils/utils.dart';
+import 'package:feedback_work/models/child_model.dart';
+import 'package:feedback_work/providers/child_providers.dart';
 import 'package:feedback_work/screens/user/widgets/parent_child_filter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
-class ParentAndChildrenScreen extends StatefulWidget {
-  const ParentAndChildrenScreen({super.key});
+class ParentAndChildrenScreen extends ConsumerStatefulWidget {
+  const ParentAndChildrenScreen({super.key, required this.userId});
+
+  final String userId;
 
   @override
-  State<ParentAndChildrenScreen> createState() =>
+  ConsumerState<ParentAndChildrenScreen> createState() =>
       _ParentAndChildrenScreenState();
 }
 
-class _ParentAndChildrenScreenState extends State<ParentAndChildrenScreen> {
+class _ParentAndChildrenScreenState
+    extends ConsumerState<ParentAndChildrenScreen> {
   Relationships selectedRelationType = Relationships.all;
+
+  List<ChildModel> children = [];
+  @override
+  void initState() {
+    Future.microtask(() {
+      ref.read(childProvider.notifier).fetchAllChilds(parentId: widget.userId);
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final childState = ref.watch(childProvider);
+    ref.listen(childProvider, (_, newState) {
+      if (newState.state == AsyncState.success) {
+        children = newState.data ?? [];
+      }
+    });
     return Scaffold(
       backgroundColor: context.colors.pureWhite,
       appBar: AppBar(
@@ -37,6 +60,14 @@ class _ParentAndChildrenScreenState extends State<ParentAndChildrenScreen> {
               },
             ),
             16.ph,
+            if (children.isNotEmpty) ...[
+              ListView.builder(
+                shrinkWrap: true,
+                itemBuilder: (context, index) =>
+                    Text(children[index].firstName!),
+                itemCount: children.length,
+              )
+            ],
             if (selectedRelationType == Relationships.children ||
                 selectedRelationType == Relationships.parents) ...[
               DottedBorderBigButton(
@@ -47,7 +78,12 @@ class _ParentAndChildrenScreenState extends State<ParentAndChildrenScreen> {
                     .textTheme
                     .titleMedium!
                     .copyWith(color: context.colors.primaryBlue),
-                onTap: () {},
+                onTap: selectedRelationType == Relationships.children
+                    ? () {
+                        context.pushNamed(Routes.addChild,
+                            extra: widget.userId);
+                      }
+                    : () {},
                 icon: Icon(
                   Icons.add_circle,
                   size: 32.r,

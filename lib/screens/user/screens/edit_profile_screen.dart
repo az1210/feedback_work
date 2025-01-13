@@ -300,7 +300,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               AppButton.filled(
                 label: "Manage Children",
                 onTap: () {
-                  context.pushNamed(Routes.parentAndChildren);
+                  context.pushNamed(Routes.parentAndChildren,
+                      extra: widget.currentUser.id);
                 },
                 bgColor: context.colors.primaryBlue.withValues(
                   alpha: 0.2,

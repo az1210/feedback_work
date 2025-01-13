@@ -1,4 +1,4 @@
-import 'package:feedback_work/core/ui/widgets/filter_bottom_sheet_content.dart';
+import 'package:feedback_work/core/ui/widgets/filter__content.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/providers/category_providers.dart';
 import 'package:flutter/material.dart';
@@ -64,7 +64,7 @@ class _SelectFeedbackCategoryState
         return Column(
           children: [
             Expanded(
-              child: FilterBottomSheetContent(
+              child: FilterContent(
                 hasHeader: false,
                 sections: sections,
                 onFiltersChanged: widget.onFiltersChanged,

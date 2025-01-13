@@ -595,6 +595,7 @@
 //   }
 // }
 
+import 'package:feedback_work/core/extensions/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -649,7 +650,7 @@ class RangeSliderConfig {
 typedef OnFiltersChanged<T> = void Function(
     Map<String, Set<T>> selectedFilters);
 
-class FilterBottomSheetContent<T> extends StatefulWidget {
+class FilterContent<T> extends StatefulWidget {
   final String? title;
   final List<FilterSection<T>>? sections;
   final RangeSliderConfig? rangeSliderConfig;
@@ -666,7 +667,7 @@ class FilterBottomSheetContent<T> extends StatefulWidget {
   final bool hasSearchOption;
   final bool isGrid;
 
-  const FilterBottomSheetContent({
+  const FilterContent({
     super.key,
     this.title,
     this.sections,
@@ -686,12 +687,10 @@ class FilterBottomSheetContent<T> extends StatefulWidget {
   });
 
   @override
-  _FilterBottomSheetContentState<T> createState() =>
-      _FilterBottomSheetContentState<T>();
+  _FilterContentState<T> createState() => _FilterContentState<T>();
 }
 
-class _FilterBottomSheetContentState<T>
-    extends State<FilterBottomSheetContent<T>> {
+class _FilterContentState<T> extends State<FilterContent<T>> {
   late TextEditingController _searchController;
   late Map<String, Set<T>> selectedSectionFilters;
   late RangeValues rangeValues;
@@ -797,7 +796,7 @@ class _FilterBottomSheetContentState<T>
         children: [
           if (widget.hasHeader)
             BuildHeader(
-              title: widget.title,
+              title: widget.title?.toTitleCase(),
               resetButtonText: widget.resetButtonText,
               resetFilter: _resetFilters,
             ),
@@ -833,26 +832,23 @@ class _FilterBottomSheetContentState<T>
       return const SizedBox.shrink();
     }
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (section.showTitle)
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.h),
-              child: Text(
-                section.title,
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                      color: context.colors.darkGrey,
-                    ),
-              ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (section.showTitle)
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 8.h),
+            child: Text(
+              section.title,
+              style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                    color: context.colors.darkGrey,
+                  ),
             ),
-          widget.isGrid
-              ? _buildGridView(section, filteredOptions)
-              : _buildListView(section, filteredOptions),
-        ],
-      ),
+          ),
+        widget.isGrid
+            ? _buildGridView(section, filteredOptions)
+            : _buildListView(section, filteredOptions),
+      ],
     );
   }
 
@@ -913,16 +909,20 @@ class _FilterBottomSheetContentState<T>
     return InkWell(
       onTap: () => _updateFilters(sectionTitle, item.value),
       child: Padding(
-        padding: EdgeInsets.all(16.r),
+        padding: EdgeInsets.symmetric(
+          vertical: 16.h,
+          horizontal: 10.w,
+        ),
         child: Row(
           children: [
-            if (item.imageUrl != null)
+            if (item.imageUrl != null) ...[
               Image.network(
                 item.imageUrl!,
                 errorBuilder: (context, error, stackTrace) =>
                     const Icon(Icons.image),
               ),
-            8.pw,
+              8.pw,
+            ],
             Expanded(
               child: RichText(
                 text: TextSpan(

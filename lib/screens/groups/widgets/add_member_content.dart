@@ -1,5 +1,5 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
-import 'package:feedback_work/core/ui/widgets/filter_bottom_sheet_content.dart';
+import 'package:feedback_work/core/ui/widgets/filter__content.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/group_model.dart';
 import 'package:feedback_work/models/user_model.dart';
@@ -125,7 +125,7 @@ class _SelectFeedbackProviderState extends ConsumerState<AddMemberContent> {
                       )),
                 ],
               ),
-              FilterBottomSheetContent<String>(
+              FilterContent<String>(
                 hasHeader: false,
                 sections: sections,
                 initialFilters: {

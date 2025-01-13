@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feedback_work/core/constants/firebase_constants.dart';
 import 'package:feedback_work/core/router/routes.dart';
+import 'package:feedback_work/models/child_model.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
+import 'package:feedback_work/providers/user_providers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,10 +37,10 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
       );
 
       // Save basic user details to Firestore
-      await firestore
+      final docRef = await firestore
           .collection(FirebaseConstants.userCollection)
           .doc(userCredential.user!.uid)
-          .set(userModel.toMap());
+          .set(userModel.copyWith(id: userCredential.user!.uid).toMap());
 
       // Save session expiration date (30 days)
       await saveSession(userCredential.user!);

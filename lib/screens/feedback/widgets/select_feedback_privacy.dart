@@ -1,5 +1,5 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
-import 'package:feedback_work/core/ui/widgets/filter_bottom_sheet_content.dart';
+import 'package:feedback_work/core/ui/widgets/filter__content.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -30,7 +30,7 @@ class _SelectFeedbackPrivacyState extends State<SelectFeedbackPrivacy> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          FilterBottomSheetContent(
+          FilterContent(
             hasHeader: false,
             hasSearchOption: false,
             sections: sections,
