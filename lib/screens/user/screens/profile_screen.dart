@@ -1,4 +1,5 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
+import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/user_providers.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -36,7 +38,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         title: const Text("My Profile"),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              context.pushNamed(Routes.editProfile, extra: currentUser);
+            },
             icon: const Icon(Icons.edit_outlined),
           ),
         ],
@@ -209,7 +213,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                                 bgColor: context.colors.primaryBlue
                                     .withValues(alpha: 0.1),
                                 width: double.infinity,
-                                onTap: () {},
+                                onTap: () {
+                                  context.pushNamed(Routes.transactionHistory);
+                                },
                               ),
                             ),
                           ],

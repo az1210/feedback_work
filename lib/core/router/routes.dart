@@ -1,6 +1,9 @@
 import 'package:feedback_work/core/router/navbar.dart';
 import 'package:feedback_work/models/user_model.dart';
-import 'package:feedback_work/screens/auth/profile_screen.dart';
+import 'package:feedback_work/screens/user/screens/edit_profile_screen.dart';
+import 'package:feedback_work/screens/user/screens/feedback_receipt_screen.dart';
+import 'package:feedback_work/screens/user/screens/parent_and_children_screen.dart';
+import 'package:feedback_work/screens/user/screens/profile_screen.dart';
 import 'package:feedback_work/screens/feedback/received_feedback_details.dart';
 import 'package:feedback_work/screens/feedback/request_feedback_screen.dart';
 import 'package:feedback_work/screens/groups/groups_screen.dart';
@@ -8,6 +11,8 @@ import 'package:feedback_work/screens/groups/monitor_group_screen.dart';
 import 'package:feedback_work/screens/network/network_profile_screen.dart';
 import 'package:feedback_work/screens/network/network_screen.dart';
 import 'package:feedback_work/screens/status/status_report_screen.dart';
+import 'package:feedback_work/screens/user/screens/transaction_history.dart';
+import 'package:feedback_work/screens/user/screens/transaction_history_details_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -55,6 +60,11 @@ class Routes {
   static const groups = 'groups';
   static const monitorGroup = 'monitor-group';
   static const profile = 'profile';
+  static const transactionHistory = 'transaction-history';
+  static const transactionHistoryDetails = 'transaction-history-details';
+  static const feedbackReceipt = 'feedback-receipt';
+  static const editProfile = 'edit-profile';
+  static const parentAndChildren = 'parent-children';
 }
 
 final authProvider = StateProvider<bool>((ref) => false);
@@ -166,6 +176,33 @@ final routerProvider = Provider<GoRouter>(
           name: Routes.profile,
           path: Routes.profile.p,
           builder: (context, state) => const ProfileScreen(),
+        ),
+        GoRoute(
+          name: Routes.transactionHistory,
+          path: Routes.transactionHistory.p,
+          builder: (context, state) => const TransactionHistoryScreen(),
+        ),
+        GoRoute(
+          name: Routes.transactionHistoryDetails,
+          path: Routes.transactionHistoryDetails.p,
+          builder: (context, state) => const TransactionHistoryDetailsScreen(),
+        ),
+        GoRoute(
+          name: Routes.feedbackReceipt,
+          path: Routes.feedbackReceipt.p,
+          builder: (context, state) => const FeedbackReceiptScreen(),
+        ),
+        GoRoute(
+          name: Routes.editProfile,
+          path: Routes.editProfile.p,
+          builder: (context, state) => EditProfileScreen(
+            currentUser: state.extra as UserModel,
+          ),
+        ),
+        GoRoute(
+          name: Routes.parentAndChildren,
+          path: Routes.parentAndChildren.p,
+          builder: (context, state) => const ParentAndChildrenScreen(),
         ),
 
         // NavBar Routes

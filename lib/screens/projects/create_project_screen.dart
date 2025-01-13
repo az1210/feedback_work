@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:feedback_work/core/extensions/extensions.dart';
+import 'package:feedback_work/core/ui/widgets/dotted_border_big_button.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -264,48 +266,15 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 8),
-                InkWell(
+                DottedBorderBigButton(
+                  title: selectedFilePath,
                   onTap: pickFile,
-                  child: Container(
-                    color: Colors.white,
-                    width: double.infinity,
-                    child: DottedBorder(
-                      borderType: BorderType.RRect,
-                      radius: const Radius.circular(8),
-                      // padding: const EdgeInsets.all(16),
-                      color: Colors.grey,
-                      strokeWidth: 1,
-                      dashPattern: const [8, 8],
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            left: 12, top: 12, bottom: 12),
-                        child: Column(
-                          children: [
-                            Image.asset(
-                              "assets/images/icons/cloud.png",
-                              height: 32,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              selectedFilePath ?? 'Upload the file here',
-                              style: const TextStyle(
-                                  color: Color.fromARGB(255, 8, 102, 255)),
-                            ),
-                            const SizedBox(height: 4),
-                            const Center(
-                              child: Text(
-                                '(Only .jpg, .png, & .pdf files will be accepted)',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                  icon: Icon(
+                    Icons.cloud_upload_outlined,
+                    size: 32.r,
+                    color: context.colors.primaryBlue,
                   ),
+                  subtitle: "(Only .jpg, .png, & .pdf files will be accepted)",
                 ),
                 const SizedBox(height: 16),
                 Text(

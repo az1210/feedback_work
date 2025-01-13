@@ -142,7 +142,7 @@ class AppButton extends StatelessWidget {
   }
 
   factory AppButton.icon({
-    required String label,
+    String? label,
     required IconData icon,
     TextStyle? labelTextStyle,
     Color? fgColor,
@@ -153,7 +153,7 @@ class AppButton extends StatelessWidget {
     double? loadingSize,
   }) {
     return AppButton(
-      label: label,
+      label: label ?? "",
       isFilled: false,
       borderRadius: borderRadius,
       fgColor: fgColor,
@@ -218,14 +218,24 @@ class AppButton extends StatelessWidget {
                       prefix!,
                       SizedBox(width: 8.w),
                     ],
-                    Text(
-                      label,
-                      style: labelTextStyle ??
-                          Theme.of(context).textTheme.titleMedium!.copyWith(
-                                color: context.colors.primaryBlue,
-                                fontSize: 14,
-                              ),
-                    ),
+                    if (label != "") ...[
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            label,
+                            style: labelTextStyle ??
+                                Theme.of(context)
+                                    .textTheme
+                                    .titleMedium!
+                                    .copyWith(
+                                      color: foregroundColor,
+                                      fontSize: 14,
+                                    ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ],
                     if (suffix != null) ...[
                       SizedBox(width: 8.w),
                       suffix!,
