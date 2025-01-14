@@ -84,22 +84,24 @@ class _ParentAndChildrenScreenState
               } else {
                 return Column(
                   children: [
-                    if (selectedRelationType == Relationships.children &&
-                        children.isNotEmpty) ...[
-                      ListView.builder(
-                        shrinkWrap: true,
-                        itemBuilder: (context, index) =>
-                            Text(children[index].firstName!),
-                        itemCount: children.length,
-                      )
-                    ],
-                    if (selectedRelationType == Relationships.parents &&
-                        parents.isNotEmpty) ...[
+                    if (selectedRelationType == Relationships.parents ||
+                        selectedRelationType == Relationships.all &&
+                            parents.isNotEmpty) ...[
                       ListView.builder(
                         shrinkWrap: true,
                         itemBuilder: (context, index) =>
                             Text(parents[index].firstName!),
                         itemCount: parents.length,
+                      )
+                    ],
+                    if (selectedRelationType == Relationships.children ||
+                        selectedRelationType == Relationships.all &&
+                            children.isNotEmpty) ...[
+                      ListView.builder(
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) =>
+                            Text(children[index].firstName!),
+                        itemCount: children.length,
                       )
                     ],
                   ],
