@@ -220,7 +220,9 @@ final routerProvider = Provider<GoRouter>(
         GoRoute(
           name: Routes.addParent,
           path: Routes.addParent.p,
-          builder: (context, state) => const AddParentScreen(),
+          builder: (context, state) => AddParentScreen(
+            currentUserId: state.extra as String,
+          ),
         ),
 
         // NavBar Routes

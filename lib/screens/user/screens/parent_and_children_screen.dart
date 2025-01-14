@@ -85,7 +85,8 @@ class _ParentAndChildrenScreenState
                             extra: widget.userId);
                       }
                     : () {
-                        context.pushNamed(Routes.addParent);
+                        context.pushNamed(Routes.addParent,
+                            extra: widget.userId);
                       },
                 icon: Icon(
                   Icons.add_circle,
