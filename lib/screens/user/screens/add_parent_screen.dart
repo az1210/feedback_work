@@ -29,6 +29,8 @@ class _RequestFeedbackScreenState extends ConsumerState<AddParentScreen> {
   ];
 
   UserModel? selectedUser;
+  String? selectedRelationship;
+  String? selectedResidence;
 
   @override
   void initState() {
@@ -97,10 +99,34 @@ class _RequestFeedbackScreenState extends ConsumerState<AddParentScreen> {
           Expanded(
             child: PageView(
               controller: addParentController,
-              children: const [
-                SelectParent(),
-                SelectRelationship(),
-                SelectResidence(),
+              children: [
+                SelectParent(
+                  onFiltersChanged: (selectedFilters) {
+                    setState(() {
+                      selectedUser = selectedFilters.containsKey("parent")
+                          ? selectedFilters['parent']?.first
+                          : null;
+                    });
+                  },
+                ),
+                SelectRelationship(
+                  onFiltersChanged: (selectedFilters) {
+                    selectedRelationship =
+                        selectedFilters.containsKey('relationship')
+                            ? selectedFilters['relationship']?.first
+                            : null;
+                  },
+                ),
+                SelectResidence(
+                  onFiltersChanged: (selectedFilters) {
+                    setState(() {
+                      selectedResidence =
+                          selectedFilters.containsKey("residences")
+                              ? selectedFilters['residences']?.first
+                              : null;
+                    });
+                  },
+                ),
               ],
             ),
           ),
@@ -141,8 +167,19 @@ class _RequestFeedbackScreenState extends ConsumerState<AddParentScreen> {
                     onTap: ref.watch(addParentStepProvider) == 3
                         ? () {
                             ref.read(parentProvider.notifier).addParent(
-                                parentModel: ParentModel(),
-                                childId: widget.currentUserId);
+                                  parentModel: ParentModel(
+                                      id: selectedUser!.id,
+                                      firstName: selectedUser!.firstName,
+                                      lastName: selectedUser!.lastName,
+                                      avaterUrl: selectedUser!.avaterUrl,
+                                      email: selectedUser!.email,
+                                      relationship: selectedRelationship,
+                                      residence: selectedResidence),
+                                  childId: widget.currentUserId,
+                                  callBack: () {
+                                    context.pop();
+                                  },
+                                );
                           }
                         : () {
                             addParentController.nextPage(

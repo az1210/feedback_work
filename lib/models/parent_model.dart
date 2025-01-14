@@ -5,7 +5,7 @@ class ParentModel {
   final String? email;
   final String? avaterUrl;
   final String? relationship;
-  final String? residense;
+  final String? residence;
   ParentModel({
     this.id,
     this.firstName,
@@ -13,7 +13,7 @@ class ParentModel {
     this.email,
     this.avaterUrl,
     this.relationship,
-    this.residense,
+    this.residence,
   });
 
   ParentModel copyWith({
@@ -32,7 +32,7 @@ class ParentModel {
       email: email ?? this.email,
       avaterUrl: avaterUrl ?? this.avaterUrl,
       relationship: relationship ?? this.relationship,
-      residense: residense ?? this.residense,
+      residence: residense ?? this.residence,
     );
   }
 
@@ -44,7 +44,7 @@ class ParentModel {
       'email': email,
       'avaterUrl': avaterUrl,
       'relationship': relationship,
-      'residense': residense,
+      'residense': residence,
     };
   }
 
@@ -57,7 +57,7 @@ class ParentModel {
       avaterUrl: map['avaterUrl'] != null ? map['avaterUrl'] as String : null,
       relationship:
           map['relationship'] != null ? map['relationship'] as String : null,
-      residense: map['residense'] != null ? map['residense'] as String : null,
+      residence: map['residense'] != null ? map['residense'] as String : null,
     );
   }
 }
