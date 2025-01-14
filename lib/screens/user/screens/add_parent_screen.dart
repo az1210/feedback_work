@@ -1,54 +1,52 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
-import 'package:feedback_work/providers/category_providers.dart';
-import 'package:feedback_work/screens/feedback/widgets/preview_feedback_request.dart';
-import 'package:feedback_work/screens/feedback/widgets/select_feedback_category.dart';
-import 'package:feedback_work/screens/feedback/widgets/select_feedback_privacy.dart';
-import 'package:feedback_work/screens/feedback/widgets/select_feedback_provider.dart';
-import 'package:feedback_work/screens/feedback/widgets/type_message.dart';
+import 'package:feedback_work/models/parent_model.dart';
+import 'package:feedback_work/models/user_model.dart';
+import 'package:feedback_work/providers/parent_providers.dart';
+import 'package:feedback_work/screens/user/widgets/select_parent.dart';
+import 'package:feedback_work/screens/user/widgets/select_relationship_with_children.dart';
+import 'package:feedback_work/screens/user/widgets/select_residence.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
-class RequestFeedbackScreen extends ConsumerStatefulWidget {
-  const RequestFeedbackScreen({super.key});
+class AddParentScreen extends ConsumerStatefulWidget {
+  const AddParentScreen({required this.currentUserId, super.key});
 
+  final String currentUserId;
   @override
-  ConsumerState<RequestFeedbackScreen> createState() =>
-      _RequestFeedbackScreenState();
+  ConsumerState<AddParentScreen> createState() => _RequestFeedbackScreenState();
 }
 
-class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
-  late PageController requestFeedbackController;
+class _RequestFeedbackScreenState extends ConsumerState<AddParentScreen> {
+  late PageController addParentController;
 
   final List<String> pageTitles = [
-    "Select Feedback Category",
-    "Select Privacy",
-    "Select Feedback Provider",
-    "Type Message",
-    "Preview Feedback Request",
+    "Select Parent",
+    "Relationship with Children",
+    "Select Residence",
   ];
+
+  UserModel? selectedUser;
 
   @override
   void initState() {
-    requestFeedbackController = PageController();
+    addParentController = PageController();
     super.initState();
   }
 
   @override
   void dispose() {
-    requestFeedbackController.dispose();
+    addParentController.dispose();
     super.dispose();
   }
-
-  String? selectedCategory;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Request Feedback"),
+        title: const Text("Add parent"),
       ),
       body: Column(
         children: [
@@ -63,14 +61,14 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                       height: 50.r,
                       width: 50.r,
                       child: CircularProgressIndicator(
-                        value: ref.watch(requestFeedbackStepProvider) / 6,
+                        value: ref.watch(addParentStepProvider) / 3,
                         backgroundColor:
                             context.colors.darkGrey.withValues(alpha: 0.5),
                         color: context.colors.primaryBlue,
                       ),
                     ),
                     Text(
-                      "${ref.watch(requestFeedbackStepProvider).toInt()} of 6",
+                      "${ref.watch(addParentStepProvider).toInt()} of 3",
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
@@ -81,13 +79,13 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        pageTitles[ref.watch(requestFeedbackStepProvider) - 1],
+                        pageTitles[ref.watch(addParentStepProvider) - 1],
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      ref.watch(requestFeedbackStepProvider) == 5
+                      ref.watch(addParentStepProvider) == 3
                           ? const SizedBox.shrink()
                           : Text(
-                              "Next: ${pageTitles[ref.watch(requestFeedbackStepProvider)]}",
+                              "Next: ${pageTitles[ref.watch(addParentStepProvider)]}",
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                     ],
@@ -98,21 +96,11 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
           ),
           Expanded(
             child: PageView(
-              controller: requestFeedbackController,
-              children: [
-                SelectFeedbackCategory(
-                  onFiltersChanged: (p0) {
-                    setState(() {
-                      selectedCategory = p0["category"]?.first ?? "";
-                    });
-                  },
-                ),
-                const SelectFeedbackPrivacy(),
-                SelectFeedbackProvider(
-                  category: selectedCategory ?? "",
-                ),
-                const TypeMessage(),
-                const PreviewFeedbackRequest(),
+              controller: addParentController,
+              children: const [
+                SelectParent(),
+                SelectRelationship(),
+                SelectResidence(),
               ],
             ),
           ),
@@ -125,17 +113,17 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                 Expanded(
                   child: AppButton.outlined(
                     horizontalPadding: 16.w,
-                    width: 8.h,
-                    label: ref.watch(requestFeedbackStepProvider) == 1
+                    verticalPadding: 8.h,
+                    label: ref.watch(addParentStepProvider) == 1
                         ? "Cancel"
                         : "Previous",
                     onTap: () {
-                      if (ref.watch(requestFeedbackStepProvider) != 1) {
-                        requestFeedbackController.previousPage(
+                      if (ref.watch(addParentStepProvider) != 1) {
+                        addParentController.previousPage(
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeInOut,
                         );
-                        ref.read(requestFeedbackStepProvider.notifier).state--;
+                        ref.read(addParentStepProvider.notifier).state--;
                       } else {
                         context.pop();
                       }
@@ -147,17 +135,22 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                 Expanded(
                   child: AppButton.filled(
                     horizontalPadding: 16.w,
-                    width: 8.h,
-                    label: ref.watch(requestFeedbackStepProvider) == 5
-                        ? "Send Request"
-                        : 'Next',
-                    onTap: () {
-                      requestFeedbackController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      );
-                      ref.read(requestFeedbackStepProvider.notifier).state++;
-                    },
+                    verticalPadding: 8.h,
+                    label:
+                        ref.watch(addParentStepProvider) == 3 ? "Save" : 'Next',
+                    onTap: ref.watch(addParentStepProvider) == 3
+                        ? () {
+                            ref.read(parentProvider.notifier).addParent(
+                                parentModel: ParentModel(),
+                                childId: widget.currentUserId);
+                          }
+                        : () {
+                            addParentController.nextPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                            ref.read(addParentStepProvider.notifier).state++;
+                          },
                   ),
                 ),
               ],

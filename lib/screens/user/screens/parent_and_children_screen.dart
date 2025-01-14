@@ -60,7 +60,8 @@ class _ParentAndChildrenScreenState
               },
             ),
             16.ph,
-            if (children.isNotEmpty) ...[
+            if (selectedRelationType == Relationships.children &&
+                children.isNotEmpty) ...[
               ListView.builder(
                 shrinkWrap: true,
                 itemBuilder: (context, index) =>
@@ -83,7 +84,9 @@ class _ParentAndChildrenScreenState
                         context.pushNamed(Routes.addChild,
                             extra: widget.userId);
                       }
-                    : () {},
+                    : () {
+                        context.pushNamed(Routes.addParent);
+                      },
                 icon: Icon(
                   Icons.add_circle,
                   size: 32.r,

@@ -1146,7 +1146,7 @@ class BuildSearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(16.r),
+      padding: EdgeInsets.only(bottom: 16.h),
       child: SizedBox(
         height: 43.h,
         child: Row(
