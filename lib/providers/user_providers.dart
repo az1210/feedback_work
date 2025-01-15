@@ -93,6 +93,36 @@ class UserNotifier extends Notifier<UserNotifierState> {
       return UserModel();
     }
   }
+
+  Future<void> updateProfile({
+    required String uid,
+    required UserModel userModel,
+    void Function()? callback,
+  }) async {
+    FirebaseFirestore firestore = ref.read(firestoreProvider);
+    try {
+      await firestore
+          .collection(FirebaseConstants.userCollection)
+          .doc(uid)
+          .update(
+        {
+          'firstName': userModel.firstName,
+          'lastName': userModel.lastName,
+          'phoneNumber': userModel.phoneNumber,
+          "username": userModel.username,
+          "title": userModel.title,
+          "expertise": userModel.expertise,
+          "accountType": userModel.accountType,
+          "minimumRate": userModel.minimumRate,
+        },
+      ).then((_) =>
+              ref.read(fetchUserByIdProvider.notifier).fetchUser(uid: uid));
+      callback?.call();
+    } catch (e, stackTrace) {
+      Log.error(e.toString());
+      Log.error(stackTrace.toString());
+    }
+  }
 }
 
 class UserNotifierState {
@@ -119,15 +149,56 @@ class UserNotifierState {
   }
 }
 
-final keepMeSignedInProvider =
-    StateNotifierProvider<CheckboxStateNotifier, bool>(
-  (ref) => CheckboxStateNotifier(),
-);
+final fetchUserByIdProvider =
+    NotifierProvider<FetchUserByIdNotifier, FetchUserByIdState>(
+        FetchUserByIdNotifier.new);
 
-class CheckboxStateNotifier extends StateNotifier<bool> {
-  CheckboxStateNotifier() : super(false);
+class FetchUserByIdNotifier extends Notifier<FetchUserByIdState> {
+  @override
+  FetchUserByIdState build() {
+    return FetchUserByIdState(state: AsyncState.initial);
+  }
 
-  void toggle(bool value) {
-    state = value; // Update the state
+  Future<void> fetchUser({required String uid}) async {
+    try {
+      final firestore = ref.read(firestoreProvider);
+      state = state.copyWith(state: AsyncState.loading);
+      final querySnapshot = await firestore
+          .collection(FirebaseConstants.userCollection)
+          .doc(uid)
+          .get();
+
+      // Map each document to a list of user data
+      final user =
+          UserModel.fromMap(querySnapshot.data() as Map<String, dynamic>);
+      state = state.copyWith(data: user, state: AsyncState.success);
+    } catch (e, stackTrace) {
+      Log.error(e.toString());
+      Log.error(stackTrace.toString());
+    }
+  }
+}
+
+class FetchUserByIdState {
+  final String? error;
+  final UserModel? data;
+  final AsyncState state;
+
+  FetchUserByIdState({
+    this.error,
+    this.data,
+    required this.state,
+  });
+
+  FetchUserByIdState copyWith({
+    String? error,
+    UserModel? data,
+    AsyncState? state,
+  }) {
+    return FetchUserByIdState(
+      error: error ?? this.error,
+      data: data ?? this.data,
+      state: state ?? this.state,
+    );
   }
 }

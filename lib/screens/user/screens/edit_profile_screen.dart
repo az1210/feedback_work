@@ -4,7 +4,9 @@ import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/category_model.dart';
 import 'package:feedback_work/models/user_model.dart';
+import 'package:feedback_work/providers/auth_providers.dart';
 import 'package:feedback_work/providers/category_providers.dart';
+import 'package:feedback_work/providers/user_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -26,6 +28,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController titleController = TextEditingController();
   final TextEditingController expertiseController = TextEditingController();
+  final TextEditingController minimumRateController = TextEditingController();
 
   final FocusNode expertiseFocusNode = FocusNode();
 
@@ -37,7 +40,27 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     'Business'
   ];
 
-  String? _selectedAccountType;
+  String? selectedAccountType;
+  bool _isCheckingUsername = false;
+  bool _isUsernameValid = true;
+
+  // Real-time username validation
+  Future<void> _validateUsername() async {
+    final authService = ref.read(authServiceProvider.notifier);
+
+    setState(() {
+      _isCheckingUsername = true;
+    });
+
+    bool isAvailable = await authService.isUsernameAvailable(
+      usernameController.text.trim(),
+    );
+
+    setState(() {
+      _isCheckingUsername = false;
+      _isUsernameValid = isAvailable;
+    });
+  }
 
   @override
   void initState() {
@@ -47,7 +70,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     phoneNumberController.text = widget.currentUser.phoneNumber ?? "";
     usernameController.text = widget.currentUser.username ?? "";
     titleController.text = widget.currentUser.title ?? "";
-    _selectedAccountType = widget.currentUser.accountType;
+    selectedAccountType = widget.currentUser.accountType;
+    minimumRateController.text =
+        widget.currentUser.minimumRate?.toString() ?? "0.0";
     Future.microtask(() {
       ref.read(categoryProvider.notifier).fetchAllCategories();
     });
@@ -75,14 +100,33 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         title: const Text("My Profile"),
         actions: [
           TextButton(
-              onPressed: () {},
-              child: Text(
-                "Update",
-                style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                      color: context.colors.primaryBlue,
-                      fontSize: 14,
+            onPressed: () {
+              ref.read(userProvider.notifier).updateProfile(
+                    uid: widget.currentUser.id!,
+                    userModel: UserModel(
+                      firstName: firstNameController.text.trim(),
+                      lastName: lastNameController.text.trim(),
+                      phoneNumber: phoneNumberController.text.trim(),
+                      username: usernameController.text.trim(),
+                      title: titleController.text.trim(),
+                      expertise: expertiseController.text.trim(),
+                      accountType: selectedAccountType,
+                      minimumRate:
+                          double.tryParse(minimumRateController.text.trim()),
                     ),
-              ))
+                    callback: () {
+                      context.pop();
+                    },
+                  );
+            },
+            child: Text(
+              "Update",
+              style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    color: context.colors.primaryBlue,
+                    fontSize: 14,
+                  ),
+            ),
+          ),
         ],
       ),
       body: Padding(
@@ -184,7 +228,18 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               ),
               TextFormField(
                 controller: usernameController,
+                onChanged: (value) => _validateUsername(),
                 decoration: context.inputDecor.outlinedInputDecor(
+                    suffix: _isCheckingUsername
+                        ? const CircularProgressIndicator()
+                        : Icon(
+                            _isUsernameValid
+                                ? Icons.check_circle
+                                : Icons.error_outline,
+                            color: _isUsernameValid
+                                ? Colors.green
+                                : Colors.redAccent,
+                          ),
                     fillColor: context.colors.inputBorder,
                     borderRadius: BorderRadius.circular(8.r)),
               ),
@@ -274,7 +329,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               ),
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
-                value: _selectedAccountType,
+                value: selectedAccountType,
                 hint: const Text("Select account type"),
                 items: _accountTypes.map((type) {
                   return DropdownMenuItem(
@@ -284,7 +339,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 }).toList(),
                 onChanged: (value) {
                   setState(() {
-                    _selectedAccountType = value;
+                    selectedAccountType = value;
                   });
                 },
                 decoration: InputDecoration(
@@ -295,6 +350,19 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     borderSide: BorderSide.none,
                   ),
                 ),
+              ),
+              16.ph,
+              Text(
+                "Minimum Rate",
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      fontSize: 18,
+                    ),
+              ),
+              TextFormField(
+                controller: minimumRateController,
+                decoration: context.inputDecor.outlinedInputDecor(
+                    fillColor: context.colors.inputBorder,
+                    borderRadius: BorderRadius.circular(8.r)),
               ),
               16.ph,
               AppButton.filled(
@@ -312,7 +380,25 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               16.ph,
               AppButton.filled(
                 label: "Update",
-                onTap: () {},
+                onTap: () {
+                  ref.read(userProvider.notifier).updateProfile(
+                        uid: widget.currentUser.id!,
+                        userModel: UserModel(
+                          firstName: firstNameController.text.trim(),
+                          lastName: lastNameController.text.trim(),
+                          phoneNumber: phoneNumberController.text.trim(),
+                          username: usernameController.text.trim(),
+                          title: titleController.text.trim(),
+                          expertise: expertiseController.text.trim(),
+                          accountType: selectedAccountType,
+                          minimumRate: double.tryParse(
+                              minimumRateController.text.trim()),
+                        ),
+                        callback: () {
+                          context.pop();
+                        },
+                      );
+                },
                 bgColor: context.colors.primaryBlue,
                 verticalPadding: 10,
               ),

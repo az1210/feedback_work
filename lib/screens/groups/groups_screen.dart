@@ -3,6 +3,7 @@ import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/group_model.dart';
+import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/auth_providers.dart';
 import 'package:feedback_work/providers/group_providers.dart';
 import 'package:feedback_work/providers/user_providers.dart';
@@ -25,6 +26,7 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
   List<GroupModel> filteredGroups = [];
   GroupType selectedGroupType = GroupType.all;
   String? selectedGroup;
+  UserModel? currentUser;
 
   @override
   void initState() {
@@ -45,15 +47,14 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
         groups = newState.data ?? [];
       }
     });
+    Log.info("currentUser!.id! =====>${currentUser!.id!}");
+    Log.info(
+        "Group users!.id! =====>${groups.map((g) => g.users!.map((u) => u.id))}");
     filteredGroups = selectedGroupType == GroupType.all
         ? groups.where((g) => g.isPublic == true).toList()
         : selectedGroupType == GroupType.myGroups
-            ? groups
-                .where((g) =>
-                    g.ownerId == currentUser!.id! ||
-                    g.uIds!.contains(currentUser.id!))
-                .toList()
-            : groups.where((g) => g.ownerId == currentUser!.id!).toList();
+            ? groups.where((g) => g.ownerId == currentUser.id!).toList()
+            : groups.where((g) => g.ownerId == currentUser.id!).toList();
     return Scaffold(
       backgroundColor: context.colors.pureWhite,
       appBar: AppBar(
@@ -129,9 +130,9 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
                             ],
                           ),
                         ),
-                        if (!filteredGroups[index]
-                            .uIds!
-                            .contains(currentUser!.id!))
+                        if (filteredGroups[index]
+                            .users!
+                            .any((u) => u.id == currentUser.id))
                           AppButton.text(
                             isLoading:
                                 filteredGroups[index].id == selectedGroup &&

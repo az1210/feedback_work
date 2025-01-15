@@ -1,16 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feedback_work/core/constants/firebase_constants.dart';
-import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/models/child_model.dart';
-import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
-import 'package:feedback_work/providers/user_providers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:feedback_work/core/utils/utils.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 final childProvider =
     NotifierProvider<ChildNotifier, ChildNotifierState>(ChildNotifier.new);
@@ -37,18 +32,12 @@ class ChildNotifier extends Notifier<ChildNotifierState> {
         password: password,
       );
 
-      // Save basic user details to Firestore
-      await firestore
-          .collection(FirebaseConstants.childCollection)
-          .doc(userCredential.user!.uid)
-          .set(childModel.copyWith(id: userCredential.user!.uid).toMap());
-
       // Save child info into parent
       ChildModel model = ChildModel(
         firstName: childModel.firstName,
         lastName: childModel.lastName,
         email: childModel.email,
-        imageUrl: childModel.imageUrl,
+        avaterUrl: childModel.avaterUrl,
       );
       await firestore
           .collection(FirebaseConstants.userCollection)

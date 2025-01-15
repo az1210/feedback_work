@@ -6,6 +6,7 @@ import 'package:feedback_work/models/child_model.dart';
 import 'package:feedback_work/models/parent_model.dart';
 import 'package:feedback_work/providers/child_providers.dart';
 import 'package:feedback_work/providers/parent_providers.dart';
+import 'package:feedback_work/screens/user/widgets/parent_child_card.dart';
 import 'package:feedback_work/screens/user/widgets/parent_child_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -87,22 +88,38 @@ class _ParentAndChildrenScreenState
                     if (selectedRelationType == Relationships.parents ||
                         selectedRelationType == Relationships.all &&
                             parents.isNotEmpty) ...[
-                      ListView.builder(
+                      GridView.builder(
                         shrinkWrap: true,
-                        itemBuilder: (context, index) =>
-                            Text(parents[index].firstName!),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                        ),
+                        itemBuilder: (context, index) => ParentChildCard(
+                          parent: parents[index],
+                        ),
                         itemCount: parents.length,
-                      )
+                      ),
+                      16.ph,
                     ],
                     if (selectedRelationType == Relationships.children ||
                         selectedRelationType == Relationships.all &&
                             children.isNotEmpty) ...[
-                      ListView.builder(
+                      GridView.builder(
                         shrinkWrap: true,
-                        itemBuilder: (context, index) =>
-                            Text(children[index].firstName!),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                        ),
+                        itemBuilder: (context, index) => ParentChildCard(
+                          child: children[index],
+                        ),
                         itemCount: children.length,
-                      )
+                      ),
+                      16.ph,
                     ],
                   ],
                 );

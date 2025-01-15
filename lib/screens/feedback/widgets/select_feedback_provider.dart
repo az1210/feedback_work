@@ -1,8 +1,11 @@
 import 'package:feedback_work/core/ui/widgets/filter__content.dart';
 import 'package:feedback_work/core/utils/utils.dart';
+import 'package:feedback_work/models/group_model.dart';
+import 'package:feedback_work/providers/group_providers.dart';
 import 'package:feedback_work/providers/user_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SelectFeedbackProvider extends ConsumerStatefulWidget {
   const SelectFeedbackProvider({
@@ -20,6 +23,8 @@ class SelectFeedbackProvider extends ConsumerStatefulWidget {
 class _SelectFeedbackProviderState
     extends ConsumerState<SelectFeedbackProvider> {
   List<FilterSection> sections = [];
+  List<GroupModel> groups = [];
+  List<GroupModel> filteredGroups = [];
 
   @override
   void initState() {
@@ -27,6 +32,8 @@ class _SelectFeedbackProviderState
       ref
           .read(userProvider.notifier)
           .fetchUsersByExpertise(expertise: widget.category);
+
+      ref.read(groupProvider.notifier).fetchAllGroups();
     });
 
     super.initState();
@@ -53,6 +60,13 @@ class _SelectFeedbackProviderState
         );
       }
     });
+
+    final groupState = ref.watch(groupProvider);
+    ref.listen(groupProvider, (_, newState) {
+      if (newState.state == AsyncState.success) {
+        groups = newState.data ?? [];
+      }
+    });
     return Builder(builder: (context) {
       if (userState.state == AsyncState.loading) {
         return const Center(
@@ -63,25 +77,28 @@ class _SelectFeedbackProviderState
           child: Text("Error: ${userState.error}"),
         );
       } else {
-        return Column(
-          children: [
-            Expanded(
-              child: FilterContent(
-                hasHeader: false,
-                sections: sections,
-                onFiltersChanged: (filters) {
-                  Log.info('Filters updated: $filters');
-                },
-                onApply: () {
-                  Log.info('Filters applied');
-                },
-                onReset: () {
-                  Log.info('Filters reset');
-                },
-                hasActionButton: false,
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: Column(
+            children: [
+              Expanded(
+                child: FilterContent(
+                  hasHeader: false,
+                  sections: sections,
+                  onFiltersChanged: (filters) {
+                    Log.info('Filters updated: $filters');
+                  },
+                  onApply: () {
+                    Log.info('Filters applied');
+                  },
+                  onReset: () {
+                    Log.info('Filters reset');
+                  },
+                  hasActionButton: false,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       }
     });

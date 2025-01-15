@@ -83,7 +83,7 @@ class RequestedFeedbackCard extends StatelessWidget {
                   children: [
                     StaggeredGridTile.count(
                       crossAxisCellCount: 1,
-                      mainAxisCellCount: isGrid ? 0.7 : 1,
+                      mainAxisCellCount: isGrid ? 0.7 : 1.2,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -108,13 +108,15 @@ class RequestedFeedbackCard extends StatelessWidget {
                                       fontWeight: FontWeight.bold,
                                     ),
                             textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
                     ),
                     StaggeredGridTile.count(
                       crossAxisCellCount: isGrid ? 1 : 2,
-                      mainAxisCellCount: isGrid ? 1 : 1.1,
+                      mainAxisCellCount: isGrid ? 1 : 1.2,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

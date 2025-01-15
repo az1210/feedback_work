@@ -1,16 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:feedback_work/core/constants/firebase_constants.dart';
-import 'package:feedback_work/core/router/routes.dart';
-import 'package:feedback_work/models/child_model.dart';
-import 'package:feedback_work/models/user_model.dart';
-import 'package:feedback_work/providers/firebase_providers.dart';
-import 'package:feedback_work/providers/user_providers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'package:feedback_work/core/utils/utils.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+
+import 'package:feedback_work/core/constants/firebase_constants.dart';
+import 'package:feedback_work/core/router/routes.dart';
+import 'package:feedback_work/core/utils/utils.dart';
+import 'package:feedback_work/models/user_model.dart';
+import 'package:feedback_work/providers/firebase_providers.dart';
 
 final authServiceProvider =
     NotifierProvider<AuthNotifier, AuthNotifierState>(AuthNotifier.new);
@@ -196,15 +194,16 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
       await firestore
           .collection(FirebaseConstants.userCollection)
           .doc(uid)
-          .update({
-        "id": uid,
-        "username": userModel.username,
-        "title": userModel.title,
-        "expertise": userModel.expertise,
-        "accountType": userModel.accountType,
-        "createdAt": FieldValue.serverTimestamp(),
-        "minimumRate": userModel.minimumRate,
-      });
+          .update(
+        {
+          "username": userModel.username,
+          "title": userModel.title,
+          "expertise": userModel.expertise,
+          "accountType": userModel.accountType,
+          "createdAt": FieldValue.serverTimestamp(),
+          "minimumRate": userModel.minimumRate,
+        },
+      );
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());

@@ -27,9 +27,9 @@ class AddMemberContent extends ConsumerStatefulWidget {
 }
 
 class _SelectFeedbackProviderState extends ConsumerState<AddMemberContent> {
-  List<FilterSection<String>> sections = [];
-  List<String> uIds = [];
-  List<String> values = [];
+  List<FilterSection<UserModel>> sections = [];
+  List<UserModel> values = [];
+  List<UserModel> selectedUser = [];
   UserModel? currentUser;
 
   @override
@@ -50,11 +50,11 @@ class _SelectFeedbackProviderState extends ConsumerState<AddMemberContent> {
         List<String> names = [];
         for (var i in newState.data!) {
           names.add("${i.firstName ?? ''} ${i.lastName ?? ''}");
-          values.add(i.id ?? "");
+          values.add(i);
         }
-        Log.info(currentUser?.firstName ?? "");
+        Log.info(currentUser?.toMap().toString() ?? "");
         sections.add(
-          FilterSection<String>(
+          FilterSection<UserModel>(
             title: "users",
             values: values,
             labels: names,
@@ -98,17 +98,20 @@ class _SelectFeedbackProviderState extends ConsumerState<AddMemberContent> {
                   ),
                   TextButton(
                       onPressed: () {
-                        Log.info(widget.groupName);
-                        Log.info(widget.groupDescription);
-                        Log.info(widget.isPublic.toString());
-                        Log.info(uIds.map((u) => u).toList().toString());
                         ref.read(groupProvider.notifier).createGroup(
                               group: GroupModel(
                                 ownerId: currentUser!.id,
                                 name: widget.groupName,
                                 description: widget.groupDescription,
                                 isPublic: widget.isPublic,
-                                uIds: uIds,
+                                users: values
+                                    .map((u) => GroupUser(
+                                          id: u.id,
+                                          avaterUrl: u.avaterUrl,
+                                          firstName: u.firstName,
+                                          lastName: u.lastName,
+                                        ))
+                                    .toList(),
                               ),
                               callback: () {
                                 context.pop();
@@ -125,15 +128,20 @@ class _SelectFeedbackProviderState extends ConsumerState<AddMemberContent> {
                       )),
                 ],
               ),
-              FilterContent<String>(
+              FilterContent<UserModel>(
                 hasHeader: false,
                 sections: sections,
                 initialFilters: {
-                  "users": {currentUser?.id ?? ""}
+                  "users": {
+                    values
+                        .firstWhere((u) => u.username == currentUser!.username)
+                  },
                 },
-                onFiltersChanged: (Map<String, Set<String>> filters) {
-                  Log.info('Filters updated: $filters');
-                  uIds.addAll(filters['users']?.toList() ?? []);
+                onFiltersChanged: (Map<String, Set<UserModel>> filters) {
+                  selectedUser.addAll(filters['users']?.toList() ?? []);
+                  Log.info(values
+                      .firstWhere((u) => u.username == currentUser!.username)
+                      .toString());
                 },
                 onApply: () {
                   Log.info('Filters applied');

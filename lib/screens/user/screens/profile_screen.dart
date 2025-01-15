@@ -1,7 +1,9 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
+import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/user_model.dart';
+import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:feedback_work/providers/user_providers.dart';
 import 'package:feedback_work/screens/network/widgets/stat_item_card.dart';
 import 'package:flutter/material.dart';
@@ -23,15 +25,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   void initState() {
     Future.microtask(() {
-      ref.read(userProvider.notifier).currentUser();
+      final uid = ref.watch(firebaseAuthProvider).currentUser?.uid ?? '';
+      ref.read(fetchUserByIdProvider.notifier).fetchUser(uid: uid);
     });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    currentUser = ref.watch(currentUserProvider);
-
+    final userState = ref.watch(fetchUserByIdProvider);
+    ref.listen(fetchUserByIdProvider, (_, newState) {
+      if (newState.state == AsyncState.success) {
+        currentUser = newState.data;
+      }
+    });
     return Scaffold(
       backgroundColor: context.colors.pureWhite,
       appBar: AppBar(

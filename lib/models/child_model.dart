@@ -1,6 +1,6 @@
 class ChildModel {
   final String? id;
-  final String? imageUrl;
+  final String? avaterUrl;
   final String? firstName;
   final String? lastName;
   final String? ageRange;
@@ -8,7 +8,7 @@ class ChildModel {
   final String? email;
   ChildModel({
     this.id,
-    this.imageUrl,
+    this.avaterUrl,
     this.firstName,
     this.lastName,
     this.ageRange,
@@ -27,7 +27,7 @@ class ChildModel {
   }) {
     return ChildModel(
       id: id ?? this.id,
-      imageUrl: imageUrl ?? this.imageUrl,
+      avaterUrl: imageUrl ?? this.avaterUrl,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       ageRange: ageRange ?? this.ageRange,
@@ -39,7 +39,7 @@ class ChildModel {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
-      'imageUrl': imageUrl,
+      'imageUrl': avaterUrl,
       'firstName': firstName,
       'lastName': lastName,
       'ageRange': ageRange,
@@ -51,7 +51,7 @@ class ChildModel {
   factory ChildModel.fromMap(Map<String, dynamic> map) {
     return ChildModel(
       id: map['id'] != null ? map['id'] as String : null,
-      imageUrl: map['imageUrl'] != null ? map['imageUrl'] as String : null,
+      avaterUrl: map['imageUrl'] != null ? map['imageUrl'] as String : null,
       firstName: map['firstName'] != null ? map['firstName'] as String : null,
       lastName: map['lastName'] != null ? map['lastName'] as String : null,
       ageRange: map['ageRange'] != null ? map['ageRange'] as String : null,

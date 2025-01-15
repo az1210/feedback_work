@@ -3,6 +3,7 @@ import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/providers/category_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SelectFeedbackCategory extends ConsumerStatefulWidget {
   const SelectFeedbackCategory({
@@ -44,6 +45,7 @@ class _SelectFeedbackCategoryState
           sections = [
             FilterSection(
                 title: "category",
+                showTitle: false,
                 values: options,
                 labels: options,
                 allowMultipleSelection: false),
@@ -61,23 +63,26 @@ class _SelectFeedbackCategoryState
           child: CircularProgressIndicator(),
         );
       } else {
-        return Column(
-          children: [
-            Expanded(
-              child: FilterContent(
-                hasHeader: false,
-                sections: sections,
-                onFiltersChanged: widget.onFiltersChanged,
-                onApply: () {
-                  Log.info('Filters applied');
-                },
-                onReset: () {
-                  Log.info('Filters reset');
-                },
-                hasActionButton: false,
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: Column(
+            children: [
+              Expanded(
+                child: FilterContent(
+                  hasHeader: false,
+                  sections: sections,
+                  onFiltersChanged: widget.onFiltersChanged,
+                  onApply: () {
+                    Log.info('Filters applied');
+                  },
+                  onReset: () {
+                    Log.info('Filters reset');
+                  },
+                  hasActionButton: false,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       }
     });

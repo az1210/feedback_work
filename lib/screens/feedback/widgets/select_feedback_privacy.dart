@@ -27,29 +27,29 @@ class _SelectFeedbackPrivacyState extends State<SelectFeedbackPrivacy> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          FilterContent(
-            hasHeader: false,
-            hasSearchOption: false,
-            sections: sections,
-            initialFilters: const {},
-            initialSliderValue: 50,
-            onFiltersChanged: (filters) {
-              Log.info('Filters updated: $filters');
-            },
-            onApply: () {
-              Log.info('Filters applied');
-            },
-            onReset: () {
-              Log.info('Filters reset');
-            },
-            hasActionButton: false,
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: Column(
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            FilterContent(
+              hasHeader: false,
+              hasSearchOption: false,
+              sections: sections,
+              initialFilters: const {},
+              initialSliderValue: 50,
+              onFiltersChanged: (filters) {
+                Log.info('Filters updated: $filters');
+              },
+              onApply: () {
+                Log.info('Filters applied');
+              },
+              onReset: () {
+                Log.info('Filters reset');
+              },
+              hasActionButton: false,
+            ),
+            Column(
               children: [
                 Row(
                   children: [
@@ -59,8 +59,9 @@ class _SelectFeedbackPrivacyState extends State<SelectFeedbackPrivacy> {
                     )
                   ],
                 ),
+                8.ph,
                 Container(
-                  height: 40.h,
+                  height: 48.h,
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10.r),
@@ -72,12 +73,9 @@ class _SelectFeedbackPrivacyState extends State<SelectFeedbackPrivacy> {
                 )
               ],
             ),
-          ),
-          16.ph,
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: Container(
-              height: 40.h,
+            16.ph,
+            Container(
+              height: 48.h,
               padding: EdgeInsets.symmetric(horizontal: 10.w),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10.r),
@@ -97,9 +95,9 @@ class _SelectFeedbackPrivacyState extends State<SelectFeedbackPrivacy> {
                 ],
               ),
             ),
-          ),
-          16.ph,
-        ],
+            16.ph,
+          ],
+        ),
       ),
     );
   }
