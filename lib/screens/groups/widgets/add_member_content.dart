@@ -104,14 +104,7 @@ class _SelectFeedbackProviderState extends ConsumerState<AddMemberContent> {
                                 name: widget.groupName,
                                 description: widget.groupDescription,
                                 isPublic: widget.isPublic,
-                                users: selectedUser
-                                    .map((u) => GroupUser(
-                                          id: u.id,
-                                          avaterUrl: u.avaterUrl,
-                                          firstName: u.firstName,
-                                          lastName: u.lastName,
-                                        ))
-                                    .toList(),
+                                users: selectedUser,
                               ),
                               callback: () {
                                 context.pop();

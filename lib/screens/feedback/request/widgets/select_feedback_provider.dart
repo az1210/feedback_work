@@ -1,6 +1,8 @@
 import 'package:feedback_work/core/ui/widgets/filter__content.dart';
+import 'package:feedback_work/core/ui/widgets/group_filter_content.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/group_model.dart';
+import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/group_providers.dart';
 import 'package:feedback_work/providers/user_providers.dart';
 import 'package:flutter/material.dart';
@@ -67,40 +69,73 @@ class _SelectFeedbackProviderState
         groups = newState.data ?? [];
       }
     });
-    return Builder(builder: (context) {
-      if (userState.state == AsyncState.loading) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      } else if (userState.error != null) {
-        return Center(
-          child: Text("Error: ${userState.error}"),
-        );
-      } else {
-        return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Column(
-            children: [
-              Expanded(
-                child: FilterContent(
-                  hasHeader: false,
-                  sections: sections,
-                  onFiltersChanged: (filters) {
-                    Log.info('Filters updated: $filters');
-                  },
-                  onApply: () {
-                    Log.info('Filters applied');
-                  },
-                  onReset: () {
-                    Log.info('Filters reset');
-                  },
-                  hasActionButton: false,
-                ),
+    return Builder(
+      builder: (context) {
+        if (userState.state == AsyncState.loading ||
+            groupState.state == AsyncState.loading) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (userState.error != null && groupState.error != null) {
+          return Center(
+            child: Text("Error: ${userState.error}"),
+          );
+        } else {
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  FilterContent(
+                    hasHeader: false,
+                    sections: sections,
+                    onFiltersChanged: (filters) {
+                      Log.info('Filters updated: $filters');
+                    },
+                    onApply: () {
+                      Log.info('Filters applied');
+                    },
+                    onReset: () {
+                      Log.info('Filters reset');
+                    },
+                    hasActionButton: false,
+                  ),
+                  GroupFilterContent(
+                    groups: groups
+                        .map(
+                          (g) => GroupModel(
+                            id: g.id,
+                            name: g.name,
+                            description: g.description,
+                            users: g.users
+                                ?.map(
+                                  (u) => UserModel(
+                                    id: u.id,
+                                    firstName: u.firstName,
+                                    lastName: u.lastName,
+                                    avaterUrl: u.avaterUrl,
+                                    title: u.title,
+                                    expertise: u.expertise,
+                                    username: u.username,
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                        )
+                        .toList(),
+                    onUserSelection: (groupId, selectedUserIds) {
+                      // Handle user selection
+                    },
+                    onGroupExpand: (groupId) {
+                      // Handle group expansion
+                    },
+                  ),
+                ],
               ),
-            ],
-          ),
-        );
-      }
-    });
+            ),
+          );
+        }
+      },
+    );
   }
 }

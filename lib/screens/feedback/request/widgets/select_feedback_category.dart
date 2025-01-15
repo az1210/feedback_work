@@ -65,10 +65,10 @@ class _SelectFeedbackCategoryState
       } else {
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Column(
-            children: [
-              Expanded(
-                child: FilterContent(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                FilterContent(
                   hasHeader: false,
                   sections: sections,
                   onFiltersChanged: widget.onFiltersChanged,
@@ -80,8 +80,8 @@ class _SelectFeedbackCategoryState
                   },
                   hasActionButton: false,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       }

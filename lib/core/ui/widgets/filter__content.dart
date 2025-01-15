@@ -790,38 +790,36 @@ class _FilterContentState<T> extends State<FilterContent<T>> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (widget.hasHeader)
-            BuildHeader(
-              title: widget.title?.toTitleCase(),
-              resetButtonText: widget.resetButtonText,
-              resetFilter: _resetFilters,
-            ),
-          if (widget.hasSearchOption)
-            BuildSearchBar(
-              searchController: _searchController,
-              context: context,
-            ),
-          SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (widget.sections != null)
-                  ...widget.sections!.map((section) => _buildSection(section)),
-                if (widget.rangeSliderConfig != null) ...[
-                  _buildRangeSlider(widget.rangeSliderConfig!),
-                  16.ph,
-                ],
-              ],
-            ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (widget.hasHeader)
+          BuildHeader(
+            title: widget.title?.toTitleCase(),
+            resetButtonText: widget.resetButtonText,
+            resetFilter: _resetFilters,
           ),
-          if (widget.hasActionButton) _buildApplyButton(),
-          16.ph,
-        ],
-      ),
+        if (widget.hasSearchOption)
+          BuildSearchBar(
+            searchController: _searchController,
+            context: context,
+          ),
+        SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (widget.sections != null)
+                ...widget.sections!.map((section) => _buildSection(section)),
+              if (widget.rangeSliderConfig != null) ...[
+                _buildRangeSlider(widget.rangeSliderConfig!),
+                16.ph,
+              ],
+            ],
+          ),
+        ),
+        if (widget.hasActionButton) _buildApplyButton(),
+        16.ph,
+      ],
     );
   }
 

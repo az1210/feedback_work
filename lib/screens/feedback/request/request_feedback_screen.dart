@@ -48,130 +48,138 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Request Feedback"),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.all(16.r),
-            child: Row(
-              children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    SizedBox(
-                      height: 50.r,
-                      width: 50.r,
-                      child: CircularProgressIndicator(
-                        value: ref.watch(requestFeedbackStepProvider) / 6,
-                        backgroundColor:
-                            context.colors.darkGrey.withValues(alpha: 0.5),
-                        color: context.colors.primaryBlue,
-                      ),
-                    ),
-                    Text(
-                      "${ref.watch(requestFeedbackStepProvider).toInt()} of 6",
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-                16.pw,
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) {
+        ref.read(requestFeedbackStepProvider.notifier).state = 1;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Request Feedback"),
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(16.r),
+              child: Row(
+                children: [
+                  Stack(
+                    alignment: Alignment.center,
                     children: [
-                      Text(
-                        pageTitles[ref.watch(requestFeedbackStepProvider) - 1],
-                        style: Theme.of(context).textTheme.titleMedium,
+                      SizedBox(
+                        height: 50.r,
+                        width: 50.r,
+                        child: CircularProgressIndicator(
+                          value: ref.watch(requestFeedbackStepProvider) / 6,
+                          backgroundColor:
+                              context.colors.darkGrey.withValues(alpha: 0.5),
+                          color: context.colors.primaryBlue,
+                        ),
                       ),
-                      ref.watch(requestFeedbackStepProvider) == 5
-                          ? const SizedBox.shrink()
-                          : Text(
-                              "Next: ${pageTitles[ref.watch(requestFeedbackStepProvider)]}",
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
+                      Text(
+                        "${ref.watch(requestFeedbackStepProvider).toInt()} of 6",
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                     ],
                   ),
-                ),
-              ],
+                  16.pw,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          pageTitles[
+                              ref.watch(requestFeedbackStepProvider) - 1],
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        ref.watch(requestFeedbackStepProvider) == 5
+                            ? const SizedBox.shrink()
+                            : Text(
+                                "Next: ${pageTitles[ref.watch(requestFeedbackStepProvider)]}",
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: PageView(
-              controller: requestFeedbackController,
-              children: [
-                SelectFeedbackCategory(
-                  onFiltersChanged: (p0) {
-                    setState(() {
-                      selectedCategory = p0["category"]?.first ?? "";
-                    });
-                  },
-                ),
-                const SelectFeedbackPrivacy(),
-                SelectFeedbackProvider(
-                  category: selectedCategory ?? "",
-                ),
-                const TypeMessage(),
-                const PreviewFeedbackRequest(),
-              ],
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.all(16.r),
-            color: context.colors.pureWhite,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: AppButton.outlined(
-                    horizontalPadding: 16.w,
-                    width: 8.h,
-                    label: ref.watch(requestFeedbackStepProvider) == 1
-                        ? "Cancel"
-                        : "Previous",
-                    onTap: () {
-                      if (ref.watch(requestFeedbackStepProvider) != 1) {
-                        requestFeedbackController.previousPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                        );
-                        ref.read(requestFeedbackStepProvider.notifier).state--;
-                      } else {
-                        context.pop();
-                      }
+            Expanded(
+              child: PageView(
+                controller: requestFeedbackController,
+                children: [
+                  SelectFeedbackCategory(
+                    onFiltersChanged: (p0) {
+                      setState(() {
+                        selectedCategory = p0["category"]?.first ?? "";
+                      });
                     },
-                    borderColor: context.colors.primaryBlue,
                   ),
-                ),
-                32.pw,
-                Expanded(
-                  child: AppButton.filled(
-                    horizontalPadding: 16.w,
-                    width: 8.h,
-                    label: ref.watch(requestFeedbackStepProvider) == 5
-                        ? "Send Request"
-                        : 'Next',
-                    onTap: ref.watch(requestFeedbackStepProvider) == 5
-                        ? () {
-                            // ref.read(feedbackProvider.notifier).createFeedback(feedback: FeedbackModel(givenToUsers: givenToUsers, isPrivate: isPrivate, message: message, cost: cost))
-                          }
-                        : () {
-                            requestFeedbackController.nextPage(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                            );
-                            ref
-                                .read(requestFeedbackStepProvider.notifier)
-                                .state++;
-                          },
+                  const SelectFeedbackPrivacy(),
+                  SelectFeedbackProvider(
+                    category: selectedCategory ?? "",
                   ),
-                ),
-              ],
+                  const TypeMessage(),
+                  const PreviewFeedbackRequest(),
+                ],
+              ),
             ),
-          ),
-        ],
+            Container(
+              padding: EdgeInsets.all(16.r),
+              color: context.colors.pureWhite,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: AppButton.outlined(
+                      horizontalPadding: 16.w,
+                      width: 8.h,
+                      label: ref.watch(requestFeedbackStepProvider) == 1
+                          ? "Cancel"
+                          : "Previous",
+                      onTap: () {
+                        if (ref.watch(requestFeedbackStepProvider) != 1) {
+                          requestFeedbackController.previousPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                          ref
+                              .read(requestFeedbackStepProvider.notifier)
+                              .state--;
+                        } else {
+                          context.pop();
+                        }
+                      },
+                      borderColor: context.colors.primaryBlue,
+                    ),
+                  ),
+                  32.pw,
+                  Expanded(
+                    child: AppButton.filled(
+                      horizontalPadding: 16.w,
+                      width: 8.h,
+                      label: ref.watch(requestFeedbackStepProvider) == 5
+                          ? "Send Request"
+                          : 'Next',
+                      onTap: ref.watch(requestFeedbackStepProvider) == 5
+                          ? () {
+                              // ref.read(feedbackProvider.notifier).createFeedback(feedback: FeedbackModel(givenToUsers: givenToUsers, isPrivate: isPrivate, message: message, cost: cost))
+                            }
+                          : () {
+                              requestFeedbackController.nextPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                              ref
+                                  .read(requestFeedbackStepProvider.notifier)
+                                  .state++;
+                            },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
