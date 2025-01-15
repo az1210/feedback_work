@@ -50,6 +50,8 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
     Log.info("currentUser!.id! =====>${currentUser!.id!}");
     Log.info(
         "Group users!.id! =====>${groups.map((g) => g.users!.map((u) => u.id))}");
+    Log.info(
+        "Groups =====>${groups.where((g) => g.ownerId == currentUser.id!).toList()}");
     filteredGroups = selectedGroupType == GroupType.all
         ? groups.where((g) => g.isPublic == true).toList()
         : selectedGroupType == GroupType.myGroups
@@ -114,7 +116,8 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(filteredGroups[index].name),
+                              Text(
+                                  "${filteredGroups[index].name}(${filteredGroups[index].users?.length})"),
                               if (filteredGroups[index].description != null)
                                 Text(
                                   filteredGroups[index].description!,
@@ -130,7 +133,7 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
                             ],
                           ),
                         ),
-                        if (filteredGroups[index]
+                        if (!filteredGroups[index]
                             .users!
                             .any((u) => u.id == currentUser.id))
                           AppButton.text(

@@ -1,11 +1,13 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
+import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/providers/category_providers.dart';
-import 'package:feedback_work/screens/feedback/widgets/preview_feedback_request.dart';
-import 'package:feedback_work/screens/feedback/widgets/select_feedback_category.dart';
-import 'package:feedback_work/screens/feedback/widgets/select_feedback_privacy.dart';
-import 'package:feedback_work/screens/feedback/widgets/select_feedback_provider.dart';
-import 'package:feedback_work/screens/feedback/widgets/type_message.dart';
+import 'package:feedback_work/providers/feedback_providers.dart';
+import 'package:feedback_work/screens/feedback/request/widgets/preview_feedback_request.dart';
+import 'package:feedback_work/screens/feedback/request/widgets/select_feedback_category.dart';
+import 'package:feedback_work/screens/feedback/request/widgets/select_feedback_privacy.dart';
+import 'package:feedback_work/screens/feedback/request/widgets/select_feedback_provider.dart';
+import 'package:feedback_work/screens/feedback/request/widgets/type_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -151,13 +153,19 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                     label: ref.watch(requestFeedbackStepProvider) == 5
                         ? "Send Request"
                         : 'Next',
-                    onTap: () {
-                      requestFeedbackController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      );
-                      ref.read(requestFeedbackStepProvider.notifier).state++;
-                    },
+                    onTap: ref.watch(requestFeedbackStepProvider) == 5
+                        ? () {
+                            // ref.read(feedbackProvider.notifier).createFeedback(feedback: FeedbackModel(givenToUsers: givenToUsers, isPrivate: isPrivate, message: message, cost: cost))
+                          }
+                        : () {
+                            requestFeedbackController.nextPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                            ref
+                                .read(requestFeedbackStepProvider.notifier)
+                                .state++;
+                          },
                   ),
                 ),
               ],

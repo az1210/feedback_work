@@ -941,7 +941,7 @@ class _FilterContentState<T> extends State<FilterContent<T>> {
                       ),
                   ],
                 ),
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ),

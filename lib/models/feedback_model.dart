@@ -1,8 +1,5 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
+import 'package:feedback_work/models/user_model.dart';
 
 enum FeedbackStatus {
   requested,
@@ -13,24 +10,22 @@ enum FeedbackStatus {
 
 class FeedbackModel {
   final String? id;
-  final String projectId;
-  final String projectOwnerId;
-  final FeedbackStatus feedbackStatus;
-  final FieldValue statusModifiedAt;
-  final String givenByUserId;
+  final String? projectId;
+  final String? projectOwnerId;
+  final Status? feedbackStatus;
+  final String? givenByUserId;
+  final List<UserModel> givenToUsers;
   final bool isPrivate;
-  final List<String> providersUId;
   final MessageModel message;
   final double cost;
   FeedbackModel({
     this.id,
-    required this.projectId,
-    required this.projectOwnerId,
-    required this.feedbackStatus,
-    required this.statusModifiedAt,
-    required this.givenByUserId,
+    this.projectId,
+    this.projectOwnerId,
+    this.feedbackStatus,
+    this.givenByUserId,
+    required this.givenToUsers,
     required this.isPrivate,
-    required this.providersUId,
     required this.message,
     required this.cost,
   });
@@ -39,11 +34,10 @@ class FeedbackModel {
     String? id,
     String? projectId,
     String? projectOwnerId,
-    FeedbackStatus? feedbackStatus,
-    FieldValue? statusModifiedAt,
+    Status? feedbackStatus,
     String? givenByUserId,
+    List<UserModel>? givenToUsers,
     bool? isPrivate,
-    List<String>? providersUId,
     MessageModel? message,
     double? cost,
   }) {
@@ -52,10 +46,9 @@ class FeedbackModel {
       projectId: projectId ?? this.projectId,
       projectOwnerId: projectOwnerId ?? this.projectOwnerId,
       feedbackStatus: feedbackStatus ?? this.feedbackStatus,
-      statusModifiedAt: statusModifiedAt ?? this.statusModifiedAt,
       givenByUserId: givenByUserId ?? this.givenByUserId,
+      givenToUsers: givenToUsers ?? this.givenToUsers,
       isPrivate: isPrivate ?? this.isPrivate,
-      providersUId: providersUId ?? this.providersUId,
       message: message ?? this.message,
       cost: cost ?? this.cost,
     );
@@ -66,11 +59,10 @@ class FeedbackModel {
       'id': id,
       'projectId': projectId,
       'projectOwnerId': projectOwnerId,
-      'feedbackStatus': feedbackStatus,
-      'statusModifiedAt': statusModifiedAt,
+      'feedbackStatus': feedbackStatus?.toMap(),
       'givenByUserId': givenByUserId,
+      'givenToUsers': givenToUsers.map((x) => x.toMap()).toList(),
       'isPrivate': isPrivate,
-      'providersUId': providersUId,
       'message': message.toMap(),
       'cost': cost,
     };
@@ -79,58 +71,24 @@ class FeedbackModel {
   factory FeedbackModel.fromMap(Map<String, dynamic> map) {
     return FeedbackModel(
       id: map['id'] != null ? map['id'] as String : null,
-      projectId: map['projectId'] as String,
-      projectOwnerId: map['projectOwnerId'] as String,
-      feedbackStatus: map['feedbackStatus'] as FeedbackStatus,
-      statusModifiedAt: map['statusModifiedAt'] as FieldValue,
-      givenByUserId: map['givenByUserId'] as String,
-      isPrivate: map['isPrivate'] as bool,
-      providersUId: List<String>.from(
-        (map['providersUId'] as List<String>),
+      projectId: map['projectId'] != null ? map['projectId'] as String : null,
+      projectOwnerId: map['projectOwnerId'] != null
+          ? map['projectOwnerId'] as String
+          : null,
+      feedbackStatus: map['feedbackStatus'] != null
+          ? Status.fromMap(map['feedbackStatus'] as Map<String, dynamic>)
+          : null,
+      givenByUserId:
+          map['givenByUserId'] != null ? map['givenByUserId'] as String : null,
+      givenToUsers: List<UserModel>.from(
+        (map['givenToUsers'] as List<dynamic>).map<UserModel>(
+          (x) => UserModel.fromMap(x as Map<String, dynamic>),
+        ),
       ),
+      isPrivate: map['isPrivate'] as bool,
       message: MessageModel.fromMap(map['message'] as Map<String, dynamic>),
       cost: map['cost'] as double,
     );
-  }
-
-  String toJson() => json.encode(toMap());
-
-  factory FeedbackModel.fromJson(String source) =>
-      FeedbackModel.fromMap(json.decode(source) as Map<String, dynamic>);
-
-  @override
-  String toString() {
-    return 'FeedbackModel(id: $id, projectId: $projectId, projectOwnerId: $projectOwnerId, feedbackStatus: $feedbackStatus, statusModifiedAt: $statusModifiedAt, givenByUserId: $givenByUserId, isPrivate: $isPrivate, providersUId: $providersUId, message: $message, cost: $cost)';
-  }
-
-  @override
-  bool operator ==(covariant FeedbackModel other) {
-    if (identical(this, other)) return true;
-
-    return other.id == id &&
-        other.projectId == projectId &&
-        other.projectOwnerId == projectOwnerId &&
-        other.feedbackStatus == feedbackStatus &&
-        other.statusModifiedAt == statusModifiedAt &&
-        other.givenByUserId == givenByUserId &&
-        other.isPrivate == isPrivate &&
-        listEquals(other.providersUId, providersUId) &&
-        other.message == message &&
-        other.cost == cost;
-  }
-
-  @override
-  int get hashCode {
-    return id.hashCode ^
-        projectId.hashCode ^
-        projectOwnerId.hashCode ^
-        feedbackStatus.hashCode ^
-        statusModifiedAt.hashCode ^
-        givenByUserId.hashCode ^
-        isPrivate.hashCode ^
-        providersUId.hashCode ^
-        message.hashCode ^
-        cost.hashCode;
   }
 }
 
@@ -175,6 +133,39 @@ class MessageModel {
       message: map['message'] != null ? map['message'] as String : null,
       imageUrl: map['imageUrl'] != null ? map['imageUrl'] as String : null,
       ytUrl: map['ytUrl'] != null ? map['ytUrl'] as String : null,
+    );
+  }
+}
+
+class Status {
+  final String status;
+  final FieldValue modifiedAt;
+  Status({
+    required this.status,
+    required this.modifiedAt,
+  });
+
+  Status copyWith({
+    String? status,
+    FieldValue? modifiedAt,
+  }) {
+    return Status(
+      status: status ?? this.status,
+      modifiedAt: modifiedAt ?? this.modifiedAt,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'status': status,
+      'modifiedAt': modifiedAt,
+    };
+  }
+
+  factory Status.fromMap(Map<String, dynamic> map) {
+    return Status(
+      status: map['status'] as String,
+      modifiedAt: map['modifiedAt'] as FieldValue,
     );
   }
 }

@@ -219,14 +219,16 @@ class AppButton extends StatelessWidget {
                       SizedBox(width: 8.w),
                     ],
                     if (label != "") ...[
-                      Text(
-                        label,
-                        style: labelTextStyle ??
-                            Theme.of(context).textTheme.titleMedium!.copyWith(
-                                  color: foregroundColor,
-                                  fontSize: 14,
-                                ),
-                        overflow: TextOverflow.ellipsis,
+                      Flexible(
+                        child: Text(
+                          label,
+                          style: labelTextStyle ??
+                              Theme.of(context).textTheme.titleMedium!.copyWith(
+                                    color: foregroundColor,
+                                    fontSize: 14,
+                                  ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                     if (suffix != null) ...[

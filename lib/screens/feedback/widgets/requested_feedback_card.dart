@@ -1,8 +1,10 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
+import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:go_router/go_router.dart';
 
 class RequestedFeedbackCard extends StatelessWidget {
   final String userName;
@@ -261,11 +263,13 @@ class RequestedFeedbackCard extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     8.ph,
-                    AppButton(
-                      label: "Send Feedback",
+                    AppButton.filled(
+                      label: "Provide Feedback",
                       bgColor: context.colors.primaryBlue,
                       fgColor: context.colors.pureWhite,
-                      isFilled: true,
+                      onTap: () {
+                        context.pushNamed(Routes.provideFeedback);
+                      },
                       verticalPadding: 8.h,
                     ),
                   ],

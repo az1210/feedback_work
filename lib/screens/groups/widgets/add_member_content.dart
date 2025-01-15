@@ -104,7 +104,7 @@ class _SelectFeedbackProviderState extends ConsumerState<AddMemberContent> {
                                 name: widget.groupName,
                                 description: widget.groupDescription,
                                 isPublic: widget.isPublic,
-                                users: values
+                                users: selectedUser
                                     .map((u) => GroupUser(
                                           id: u.id,
                                           avaterUrl: u.avaterUrl,
@@ -138,10 +138,11 @@ class _SelectFeedbackProviderState extends ConsumerState<AddMemberContent> {
                   },
                 },
                 onFiltersChanged: (Map<String, Set<UserModel>> filters) {
-                  selectedUser.addAll(filters['users']?.toList() ?? []);
-                  Log.info(values
-                      .firstWhere((u) => u.username == currentUser!.username)
-                      .toString());
+                  Set<UserModel> users = {};
+                  users.addAll(filters['users'] ?? {});
+                  selectedUser = users.toList();
+                  Log.info(
+                      selectedUser.map((s) => s.username).toList().toString());
                 },
                 onApply: () {
                   Log.info('Filters applied');

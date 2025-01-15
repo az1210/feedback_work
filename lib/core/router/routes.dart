@@ -1,5 +1,6 @@
 import 'package:feedback_work/core/router/navbar.dart';
 import 'package:feedback_work/models/user_model.dart';
+import 'package:feedback_work/screens/feedback/provide/provide_feedback_screen.dart';
 import 'package:feedback_work/screens/user/screens/add_child_screen.dart';
 import 'package:feedback_work/screens/user/screens/add_parent_screen.dart';
 import 'package:feedback_work/screens/user/screens/edit_profile_screen.dart';
@@ -7,7 +8,7 @@ import 'package:feedback_work/screens/user/screens/feedback_receipt_screen.dart'
 import 'package:feedback_work/screens/user/screens/parent_and_children_screen.dart';
 import 'package:feedback_work/screens/user/screens/profile_screen.dart';
 import 'package:feedback_work/screens/feedback/received_feedback_details.dart';
-import 'package:feedback_work/screens/feedback/request_feedback_screen.dart';
+import 'package:feedback_work/screens/feedback/request/request_feedback_screen.dart';
 import 'package:feedback_work/screens/groups/groups_screen.dart';
 import 'package:feedback_work/screens/groups/monitor_group_screen.dart';
 import 'package:feedback_work/screens/network/network_profile_screen.dart';
@@ -58,6 +59,7 @@ class Routes {
   static const networkProfile = 'network-profile';
   static const receivedFeedbackDetails = 'received-feedback-details';
   static const requestFeedback = 'request-feedback';
+  static const provideFeedback = 'provide-feedback';
   static const statusReport = 'status-report';
   static const groups = 'groups';
   static const monitorGroup = 'monitor-group';
@@ -223,6 +225,11 @@ final routerProvider = Provider<GoRouter>(
           builder: (context, state) => AddParentScreen(
             currentUserId: state.extra as String,
           ),
+        ),
+        GoRoute(
+          name: Routes.provideFeedback,
+          path: Routes.provideFeedback.p,
+          builder: (context, state) => const ProvideFeedbackScreen(),
         ),
 
         // NavBar Routes
