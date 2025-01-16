@@ -1,4 +1,5 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
+import 'package:feedback_work/core/ui/widgets/filter__content.dart';
 import 'package:feedback_work/models/group_model.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:flutter/material.dart';
@@ -115,24 +116,27 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
 
     return Column(
       children: [
-        TextField(
-          controller: _searchController,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: context.colors.pureWhite,
-            hintText: widget.searchHint ?? 'Search Group',
-            hintStyle: Theme.of(context)
-                .textTheme
-                .bodySmall!
-                .copyWith(color: context.colors.darkGrey),
-            prefixIcon: Icon(Icons.search, color: context.colors.primaryBlue),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30.r),
-              borderSide: BorderSide.none,
-            ),
-          ),
+        BuildSearchBar(
+          searchController: _searchController,
+          hintText: "Search Group",
         ),
-        16.ph,
+        // TextField(
+        //   controller: _searchController,
+        //   decoration: InputDecoration(
+        //     filled: true,
+        //     fillColor: context.colors.pureWhite,
+        //     hintText: widget.searchHint ?? 'Search Group',
+        //     hintStyle: Theme.of(context)
+        //         .textTheme
+        //         .bodySmall!
+        //         .copyWith(color: context.colors.darkGrey),
+        //     prefixIcon: Icon(Icons.search, color: context.colors.primaryBlue),
+        //     border: OutlineInputBorder(
+        //       borderRadius: BorderRadius.circular(30.r),
+        //       borderSide: BorderSide.none,
+        //     ),
+        //   ),
+        // ),
         ListView.builder(
           shrinkWrap: true,
           itemCount: filteredGroups.length,
@@ -229,7 +233,7 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
     final groupId = group.id ?? group.name;
     final isSelectionMode = selectionModeGroups.contains(groupId);
 
-    return ListView.builder(
+    return ListView.separated(
       padding: EdgeInsets.zero,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -238,53 +242,210 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
         final user = group.users![index];
         final isSelected = selectedUsers[groupId]?.contains(user) ?? false;
 
-        return ListTile(
-          tileColor: context.colors.pureWhite,
-          selected: isSelected,
-          selectedTileColor: context.colors.primaryBlue.withValues(alpha: 0.1),
-          shape: RoundedRectangleBorder(
-            borderRadius: index == (group.users!.length - 1)
-                ? BorderRadius.only(
-                    bottomLeft: Radius.circular(20.r),
-                    bottomRight: Radius.circular(20.r))
-                : const BorderRadius.all(Radius.zero),
-          ),
-          leading: user.avaterUrl != null
-              ? CircleAvatar(
-                  backgroundImage: NetworkImage(user.avaterUrl!),
-                  onBackgroundImageError: (_, __) => Text(
-                    (user.firstName?[0] ?? '').toUpperCase(),
+        return showDetails
+            ? GestureDetector(
+                onTap: () => _toggleUserSelection(groupId, user),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? context.colors.primaryBlue.withValues(alpha: 0.1)
+                        : context.colors.pureWhite,
+                    borderRadius: index == (group.users!.length - 1)
+                        ? BorderRadius.only(
+                            bottomLeft: Radius.circular(20.r),
+                            bottomRight: Radius.circular(20.r))
+                        : const BorderRadius.all(Radius.zero),
                   ),
-                )
-              : CircleAvatar(
-                  backgroundColor: context.colors.primaryBlue.withOpacity(0.1),
-                  child: Text(
-                    (user.firstName?[0] ?? '').toUpperCase(),
-                    style: TextStyle(color: context.colors.primaryBlue),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 80.w,
+                        child: Column(
+                          children: [
+                            user.avaterUrl != null
+                                ? CircleAvatar(
+                                    backgroundImage:
+                                        NetworkImage(user.avaterUrl!),
+                                    onBackgroundImageError: (_, __) => Text(
+                                      (user.firstName?[0] ?? '').toUpperCase(),
+                                    ),
+                                  )
+                                : CircleAvatar(
+                                    backgroundColor: context.colors.primaryBlue
+                                        .withValues(alpha: 0.1),
+                                    child: Text(
+                                      (user.firstName?[0] ?? '').toUpperCase(),
+                                      style: TextStyle(
+                                          color: context.colors.primaryBlue),
+                                    ),
+                                  ),
+                            Text(
+                              '${user.firstName ?? ''} ${user.lastName ?? ''}'
+                                  .trim(),
+                              style: Theme.of(context).textTheme.bodySmall,
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                      8.pw,
+                      Expanded(
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  "Expetise:",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium!
+                                      .copyWith(
+                                        fontSize: 14,
+                                      ),
+                                ),
+                                Expanded(
+                                    child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    user.expertise ?? 'N/A',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .copyWith(
+                                          color: context.colors.primaryBlue,
+                                          fontSize: 14,
+                                        ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                )),
+                              ],
+                            ),
+                            Container(
+                              height: 1,
+                              color: context.colors.inputBorder,
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  "Total Feedback Provided:",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium!
+                                      .copyWith(
+                                        fontSize: 14,
+                                      ),
+                                ),
+                                Expanded(
+                                    child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    '20',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .copyWith(
+                                          color: context.colors.primaryBlue,
+                                          fontSize: 14,
+                                        ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                )),
+                              ],
+                            ),
+                            Container(
+                              height: 1,
+                              color: context.colors.inputBorder,
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  "Total Problems Help Solved:",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium!
+                                      .copyWith(fontSize: 14),
+                                ),
+                                Expanded(
+                                    child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    '10',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .copyWith(
+                                          color: context.colors.successGreen,
+                                          fontSize: 14,
+                                        ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                )),
+                              ],
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
                   ),
                 ),
-          title: Text(
-            '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim(),
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-          subtitle:
-              showDetails && (user.title != null || user.expertise != null)
-                  ? Text(
-                      [
-                        if (user.title != null) user.title,
-                        if (user.expertise != null) user.expertise,
-                      ].where((e) => e != null).join(' • '),
-                      style: Theme.of(context).textTheme.bodySmall,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    )
-                  : null,
-          trailing: isSelected && isSelectionMode
-              ? Icon(Icons.check, color: context.colors.primaryBlue)
-              : null,
-          onTap: () => _toggleUserSelection(groupId, user),
-        );
+              )
+            : ListTile(
+                tileColor: context.colors.pureWhite,
+                selected: isSelected,
+                selectedTileColor:
+                    context.colors.primaryBlue.withValues(alpha: 0.1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: index == (group.users!.length - 1)
+                      ? BorderRadius.only(
+                          bottomLeft: Radius.circular(20.r),
+                          bottomRight: Radius.circular(20.r))
+                      : const BorderRadius.all(Radius.zero),
+                ),
+                leading: user.avaterUrl != null
+                    ? CircleAvatar(
+                        backgroundImage: NetworkImage(user.avaterUrl!),
+                        onBackgroundImageError: (_, __) => Text(
+                          (user.firstName?[0] ?? '').toUpperCase(),
+                        ),
+                      )
+                    : CircleAvatar(
+                        backgroundColor:
+                            context.colors.primaryBlue.withValues(alpha: 0.1),
+                        child: Text(
+                          (user.firstName?[0] ?? '').toUpperCase(),
+                          style: TextStyle(color: context.colors.primaryBlue),
+                        ),
+                      ),
+                title: Text(
+                  '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim(),
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                subtitle: showDetails &&
+                        (user.title != null || user.expertise != null)
+                    ? Text(
+                        [
+                          if (user.title != null) user.title,
+                          if (user.expertise != null) user.expertise,
+                        ].where((e) => e != null).join(' • '),
+                        style: Theme.of(context).textTheme.bodySmall,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    : null,
+                trailing: isSelected && isSelectionMode
+                    ? Icon(Icons.check, color: context.colors.primaryBlue)
+                    : null,
+                onTap: () => _toggleUserSelection(groupId, user),
+              );
       },
+      separatorBuilder: (context, index) => Container(
+        height: 1,
+        color: context.colors.inputBorder,
+      ),
     );
   }
 }

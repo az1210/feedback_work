@@ -123,9 +123,7 @@ class _SelectFeedbackProviderState
                           ),
                         )
                         .toList(),
-                    onUserSelection: (groupId, selectedUserIds) {
-                      // Handle user selection
-                    },
+                    onUserSelection: (groupId, selectedUsers) {},
                     onGroupExpand: (groupId) {
                       // Handle group expansion
                     },
