@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/extensions/string_extension.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
+import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/models/project_model.dart';
 import 'package:feedback_work/models/user_model.dart';
@@ -258,6 +259,7 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                           : 'Next',
                       onTap: ref.watch(requestFeedbackStepProvider) == 6
                           ? () {
+                              Log.info(widget.project.toMap().toString());
                               ref
                                   .read(feedbackProvider.notifier)
                                   .createFeedback(
@@ -274,13 +276,14 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                                           double.tryParse(feedbackCost ?? "0"),
                                       feedbackLimit:
                                           int.tryParse(feedbackLimit ?? "0"),
-                                      feedbackStatus: Status(
-                                        status: FeedbackStatus.requested
-                                            .toString()
-                                            .toTitleCase(),
-                                      ),
+                                      feedbackStatus: [
+                                        Status(
+                                          status: FeedbackStatus.requested.name
+                                              .toTitleCase(),
+                                        )
+                                      ],
                                       privacy: selectedPrivacy,
-                                      projectId: widget.project.id,
+                                      project: widget.project,
                                       projectOwnerId: currentUserId,
                                       groupId: selectedGroupId,
                                     ),

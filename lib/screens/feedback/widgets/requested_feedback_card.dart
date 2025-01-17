@@ -1,30 +1,40 @@
+import 'package:date_time_format/date_time_format.dart';
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
+import 'package:feedback_work/models/feedback_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 
-class RequestedFeedbackCard extends StatelessWidget {
-  final String userName;
-  final String project;
-  final String problem;
-  final String solution;
-  final String solutionFunction;
-  final String description;
+class RequestedFeedbackCard extends StatefulWidget {
+  final FeedbackModel feedback;
   final bool isGrid;
 
   const RequestedFeedbackCard({
     super.key,
-    this.isGrid = false,
-    this.userName = "John Thompson",
-    this.project = "Floor Cleaning",
-    this.problem = "Dirty Floor",
-    this.solution = "Clean Floor",
-    this.solutionFunction = "Mop Floor",
-    this.description = "Need help floor cleaning hard surface",
+    required this.feedback,
+    required this.isGrid,
   });
+
+  @override
+  State<RequestedFeedbackCard> createState() => _RequestedFeedbackCardState();
+}
+
+class _RequestedFeedbackCardState extends State<RequestedFeedbackCard> {
+  final QuillController projectDescriptionController = QuillController.basic();
+  FocusNode projectDescriptionFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    projectDescriptionController.document =
+        Document.fromDelta(widget.feedback.project!.projectDescription!);
+    projectDescriptionController.readOnly = true;
+    projectDescriptionFocusNode.canRequestFocus = false;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +55,7 @@ class RequestedFeedbackCard extends StatelessWidget {
               alignment: WrapAlignment.spaceBetween,
               children: [
                 Text(
-                  "Feedback Requested",
+                  "Feedback ${widget.feedback.feedbackStatus?.last.status}",
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontSize: 14,
                       ),
@@ -55,7 +65,10 @@ class RequestedFeedbackCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      "02:42 PM",
+                      DateTime.parse(
+                              widget.feedback.feedbackStatus?.last.modifiedAt ??
+                                  DateTime.now().toString())
+                          .format("h:i A"),
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                             fontSize: 14,
                           ),
@@ -81,11 +94,11 @@ class RequestedFeedbackCard extends StatelessWidget {
               children: [
                 16.ph,
                 StaggeredGrid.count(
-                  crossAxisCount: isGrid ? 1 : 3,
+                  crossAxisCount: widget.isGrid ? 1 : 3,
                   children: [
                     StaggeredGridTile.count(
                       crossAxisCellCount: 1,
-                      mainAxisCellCount: isGrid ? 0.7 : 1.2,
+                      mainAxisCellCount: widget.isGrid ? 0.7 : 1.2,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -104,7 +117,7 @@ class RequestedFeedbackCard extends StatelessWidget {
                           ),
                           8.ph,
                           Text(
-                            userName,
+                            "${widget.feedback.project?.owner?.firstName} ${widget.feedback.project?.owner?.lastName}",
                             style:
                                 Theme.of(context).textTheme.bodySmall!.copyWith(
                                       fontWeight: FontWeight.bold,
@@ -117,8 +130,8 @@ class RequestedFeedbackCard extends StatelessWidget {
                       ),
                     ),
                     StaggeredGridTile.count(
-                      crossAxisCellCount: isGrid ? 1 : 2,
-                      mainAxisCellCount: isGrid ? 1 : 1.2,
+                      crossAxisCellCount: widget.isGrid ? 1 : 2,
+                      mainAxisCellCount: widget.isGrid ? 1 : 1.2,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -135,7 +148,8 @@ class RequestedFeedbackCard extends StatelessWidget {
                                       ),
                                 ),
                                 TextSpan(
-                                  text: project,
+                                  text: widget.feedback.project?.projectName ??
+                                      '',
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall!
@@ -166,7 +180,8 @@ class RequestedFeedbackCard extends StatelessWidget {
                                       ),
                                 ),
                                 TextSpan(
-                                  text: problem,
+                                  text: widget.feedback.project?.problemName ??
+                                      '',
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall!
@@ -198,7 +213,8 @@ class RequestedFeedbackCard extends StatelessWidget {
                                       ),
                                 ),
                                 TextSpan(
-                                  text: solution,
+                                  text: widget.feedback.project?.solutionName ??
+                                      '',
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall!
@@ -230,7 +246,9 @@ class RequestedFeedbackCard extends StatelessWidget {
                                       ),
                                 ),
                                 TextSpan(
-                                  text: solutionFunction,
+                                  text: widget.feedback.project
+                                          ?.solutionFunctionName ??
+                                      '',
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall!
@@ -254,13 +272,9 @@ class RequestedFeedbackCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(height: 16),
-                    Text(
-                      description,
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                      textAlign: TextAlign.center,
+                    QuillEditor.basic(
+                      controller: projectDescriptionController,
+                      focusNode: projectDescriptionFocusNode,
                     ),
                     8.ph,
                     AppButton.filled(

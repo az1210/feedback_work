@@ -1,9 +1,12 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-import 'package:feedback_work/models/user_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_quill/quill_delta.dart';
+
+import 'package:feedback_work/models/project_model.dart';
+import 'package:feedback_work/models/user_model.dart';
 
 enum FeedbackStatus {
   requested,
@@ -14,9 +17,9 @@ enum FeedbackStatus {
 
 class FeedbackModel {
   final String? id;
-  final String? projectId;
+  final ProjectModel? project;
   final String? projectOwnerId;
-  final Status? feedbackStatus;
+  final List<Status>? feedbackStatus;
   final List<UserModel> providers;
   final String? privacy;
   final MessageModel message;
@@ -26,7 +29,7 @@ class FeedbackModel {
   final String? groupId;
   FeedbackModel({
     this.id,
-    this.projectId,
+    this.project,
     this.projectOwnerId,
     this.feedbackStatus,
     required this.providers,
@@ -40,9 +43,9 @@ class FeedbackModel {
 
   FeedbackModel copyWith({
     String? id,
-    String? projectId,
+    ProjectModel? project,
     String? projectOwnerId,
-    Status? feedbackStatus,
+    List<Status>? feedbackStatus,
     List<UserModel>? providers,
     String? privacy,
     MessageModel? message,
@@ -53,7 +56,7 @@ class FeedbackModel {
   }) {
     return FeedbackModel(
       id: id ?? this.id,
-      projectId: projectId ?? this.projectId,
+      project: project ?? this.project,
       projectOwnerId: projectOwnerId ?? this.projectOwnerId,
       feedbackStatus: feedbackStatus ?? this.feedbackStatus,
       providers: providers ?? this.providers,
@@ -69,9 +72,9 @@ class FeedbackModel {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
-      'projectId': projectId,
+      'project': project?.toMap(),
       'projectOwnerId': projectOwnerId,
-      'feedbackStatus': feedbackStatus?.toMap(),
+      'feedbackStatus': feedbackStatus?.map((x) => x.toMap()).toList(),
       'providers': providers.map((x) => x.toMap()).toList(),
       'privacy': privacy,
       'message': message.toMap(),
@@ -85,15 +88,21 @@ class FeedbackModel {
   factory FeedbackModel.fromMap(Map<String, dynamic> map) {
     return FeedbackModel(
       id: map['id'] != null ? map['id'] as String : null,
-      projectId: map['projectId'] != null ? map['projectId'] as String : null,
+      project: map['project'] != null
+          ? ProjectModel.fromMap(map['project'] as Map<String, dynamic>)
+          : null,
       projectOwnerId: map['projectOwnerId'] != null
           ? map['projectOwnerId'] as String
           : null,
       feedbackStatus: map['feedbackStatus'] != null
-          ? Status.fromMap(map['feedbackStatus'] as Map<String, dynamic>)
+          ? List<Status>.from(
+              (map['feedbackStatus'] as List<dynamic>).map<Status?>(
+                (x) => Status.fromMap(x as Map<String, dynamic>),
+              ),
+            )
           : null,
       providers: List<UserModel>.from(
-        (map['providers'] as List<int>).map<UserModel>(
+        (map['providers'] as List<dynamic>).map<UserModel>(
           (x) => UserModel.fromMap(x as Map<String, dynamic>),
         ),
       ),
@@ -176,7 +185,7 @@ class Status {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'status': status,
-      'modifiedAt': FieldValue.serverTimestamp(),
+      'modifiedAt': DateTime.now().toString(),
     };
   }
 

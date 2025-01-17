@@ -53,10 +53,10 @@ class ProjectModel {
     String? imageUrl,
     UserModel? owner,
     String? ownerId,
-    dynamic createdAt,
-    dynamic startDateTime,
-    dynamic finishDateTime,
-    dynamic breakDateTime,
+    String? createdAt,
+    String? startDateTime,
+    String? finishDateTime,
+    String? breakDateTime,
     String? audioUrl,
     String? popUpText,
     double? completionPercentage,
@@ -94,7 +94,7 @@ class ProjectModel {
       'imageUrl': imageUrl,
       'owner': owner?.toMap(),
       'ownerId': ownerId,
-      'createdAt': FieldValue.serverTimestamp(),
+      'createdAt': DateTime.now().toString(),
       'startDateTime': startDateTime,
       'finishDateTime': finishDateTime,
       'breakDateTime': breakDateTime,
@@ -127,10 +127,14 @@ class ProjectModel {
           ? UserModel.fromMap(map['owner'] as Map<String, dynamic>)
           : null,
       ownerId: map['ownerId'] != null ? map['ownerId'] as String : null,
-      createdAt: map['createdAt'] as dynamic,
-      startDateTime: map['startDateTime'] as dynamic,
-      finishDateTime: map['finishDateTime'] as dynamic,
-      breakDateTime: map['breakDateTime'] as dynamic,
+      createdAt: map['createdAt'] != null ? map['createdAt'] as String : null,
+      startDateTime:
+          map['startDateTime'] != null ? map['startDateTime'] as String : null,
+      finishDateTime: map['finishDateTime'] != null
+          ? map['finishDateTime'] as String
+          : null,
+      breakDateTime:
+          map['breakDateTime'] != null ? map['breakDateTime'] as String : null,
       audioUrl: map['audioUrl'] != null ? map['audioUrl'] as String : null,
       popUpText: map['popUpText'] != null ? map['popUpText'] as String : null,
       completionPercentage: map['completionPercentage'] != null

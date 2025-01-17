@@ -11,8 +11,13 @@ class UserModel {
   final String? title;
   final String? expertise;
   final String? accountType;
-  final FieldValue? createdAt;
+  final String? createdAt;
   final double? minimumRate;
+  final int? feedbackProvided;
+  final int? feedbackApplied;
+  final int? problemSolved;
+  final int? problemHelpSolved;
+
   UserModel({
     this.id,
     this.firstName,
@@ -26,6 +31,10 @@ class UserModel {
     this.accountType,
     this.createdAt,
     this.minimumRate,
+    this.feedbackProvided,
+    this.feedbackApplied,
+    this.problemSolved,
+    this.problemHelpSolved,
   });
 
   UserModel copyWith({
@@ -39,8 +48,12 @@ class UserModel {
     String? title,
     String? expertise,
     String? accountType,
-    FieldValue? createdAt,
+    String? createdAt,
     double? minimumRate,
+    int? feedbackProvided,
+    int? feedbackApplied,
+    int? problemSolved,
+    int? problemHelpSolved,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -55,11 +68,16 @@ class UserModel {
       accountType: accountType ?? this.accountType,
       createdAt: createdAt ?? this.createdAt,
       minimumRate: minimumRate ?? this.minimumRate,
+      feedbackProvided: feedbackProvided ?? this.feedbackProvided,
+      feedbackApplied: feedbackApplied ?? this.feedbackApplied,
+      problemSolved: problemSolved ?? this.problemSolved,
+      problemHelpSolved: problemHelpSolved ?? this.problemHelpSolved,
     );
   }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
+      'id': id,
       'firstName': firstName,
       'lastName': lastName,
       'email': email,
@@ -69,8 +87,12 @@ class UserModel {
       'title': title,
       'expertise': expertise,
       'accountType': accountType,
-      'createdAt': FieldValue.serverTimestamp(),
+      'createdAt': DateTime.now().toString(),
       'minimumRate': minimumRate,
+      'feedbackProvided': feedbackProvided,
+      'feedbackApplied': feedbackApplied,
+      'problemSolved': problemSolved,
+      'problemHelpSolved': problemHelpSolved,
     };
   }
 
@@ -88,8 +110,19 @@ class UserModel {
       expertise: map['expertise'] != null ? map['expertise'] as String : null,
       accountType:
           map['accountType'] != null ? map['accountType'] as String : null,
+      // createdAt: map['createdAt'] != null ? map['createdAt'] as String : null,
       minimumRate:
           map['minimumRate'] != null ? map['minimumRate'] as double : null,
+      feedbackProvided: map['feedbackProvided'] != null
+          ? map['feedbackProvided'] as int
+          : null,
+      feedbackApplied:
+          map['feedbackApplied'] != null ? map['feedbackApplied'] as int : null,
+      problemSolved:
+          map['problemSolved'] != null ? map['problemSolved'] as int : null,
+      problemHelpSolved: map['problemHelpSolved'] != null
+          ? map['problemHelpSolved'] as int
+          : null,
     );
   }
 }

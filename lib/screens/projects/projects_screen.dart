@@ -32,14 +32,12 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final projectService = ref.watch(projectServiceProvider);
-
     final projectState = ref.watch(projectProvider);
     ref.listen(projectProvider, (_, newState) {
       if (newState.state == AsyncState.success) {
         projects = newState.allUsersProjects!;
-        Log.info(projects.map((p) => p.owner!.id).toList().toString());
       }
+      Log.info(projects.last.toMap().toString());
     });
 
     return Scaffold(
@@ -134,7 +132,6 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
                   return ProjectCard(
                     projectId: projectId ?? '',
                     project: project,
-                    projectService: projectService,
                   );
                 }),
                 const SizedBox(height: 4),

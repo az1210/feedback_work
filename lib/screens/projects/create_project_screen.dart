@@ -3,8 +3,10 @@ import 'dart:io';
 
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/ui/widgets/dotted_border_big_button.dart';
+import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/project_model.dart';
 import 'package:feedback_work/models/user_model.dart';
+import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:feedback_work/providers/new_project_providers.dart';
 import 'package:feedback_work/providers/user_providers.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +38,8 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
   final TextEditingController youtubeLinkController = TextEditingController();
 
   UserModel? currentUser;
+  String? currentUserId;
+
   final quill.QuillController projectDescriptionController =
       quill.QuillController.basic();
 
@@ -81,15 +85,7 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
         imageUrl = await uploadFileToFirebase(selectedFilePath!);
       }
 
-      String? projectDescriptionJson;
-      if (projectDescriptionController.document
-          .toPlainText()
-          .trim()
-          .isNotEmpty) {
-        projectDescriptionJson =
-            projectDescriptionController.document.toDelta().toJson().toString();
-      }
-
+      Log.info(currentUser!.toMap().toString());
       await projectService.createProject(
         project: ProjectModel(
           projectName: projectNameController.text.trim(),
@@ -105,7 +101,7 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
               : null,
           imageUrl: imageUrl,
           owner: currentUser,
-          ownerId: currentUser!.id,
+          ownerId: currentUserId,
         ),
       );
 
@@ -124,6 +120,8 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
   void initState() {
     Future.microtask(() {
       ref.read(userProvider.notifier).currentUser();
+      final auth = ref.read(firebaseAuthProvider);
+      currentUserId = auth.currentUser!.uid;
     });
     super.initState();
   }

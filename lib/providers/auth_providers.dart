@@ -162,7 +162,6 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
         lastName: googleUser.displayName?.split(' ')[1] ?? '',
         email: googleUser.email,
         phoneNumber: "",
-        createdAt: FieldValue.serverTimestamp(),
       );
 
       UserCredential userCredential =
@@ -200,7 +199,6 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
           "title": userModel.title,
           "expertise": userModel.expertise,
           "accountType": userModel.accountType,
-          "createdAt": FieldValue.serverTimestamp(),
           "minimumRate": userModel.minimumRate,
         },
       );
@@ -249,7 +247,6 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
           lastName: userCredential.user!.displayName?.split(' ')[1] ?? '',
           email: userCredential.user!.email ?? "",
           phoneNumber: userCredential.user!.phoneNumber ?? '',
-          createdAt: FieldValue.serverTimestamp(),
         );
 
         if (userCredential.additionalUserInfo!.isNewUser) {

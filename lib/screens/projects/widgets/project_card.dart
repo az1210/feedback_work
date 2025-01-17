@@ -11,13 +11,11 @@ import 'package:intl/intl.dart';
 class ProjectCard extends StatefulWidget {
   final String projectId;
   final ProjectModel project;
-  final ProjectService projectService;
 
   const ProjectCard({
     super.key,
     required this.projectId,
     required this.project,
-    required this.projectService,
   });
 
   @override

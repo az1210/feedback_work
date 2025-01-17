@@ -4,6 +4,8 @@ import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
+import 'package:uuid/v4.dart';
 
 final feedbackProvider =
     NotifierProvider<FeedbackNotifier, FeedbackNotifierState>(
@@ -15,11 +17,13 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
     return FeedbackNotifierState(state: AsyncState.initial);
   }
 
-  Future<void> fetchAllFeedbacks() async {
+  Future<void> fetchAllFeedbacks({required String userId}) async {
     state = state.copyWith(state: AsyncState.loading);
     FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
       final feedbacksSnapshot = await firestore
+          .collection(FirebaseConstants.userCollection)
+          .doc(userId)
           .collection(FirebaseConstants.feedbackCollection)
           .get();
 
@@ -39,12 +43,32 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
     FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
       state = state.copyWith(state: AsyncState.loading);
-      final docRef = await firestore
+      const uuid = Uuid();
+      final feedbackId = uuid.v1();
+      final fb = feedback.copyWith(id: feedbackId);
+      await firestore
+          .collection(FirebaseConstants.userCollection)
+          .doc(feedback.projectOwnerId)
           .collection(FirebaseConstants.feedbackCollection)
-          .add(feedback.toMap());
-      await docRef.update({'id': docRef.id}).then((_) {
-        Log.info("Feedback id: ${docRef.id}");
-      });
+          .doc(feedbackId)
+          .set(fb.toMap());
+      for (var i in feedback.providers) {
+        await firestore
+            .collection(FirebaseConstants.userCollection)
+            .doc(i.id)
+            .collection(FirebaseConstants.feedbackCollection)
+            .doc(feedbackId)
+            .set(fb.toMap());
+      }
+      if (feedback.groupId != null) {
+        await firestore
+            .collection(FirebaseConstants.groupCollection)
+            .doc(feedback.groupId)
+            .collection(FirebaseConstants.feedbackCollection)
+            .doc(feedbackId)
+            .set(fb.toMap());
+      }
+      fetchAllFeedbacks(userId: feedback.projectOwnerId!);
       callback?.call();
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {

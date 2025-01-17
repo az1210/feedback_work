@@ -25,7 +25,7 @@ class ProjectNotifier extends Notifier<ProjectNotifierState> {
     try {
       final userDoc = await firestore
           .collection(FirebaseConstants.userCollection)
-          .doc(project.owner!.id!)
+          .doc(project.ownerId)
           .get();
       if (!userDoc.exists) {
         throw Exception("User not found");
@@ -37,7 +37,9 @@ class ProjectNotifier extends Notifier<ProjectNotifierState> {
       await firestore
           .collection(FirebaseConstants.projectCollection)
           .doc(docRef.id)
-          .update({"id": docRef.id});
+          .update({"id": docRef.id}).then((_) {
+        fetchAllProjects();
+      });
       callBack?.call();
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {
@@ -50,15 +52,12 @@ class ProjectNotifier extends Notifier<ProjectNotifierState> {
     state = state.copyWith(state: AsyncState.loading);
     FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
-      List<ProjectModel> projects = [];
       final usersSnapshot =
           await firestore.collection(FirebaseConstants.projectCollection).get();
-      // final projects = usersSnapshot.docs.last
-      //     .map((u) => ProjectModel.fromMap(u.data()))
-      //     .toList();
-      final project = ProjectModel.fromMap(usersSnapshot.docs.last.data());
-      projects.add(project);
-      // Log.info(projects.map((u) => u.id).toList().toString());
+      final projects = usersSnapshot.docs
+          .map((u) => ProjectModel.fromMap(u.data()))
+          .toList();
+      Log.info(projects.map((u) => u.id).toList().toString());
       state =
           state.copyWith(allUsersProjects: projects, state: AsyncState.success);
     } catch (e, stackTrace) {
