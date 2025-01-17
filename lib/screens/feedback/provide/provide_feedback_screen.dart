@@ -1,20 +1,20 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
+import 'package:feedback_work/core/utils/utils.dart';
+import 'package:feedback_work/models/provide_feedback_people_model.dart';
 import 'package:feedback_work/providers/category_providers.dart';
+import 'package:feedback_work/providers/feedback_providers.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/add_people_details.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/feedback_model.dart';
+import 'package:feedback_work/screens/feedback/provide/widgets/preview_set.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/select_principle.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/select_principle_to_derive.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/type_principle.dart';
-import 'package:feedback_work/screens/feedback/request/widgets/preview_feedback_request.dart';
-import 'package:feedback_work/screens/feedback/request/widgets/select_feedback_category.dart';
-import 'package:feedback_work/screens/feedback/request/widgets/select_feedback_privacy.dart';
-import 'package:feedback_work/screens/feedback/request/widgets/select_feedback_provider.dart';
-import 'package:feedback_work/screens/feedback/request/widgets/type_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_quill/flutter_quill.dart' as quill;
 
 class ProvideFeedbackScreen extends ConsumerStatefulWidget {
   const ProvideFeedbackScreen({super.key});
@@ -25,6 +25,10 @@ class ProvideFeedbackScreen extends ConsumerStatefulWidget {
 }
 
 class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
+  final quill.QuillController principleDetailsController =
+      quill.QuillController.basic();
+  final FocusNode principleDetailsFocusNode = FocusNode();
+
   late PageController provideFeedbackController;
 
   final List<String> pageTitles = [
@@ -35,6 +39,10 @@ class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
     "Feedback Model",
   ];
 
+  String selectedPrinciple = '';
+  List<String> selectedPrinciplesToDeriveForm = [];
+  List<PeopleInfoModel> peopleInfo = [];
+
   @override
   void initState() {
     provideFeedbackController = PageController();
@@ -43,18 +51,16 @@ class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
 
   @override
   void dispose() {
+    principleDetailsController.dispose();
     provideFeedbackController.dispose();
     super.dispose();
   }
-
-  String? selectedPrinciple;
-  List<String>? selectedPrinciples;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Request Feedback"),
+        title: const Text("Provide Feedback"),
       ),
       body: Column(
         children: [
@@ -69,14 +75,14 @@ class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
                       height: 50.r,
                       width: 50.r,
                       child: CircularProgressIndicator(
-                        value: ref.watch(requestFeedbackStepProvider) / 6,
+                        value: ref.watch(provideFeedbackStepProvider) / 5,
                         backgroundColor:
                             context.colors.darkGrey.withValues(alpha: 0.5),
                         color: context.colors.primaryBlue,
                       ),
                     ),
                     Text(
-                      "${ref.watch(requestFeedbackStepProvider).toInt()} of 6",
+                      "${ref.watch(provideFeedbackStepProvider)} of 5",
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
@@ -87,13 +93,13 @@ class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        pageTitles[ref.watch(requestFeedbackStepProvider) - 1],
+                        pageTitles[ref.watch(provideFeedbackStepProvider) - 1],
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      ref.watch(requestFeedbackStepProvider) == 5
+                      ref.watch(provideFeedbackStepProvider) == 5
                           ? const SizedBox.shrink()
                           : Text(
-                              "Next: ${pageTitles[ref.watch(requestFeedbackStepProvider)]}",
+                              "Next: ${pageTitles[ref.watch(provideFeedbackStepProvider)]}",
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                     ],
@@ -105,12 +111,31 @@ class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
           Expanded(
             child: PageView(
               controller: provideFeedbackController,
-              children: const [
-                SelectPrinciple(),
-                SelectPrincipleToDerive(),
-                AddPeopleDetails(),
-                TypePrinciple(),
-                FeedbackModel(),
+              children: [
+                SelectPrinciple(
+                  onSelectPrinciple: (p0) {
+                    setState(() {
+                      selectedPrinciple = p0;
+                    });
+                  },
+                ),
+                SelectPrincipleToDerive(
+                  selectedPrinciples: (p0) {
+                    setState(() {
+                      selectedPrinciplesToDeriveForm = p0;
+                    });
+                  },
+                ),
+                AddPeopleDetails(
+                  peoples: peopleInfo,
+                ),
+                TypePrinciple(
+                  controller: principleDetailsController,
+                  focusNode: principleDetailsFocusNode,
+                ),
+                FeedbackModel(
+                  principles: selectedPrinciplesToDeriveForm,
+                ),
               ],
             ),
           ),
@@ -124,16 +149,16 @@ class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
                   child: AppButton.outlined(
                     horizontalPadding: 16.w,
                     width: 8.h,
-                    label: ref.watch(requestFeedbackStepProvider) == 1
+                    label: ref.watch(provideFeedbackStepProvider) == 1
                         ? "Cancel"
                         : "Previous",
                     onTap: () {
-                      if (ref.watch(requestFeedbackStepProvider) != 1) {
+                      if (ref.watch(provideFeedbackStepProvider) != 1) {
                         provideFeedbackController.previousPage(
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeInOut,
                         );
-                        ref.read(requestFeedbackStepProvider.notifier).state--;
+                        ref.read(provideFeedbackStepProvider.notifier).state--;
                       } else {
                         context.pop();
                       }
@@ -146,16 +171,24 @@ class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
                   child: AppButton.filled(
                     horizontalPadding: 16.w,
                     width: 8.h,
-                    label: ref.watch(requestFeedbackStepProvider) == 5
+                    label: ref.watch(provideFeedbackStepProvider) == 5
                         ? "Send Request"
                         : 'Next',
-                    onTap: () {
-                      provideFeedbackController.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      );
-                      ref.read(requestFeedbackStepProvider.notifier).state++;
-                    },
+                    onTap: ref.watch(provideFeedbackStepProvider) == 5
+                        ? () {}
+                        : () {
+                            Log.info(provideFeedbackController.page.toString());
+                            Log.info(ref
+                                .watch(provideFeedbackStepProvider)
+                                .toString());
+                            provideFeedbackController.nextPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                            ref
+                                .read(provideFeedbackStepProvider.notifier)
+                                .state++;
+                          },
                   ),
                 ),
               ],

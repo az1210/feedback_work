@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -9,7 +7,9 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 
 class FeedbackModel extends ConsumerStatefulWidget {
-  const FeedbackModel({super.key});
+  const FeedbackModel({required this.principles, super.key});
+
+  final List<String> principles;
 
   @override
   ConsumerState<FeedbackModel> createState() => _CreateProjectScreenState();
@@ -41,6 +41,17 @@ class _CreateProjectScreenState extends ConsumerState<FeedbackModel> {
                   ),
                   const Text('Show "The Given Set"'),
                 ],
+              ),
+              ListView.builder(
+                shrinkWrap: true,
+                itemCount: widget.principles.length,
+                itemBuilder: (context, index) => Container(
+                  child: Row(
+                    children: [
+                      Text("${index + 1} ${widget.principles[index]}"),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),

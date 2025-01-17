@@ -7,7 +7,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class SelectPrincipleToDerive extends StatefulWidget {
   const SelectPrincipleToDerive({
     super.key,
+    this.selectedPrinciples,
   });
+
+  final void Function(List<String>)? selectedPrinciples;
 
   @override
   State<SelectPrincipleToDerive> createState() =>
@@ -59,6 +62,11 @@ class _SelectPrincipleToDeriveState extends State<SelectPrincipleToDerive> {
               sections: sections,
               selectedFilters: selectedFilters,
               onFiltersChanged: (filters) {
+                setState(() {
+                  widget.selectedPrinciples!(
+                      filters['Select Principle to derive from']?.toList() ??
+                          []);
+                });
                 Log.info('Filters updated: $filters');
               },
               onApply: () {

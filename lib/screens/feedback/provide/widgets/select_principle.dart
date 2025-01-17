@@ -7,7 +7,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class SelectPrinciple extends StatefulWidget {
   const SelectPrinciple({
     super.key,
+    this.onSelectPrinciple,
   });
+
+  final void Function(String)? onSelectPrinciple;
 
   @override
   State<SelectPrinciple> createState() => _SelectPrincipleState();
@@ -56,6 +59,10 @@ class _SelectPrincipleState extends State<SelectPrinciple> {
               sections: sections,
               selectedFilters: selectedFilters,
               onFiltersChanged: (filters) {
+                setState(() {
+                  widget.onSelectPrinciple!(filters['Select Principle']!.first);
+                  selectedFilters = filters;
+                });
                 Log.info('Filters updated: $filters');
               },
               onApply: () {

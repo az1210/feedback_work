@@ -1,16 +1,16 @@
-class ProvideFeedbackPeopleModel {
+class PeopleInfoModel {
   final String? name;
   final String? avaterUrl;
-  ProvideFeedbackPeopleModel({
+  PeopleInfoModel({
     this.name,
     this.avaterUrl,
   });
 
-  ProvideFeedbackPeopleModel copyWith({
+  PeopleInfoModel copyWith({
     String? name,
     String? avaterUrl,
   }) {
-    return ProvideFeedbackPeopleModel(
+    return PeopleInfoModel(
       name: name ?? this.name,
       avaterUrl: avaterUrl ?? this.avaterUrl,
     );
@@ -23,8 +23,8 @@ class ProvideFeedbackPeopleModel {
     };
   }
 
-  factory ProvideFeedbackPeopleModel.fromMap(Map<String, dynamic> map) {
-    return ProvideFeedbackPeopleModel(
+  factory PeopleInfoModel.fromMap(Map<String, dynamic> map) {
+    return PeopleInfoModel(
       name: map['name'] != null ? map['name'] as String : null,
       avaterUrl: map['avaterUrl'] != null ? map['avaterUrl'] as String : null,
     );

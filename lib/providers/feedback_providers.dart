@@ -7,6 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:uuid/v4.dart';
 
+final requestFeedbackStepProvider = StateProvider<int>((ref) => 1);
+final provideFeedbackStepProvider = StateProvider<int>((ref) => 1);
+
 final feedbackProvider =
     NotifierProvider<FeedbackNotifier, FeedbackNotifierState>(
         FeedbackNotifier.new);
@@ -22,9 +25,8 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
     FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
       final feedbacksSnapshot = await firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(userId)
           .collection(FirebaseConstants.feedbackCollection)
+          .where('projectOwnerId', isEqualTo: userId)
           .get();
 
       final feedbacks = feedbacksSnapshot.docs
@@ -47,18 +49,23 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
       final feedbackId = uuid.v1();
       final fb = feedback.copyWith(id: feedbackId);
       await firestore
+          .collection(FirebaseConstants.feedbackCollection)
+          .doc(feedbackId)
+          .set(fb.toMap());
+      await firestore
           .collection(FirebaseConstants.userCollection)
           .doc(feedback.projectOwnerId)
           .collection(FirebaseConstants.feedbackCollection)
           .doc(feedbackId)
-          .set(fb.toMap());
+          .set({'id': feedbackId});
+
       for (var i in feedback.providers) {
         await firestore
             .collection(FirebaseConstants.userCollection)
             .doc(i.id)
             .collection(FirebaseConstants.feedbackCollection)
             .doc(feedbackId)
-            .set(fb.toMap());
+            .set({'id': feedbackId});
       }
       if (feedback.groupId != null) {
         await firestore
@@ -66,7 +73,7 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
             .doc(feedback.groupId)
             .collection(FirebaseConstants.feedbackCollection)
             .doc(feedbackId)
-            .set(fb.toMap());
+            .set({'id': feedbackId});
       }
       fetchAllFeedbacks(userId: feedback.projectOwnerId!);
       callback?.call();

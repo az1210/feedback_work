@@ -5,8 +5,6 @@ import 'package:feedback_work/models/category_model.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final requestFeedbackStepProvider = StateProvider<int>((ref) => 1);
-
 final categoryProvider =
     NotifierProvider<CategoryNotifier, CategoryNotifierState>(
         CategoryNotifier.new);

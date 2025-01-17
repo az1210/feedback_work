@@ -10,8 +10,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AddPeopleDetails extends ConsumerStatefulWidget {
-  const AddPeopleDetails({super.key});
+  AddPeopleDetails({required this.peoples, super.key});
 
+  List<PeopleInfoModel> peoples;
   @override
   ConsumerState<AddPeopleDetails> createState() => _BeforeState();
 }
@@ -20,7 +21,18 @@ class _BeforeState extends ConsumerState<AddPeopleDetails> {
   final TextEditingController youtubeLinkController = TextEditingController();
   String? selectedFilePath;
 
-  List<ProvideFeedbackPeopleModel> peoples = [ProvideFeedbackPeopleModel()];
+  void updatePerson(
+    int index, {
+    String? name,
+    String? avaterUrl,
+  }) {
+    setState(() {
+      widget.peoples[index] = widget.peoples[index].copyWith(
+        name: name,
+        avaterUrl: avaterUrl,
+      );
+    });
+  }
 
   Future<void> pickFile() async {
     final result = await FilePicker.platform.pickFiles(
@@ -70,7 +82,9 @@ class _BeforeState extends ConsumerState<AddPeopleDetails> {
                   ),
                   const SizedBox(height: 5),
                   TextFormField(
-                    controller: youtubeLinkController,
+                    onSaved: (newValue) {
+                      updatePerson(index, name: newValue);
+                    },
                     decoration: InputDecoration(
                       hintStyle: Theme.of(context).textTheme.bodySmall,
                       filled: true,
@@ -99,7 +113,6 @@ class _BeforeState extends ConsumerState<AddPeopleDetails> {
                       child: DottedBorder(
                         borderType: BorderType.RRect,
                         radius: const Radius.circular(8),
-                        // padding: const EdgeInsets.all(16),
                         color: Colors.grey,
                         strokeWidth: 1,
                         dashPattern: const [8, 8],
@@ -138,13 +151,13 @@ class _BeforeState extends ConsumerState<AddPeopleDetails> {
                 ],
               ),
               separatorBuilder: (_, __) => 16.ph,
-              itemCount: peoples.length,
+              itemCount: widget.peoples.length,
             ),
             16.ph,
             GestureDetector(
               onTap: () {
                 setState(() {
-                  peoples.add(ProvideFeedbackPeopleModel());
+                  widget.peoples.add(PeopleInfoModel());
                 });
               },
               child: Row(
