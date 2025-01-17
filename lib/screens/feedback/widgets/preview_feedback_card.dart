@@ -1,26 +1,42 @@
+import 'dart:convert';
+
+import 'package:date_time_format/date_time_format.dart';
 import 'package:feedback_work/core/extensions/extensions.dart';
+import 'package:feedback_work/models/feedback_model.dart';
+import 'package:feedback_work/models/project_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_quill/flutter_quill.dart' as quill;
 
-class PreviewFeedbackCard extends StatelessWidget {
-  final String userName;
-  final String project;
-  final String problem;
-  final String solution;
-  final String solutionFunction;
-  final String description;
+class PreviewFeedbackCard extends StatefulWidget {
+  final FeedbackModel feedbackModel;
+  final ProjectModel project;
   final bool isGrid;
 
   const PreviewFeedbackCard({
     super.key,
     this.isGrid = false,
-    this.userName = "John Thompson",
-    this.project = "Floor Cleaning",
-    this.problem = "Dirty Floor",
-    this.solution = "Clean Floor",
-    this.solutionFunction = "Mop Floor",
-    this.description = "Need help floor cleaning hard surface",
+    required this.feedbackModel,
+    required this.project,
   });
+
+  @override
+  State<PreviewFeedbackCard> createState() => _PreviewFeedbackCardState();
+}
+
+class _PreviewFeedbackCardState extends State<PreviewFeedbackCard> {
+  final quill.QuillController projectDescriptionController =
+      quill.QuillController.basic();
+  FocusNode projectDescriptionFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    projectDescriptionController.document =
+        quill.Document.fromDelta(widget.project.projectDescription!);
+    projectDescriptionController.readOnly = true;
+    projectDescriptionFocusNode.canRequestFocus = false;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +63,7 @@ class PreviewFeedbackCard extends StatelessWidget {
                       ),
                 ),
                 Text(
-                  "02:42 PM",
+                  DateTime.now().format('h:i A'),
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontSize: 14,
                       ),
@@ -81,7 +97,7 @@ class PreviewFeedbackCard extends StatelessWidget {
                           ),
                           8.ph,
                           Text(
-                            userName,
+                            "${widget.project.owner?.firstName ?? ''} ${widget.project.owner?.lastName ?? ''}",
                             style:
                                 Theme.of(context).textTheme.bodySmall!.copyWith(
                                       fontWeight: FontWeight.bold,
@@ -110,7 +126,7 @@ class PreviewFeedbackCard extends StatelessWidget {
                                       ),
                                 ),
                                 TextSpan(
-                                  text: project,
+                                  text: widget.project.projectName,
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall!
@@ -141,7 +157,7 @@ class PreviewFeedbackCard extends StatelessWidget {
                                       ),
                                 ),
                                 TextSpan(
-                                  text: problem,
+                                  text: widget.project.problemName,
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall!
@@ -173,7 +189,7 @@ class PreviewFeedbackCard extends StatelessWidget {
                                       ),
                                 ),
                                 TextSpan(
-                                  text: solution,
+                                  text: widget.project.solutionName,
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall!
@@ -205,7 +221,7 @@ class PreviewFeedbackCard extends StatelessWidget {
                                       ),
                                 ),
                                 TextSpan(
-                                  text: solutionFunction,
+                                  text: widget.project.solutionFunctionName,
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall!
@@ -226,18 +242,12 @@ class PreviewFeedbackCard extends StatelessWidget {
                   ],
                 ),
                 16.ph,
-                Row(
-                  children: [
-                    Text(
-                      description,
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                )
+                if (widget.project.projectDescription != null) ...[
+                  quill.QuillEditor.basic(
+                    controller: projectDescriptionController,
+                    focusNode: projectDescriptionFocusNode,
+                  ),
+                ],
               ],
             ),
           ),

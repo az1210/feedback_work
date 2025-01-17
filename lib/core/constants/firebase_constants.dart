@@ -6,4 +6,5 @@ class FirebaseConstants {
   static const String categoryCollection = "categories";
   static const String feedbackCollection = "feedbacks";
   static const String groupCollection = "groups";
+  static const String projectCollection = "projects";
 }

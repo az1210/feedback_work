@@ -40,6 +40,12 @@ class _SelectPrincipleToDeriveState extends State<SelectPrincipleToDerive> {
     ),
   ];
 
+  Map<String, Set<String>> selectedFilters = {
+    'Select Principle to derive from': {
+      'The Given Set of Communication Principle'
+    }
+  };
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -51,8 +57,7 @@ class _SelectPrincipleToDeriveState extends State<SelectPrincipleToDerive> {
               hasHeader: false,
               hasSearchOption: false,
               sections: sections,
-              initialFilters: const {},
-              initialSliderValue: 50,
+              selectedFilters: selectedFilters,
               onFiltersChanged: (filters) {
                 Log.info('Filters updated: $filters');
               },

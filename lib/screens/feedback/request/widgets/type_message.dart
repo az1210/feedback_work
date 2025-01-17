@@ -9,28 +9,22 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 
 class TypeMessage extends ConsumerStatefulWidget {
-  const TypeMessage({super.key});
+  TypeMessage(
+      {this.subject, this.youtubeLink, required this.message, super.key});
+
+  final void Function(String?)? subject;
+  final void Function(String?)? youtubeLink;
+  final quill.QuillController message;
+  String? selectedFilePath;
 
   @override
   ConsumerState<TypeMessage> createState() => _CreateProjectScreenState();
 }
 
 class _CreateProjectScreenState extends ConsumerState<TypeMessage> {
-  final TextEditingController projectNameController = TextEditingController();
-  final TextEditingController problemNameController = TextEditingController();
-  final TextEditingController solutionNameController = TextEditingController();
-  final TextEditingController solutionFunctionController =
-      TextEditingController();
-  final TextEditingController youtubeLinkController = TextEditingController();
-
-  final quill.QuillController projectDescriptionController =
-      quill.QuillController.basic();
-
   bool isKeyboardVisible(BuildContext context) {
     return MediaQuery.of(context).viewInsets.bottom > 0;
   }
-
-  String? selectedFilePath;
 
   Future<void> pickFile() async {
     final result = await FilePicker.platform.pickFiles(
@@ -40,7 +34,7 @@ class _CreateProjectScreenState extends ConsumerState<TypeMessage> {
 
     if (result != null && result.files.single.path != null) {
       setState(() {
-        selectedFilePath = result.files.single.path!;
+        widget.selectedFilePath = result.files.single.path!;
       });
     }
   }
@@ -55,17 +49,6 @@ class _CreateProjectScreenState extends ConsumerState<TypeMessage> {
     await storageRef.putFile(file);
 
     return await storageRef.getDownloadURL();
-  }
-
-  @override
-  void dispose() {
-    projectNameController.dispose();
-    problemNameController.dispose();
-    solutionNameController.dispose();
-    solutionFunctionController.dispose();
-    youtubeLinkController.dispose();
-    projectDescriptionController.dispose();
-    super.dispose();
   }
 
   @override
@@ -99,8 +82,8 @@ class _CreateProjectScreenState extends ConsumerState<TypeMessage> {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 5),
-              TextField(
-                controller: solutionFunctionController,
+              TextFormField(
+                onSaved: widget.subject,
                 decoration: InputDecoration(
                   hintText: "Type here",
                   hintStyle: Theme.of(context).textTheme.bodySmall,
@@ -120,7 +103,7 @@ class _CreateProjectScreenState extends ConsumerState<TypeMessage> {
               const SizedBox(height: 5),
               if (!keyboardVisible)
                 quill.QuillToolbar.simple(
-                  controller: projectDescriptionController,
+                  controller: widget.message,
                   configurations: config,
                 ),
               const SizedBox(height: 8),
@@ -132,7 +115,7 @@ class _CreateProjectScreenState extends ConsumerState<TypeMessage> {
                   color: Colors.white,
                 ),
                 child: quill.QuillEditor.basic(
-                  controller: projectDescriptionController,
+                  controller: widget.message,
                   focusNode: FocusNode(),
 
                   // padding: const EdgeInsets.all(16),
@@ -170,7 +153,7 @@ class _CreateProjectScreenState extends ConsumerState<TypeMessage> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            selectedFilePath ?? 'Upload the file here',
+                            widget.selectedFilePath ?? 'Upload the file here',
                             style: const TextStyle(
                                 color: Color.fromARGB(255, 8, 102, 255)),
                           ),
@@ -196,8 +179,8 @@ class _CreateProjectScreenState extends ConsumerState<TypeMessage> {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 5),
-              TextField(
-                controller: youtubeLinkController,
+              TextFormField(
+                onSaved: widget.youtubeLink,
                 decoration: InputDecoration(
                   hintText: "Insert link",
                   hintStyle: Theme.of(context).textTheme.bodySmall,

@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:feedback_work/models/user_model.dart';
+import 'package:flutter_quill/quill_delta.dart';
 
 class ProjectModel {
   final String? id;
@@ -6,15 +10,18 @@ class ProjectModel {
   final String? problemName;
   final String? solutionName;
   final String? solutionFunctionName;
-  final String? projectDescription;
+  final Delta? projectDescription;
   final String? youtubeLink;
   final String? imageUrl;
-  final String? creatorId;
-  final FieldValue? startDateTime;
-  final FieldValue? finishDateTime;
-  final FieldValue? breakDateTime;
+  final UserModel? owner;
+  final String? ownerId;
+  final dynamic createdAt;
+  final dynamic startDateTime;
+  final dynamic finishDateTime;
+  final dynamic breakDateTime;
   final String? audioUrl;
   final String? popUpText;
+  final double? completionPercentage;
   ProjectModel({
     this.id,
     this.projectName,
@@ -24,12 +31,15 @@ class ProjectModel {
     this.projectDescription,
     this.youtubeLink,
     this.imageUrl,
-    this.creatorId,
+    this.owner,
+    this.ownerId,
+    this.createdAt,
     this.startDateTime,
     this.finishDateTime,
     this.breakDateTime,
     this.audioUrl,
     this.popUpText,
+    this.completionPercentage,
   });
 
   ProjectModel copyWith({
@@ -38,15 +48,18 @@ class ProjectModel {
     String? problemName,
     String? solutionName,
     String? solutionFunctionName,
-    String? projectDescription,
+    Delta? projectDescription,
     String? youtubeLink,
     String? imageUrl,
-    String? creatorId,
-    FieldValue? startDateTime,
-    FieldValue? finishDateTime,
-    FieldValue? breakDateTime,
+    UserModel? owner,
+    String? ownerId,
+    dynamic createdAt,
+    dynamic startDateTime,
+    dynamic finishDateTime,
+    dynamic breakDateTime,
     String? audioUrl,
     String? popUpText,
+    double? completionPercentage,
   }) {
     return ProjectModel(
       id: id ?? this.id,
@@ -57,12 +70,15 @@ class ProjectModel {
       projectDescription: projectDescription ?? this.projectDescription,
       youtubeLink: youtubeLink ?? this.youtubeLink,
       imageUrl: imageUrl ?? this.imageUrl,
-      creatorId: creatorId ?? this.creatorId,
+      owner: owner ?? this.owner,
+      ownerId: ownerId ?? this.ownerId,
+      createdAt: createdAt ?? this.createdAt,
       startDateTime: startDateTime ?? this.startDateTime,
       finishDateTime: finishDateTime ?? this.finishDateTime,
       breakDateTime: breakDateTime ?? this.breakDateTime,
       audioUrl: audioUrl ?? this.audioUrl,
       popUpText: popUpText ?? this.popUpText,
+      completionPercentage: completionPercentage ?? this.completionPercentage,
     );
   }
 
@@ -73,19 +89,25 @@ class ProjectModel {
       'problemName': problemName,
       'solutionName': solutionName,
       'solutionFunctionName': solutionFunctionName,
-      'projectDescription': projectDescription,
+      'projectDescription': jsonEncode(projectDescription?.toJson()),
       'youtubeLink': youtubeLink,
       'imageUrl': imageUrl,
-      'creatorId': creatorId,
+      'owner': owner?.toMap(),
+      'ownerId': ownerId,
+      'createdAt': FieldValue.serverTimestamp(),
       'startDateTime': startDateTime,
       'finishDateTime': finishDateTime,
       'breakDateTime': breakDateTime,
       'audioUrl': audioUrl,
       'popUpText': popUpText,
+      'completionPercentage': completionPercentage,
     };
   }
 
   factory ProjectModel.fromMap(Map<String, dynamic> map) {
+    final projectDescription = (map['projectDescription'] == null)
+        ? []
+        : jsonDecode(map["projectDescription"]);
     return ProjectModel(
       id: map['id'] != null ? map['id'] as String : null,
       projectName:
@@ -97,59 +119,23 @@ class ProjectModel {
       solutionFunctionName: map['solutionFunctionName'] != null
           ? map['solutionFunctionName'] as String
           : null,
-      projectDescription: map['projectDescription'] != null
-          ? map['projectDescription'] as String
-          : null,
+      projectDescription: Delta.fromJson(projectDescription),
       youtubeLink:
           map['youtubeLink'] != null ? map['youtubeLink'] as String : null,
       imageUrl: map['imageUrl'] != null ? map['imageUrl'] as String : null,
-      creatorId: map['creatorId'] != null ? map['creatorId'] as String : null,
-      startDateTime: map['startDateTime'] != null
-          ? map['startDateTime'] as FieldValue
+      owner: map['owner'] != null
+          ? UserModel.fromMap(map['owner'] as Map<String, dynamic>)
           : null,
-      finishDateTime: map['finishDateTime'] != null
-          ? map['finishDateTime'] as FieldValue
-          : null,
-      breakDateTime: map['breakDateTime'] != null
-          ? map['breakDateTime'] as FieldValue
-          : null,
+      ownerId: map['ownerId'] != null ? map['ownerId'] as String : null,
+      createdAt: map['createdAt'] as dynamic,
+      startDateTime: map['startDateTime'] as dynamic,
+      finishDateTime: map['finishDateTime'] as dynamic,
+      breakDateTime: map['breakDateTime'] as dynamic,
       audioUrl: map['audioUrl'] != null ? map['audioUrl'] as String : null,
       popUpText: map['popUpText'] != null ? map['popUpText'] as String : null,
-    );
-  }
-}
-
-class ProgressModel {
-  final String? projectStatus;
-  final FieldValue? modifiedAt;
-  ProgressModel({
-    this.projectStatus,
-    this.modifiedAt,
-  });
-
-  ProgressModel copyWith({
-    String? projectStatus,
-    FieldValue? modifiedAt,
-  }) {
-    return ProgressModel(
-      projectStatus: projectStatus ?? this.projectStatus,
-      modifiedAt: modifiedAt ?? this.modifiedAt,
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      'projectStatus': projectStatus,
-      'modifiedAt': modifiedAt,
-    };
-  }
-
-  factory ProgressModel.fromMap(Map<String, dynamic> map) {
-    return ProgressModel(
-      projectStatus:
-          map['projectStatus'] != null ? map['projectStatus'] as String : null,
-      modifiedAt:
-          map['modifiedAt'] != null ? map['modifiedAt'] as FieldValue : null,
+      completionPercentage: map['completionPercentage'] != null
+          ? map['completionPercentage'] as double
+          : null,
     );
   }
 }

@@ -33,18 +33,19 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
     }
   }
 
-  Future<void> createFeedback({required FeedbackModel feedback}) async {
+  Future<void> createFeedback(
+      {required FeedbackModel feedback, void Function()? callback}) async {
     state = state.copyWith(state: AsyncState.loading);
     FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
       state = state.copyWith(state: AsyncState.loading);
-      await firestore
+      final docRef = await firestore
           .collection(FirebaseConstants.feedbackCollection)
-          .doc(feedback.projectOwnerId)
-          .set(feedback.toMap())
-          .then((_) {
-        // fetchAllFeedbacks();
+          .add(feedback.toMap());
+      await docRef.update({'id': docRef.id}).then((_) {
+        Log.info("Feedback id: ${docRef.id}");
       });
+      callback?.call();
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {
       Log.error(e.toString());

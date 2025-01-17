@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/utils/utils.dart';
+import 'package:feedback_work/models/project_model.dart';
 import 'package:feedback_work/providers/project_providers.dart';
 import 'package:feedback_work/screens/projects/widgets/check_progress_status.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,7 @@ import 'package:intl/intl.dart';
 
 class ProjectCard extends StatefulWidget {
   final String projectId;
-  final Map<String, dynamic> project;
+  final ProjectModel project;
   final ProjectService projectService;
 
   const ProjectCard({
@@ -53,14 +54,14 @@ class _ProjectCardState extends State<ProjectCard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          project['projectName'] ?? 'No Name',
+                          project.projectName ?? 'No Name',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          project['createdAt'] is Timestamp
+                          project.createdAt is Timestamp
                               ? DateFormat('dd/MM/yyyy').format(
-                                  (project['createdAt'] as Timestamp).toDate())
+                                  (project.createdAt as Timestamp).toDate())
                               : 'N/A',
                           style: const TextStyle(
                               fontSize: 14, fontStyle: FontStyle.italic),
@@ -90,19 +91,19 @@ class _ProjectCardState extends State<ProjectCard> {
                 const SizedBox(height: 4),
                 _buildDetailRow(
                   'Problem',
-                  project['problemName'] ?? 'N/A',
+                  project.problemName ?? 'N/A',
                   Colors.red,
                   () {},
                 ),
                 _buildDetailRow(
                   'Solution',
-                  project['solutionName'] ?? 'N/A',
+                  project.solutionName ?? 'N/A',
                   const Color.fromARGB(255, 0, 161, 76),
                   () {},
                 ),
                 _buildDetailRow(
                   'Solution Function',
-                  project['solutionFunctionName'] ?? 'N/A',
+                  project.solutionFunctionName ?? 'N/A',
                   const Color.fromARGB(255, 0, 161, 76),
                   () {
                     final projectId = widget.projectId;
@@ -111,37 +112,38 @@ class _ProjectCardState extends State<ProjectCard> {
                 ),
                 _buildDetailRow(
                   'Start Date',
-                  project['startDate'] is Timestamp
+                  project.startDateTime is Timestamp
                       ? DateFormat('dd/MM/yyyy')
-                          .format((project['startDate'] as Timestamp).toDate())
+                          .format((project.startDateTime as Timestamp).toDate())
                       : '01/01/2024, 5PM',
                   Colors.black54,
                   () {},
                 ),
                 _buildDetailRow(
                   'End Date',
-                  project['endDate'] is Timestamp
-                      ? DateFormat('dd/MM/yyyy')
-                          .format((project['endDate'] as Timestamp).toDate())
+                  project.finishDateTime is Timestamp
+                      ? DateFormat('dd/MM/yyyy').format(
+                          (project.finishDateTime as Timestamp).toDate())
                       : '05/01/2024, 5PM',
                   Colors.black54,
                   () {},
                 ),
                 _buildDetailRow(
-                  'Total Feedback Requested',
-                  '${project['feedbackRequested'] ?? 0}',
+                  'Total Feedback Requested', '0',
+                  // TODO: Implement API
+                  // '${project['feedbackRequested'] ?? 0}',
                   const Color.fromARGB(255, 0, 87, 255),
                   () {},
                 ),
                 _buildDetailRow(
-                  'Total Feedback Received',
-                  '${project['feedbackReceived'] ?? 0}',
+                  'Total Feedback Received', '0',
+                  // '${project['feedbackReceived'] ?? 0}',
                   const Color.fromARGB(255, 0, 87, 255),
                   () {},
                 ),
                 _buildDetailRow(
-                  'Total Feedback Applied',
-                  '${project['feedbackApplied'] ?? 0}',
+                  'Total Feedback Applied', '0',
+                  // '${project['feedbackApplied'] ?? 0}',
                   const Color.fromARGB(255, 0, 87, 255),
                   () {},
                 ),
@@ -156,7 +158,7 @@ class _ProjectCardState extends State<ProjectCard> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          '${project['status'] ?? '10% Completed'}',
+                          '${project.completionPercentage ?? '0'}% Completed',
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium
@@ -179,7 +181,7 @@ class _ProjectCardState extends State<ProjectCard> {
                   ),
                   child: ElevatedButton(
                     onPressed: () {
-                      context.pushNamed(Routes.requestFeedback);
+                      context.pushNamed(Routes.requestFeedback, extra: project);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 8, 102, 255),
@@ -376,19 +378,19 @@ class _ProjectCardState extends State<ProjectCard> {
                 const SizedBox(height: 4),
                 _buildDetailRow(
                   'Problem',
-                  project['problemName'] ?? 'N/A',
+                  project.problemName ?? 'N/A',
                   Colors.red,
                   () {},
                 ),
                 _buildDetailRow(
                   'Solution',
-                  project['solutionName'] ?? 'N/A',
+                  project.solutionName ?? 'N/A',
                   const Color.fromARGB(255, 0, 161, 76),
                   () {},
                 ),
                 _buildDetailRow(
                   'Solution Function',
-                  project['solutionFunctionName'] ?? 'N/A',
+                  project.solutionFunctionName ?? 'N/A',
                   const Color.fromARGB(255, 0, 161, 76),
                   () {
                     final projectId = widget.projectId;
@@ -406,7 +408,7 @@ class _ProjectCardState extends State<ProjectCard> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          '${project['status'] ?? '10% Completed'}',
+                          '${project.completionPercentage ?? '0'}% Completed',
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium
@@ -429,7 +431,7 @@ class _ProjectCardState extends State<ProjectCard> {
                   ),
                   child: ElevatedButton(
                     onPressed: () {
-                      context.pushNamed(Routes.requestFeedback);
+                      context.pushNamed(Routes.requestFeedback, extra: project);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 8, 102, 255),

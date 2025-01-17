@@ -42,6 +42,10 @@ class _AddChildScreenState extends ConsumerState<AddChildScreen> {
       allowMultipleSelection: false,
     ),
   ];
+  Map<String, Set<String>> selectedFilters = {
+    'ageRange': {'0-5'},
+    'grade': {'1st Grade'}
+  };
 
   String? selectedAgeRange;
   String? selectedGrade;
@@ -121,10 +125,7 @@ class _AddChildScreenState extends ConsumerState<AddChildScreen> {
                 hasActionButton: false,
                 hasHeader: false,
                 hasSearchOption: false,
-                initialFilters: {
-                  'ageRange': {sections[0].values[0]},
-                  'grade': {sections[1].values[0]},
-                },
+                selectedFilters: selectedFilters,
                 onFiltersChanged: (selectedFilters) {
                   selectedAgeRange = selectedFilters.containsKey("ageRange")
                       ? selectedFilters['ageRange']?.first

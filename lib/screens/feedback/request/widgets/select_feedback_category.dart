@@ -11,7 +11,7 @@ class SelectFeedbackCategory extends ConsumerStatefulWidget {
     super.key,
   });
 
-  final void Function(Map<String, Set<dynamic>>)? onFiltersChanged;
+  final void Function(String?)? onFiltersChanged;
 
   @override
   ConsumerState<SelectFeedbackCategory> createState() =>
@@ -20,7 +20,8 @@ class SelectFeedbackCategory extends ConsumerStatefulWidget {
 
 class _SelectFeedbackCategoryState
     extends ConsumerState<SelectFeedbackCategory> {
-  List<FilterSection> sections = [];
+  List<FilterSection<String>> sections = [];
+  Map<String, Set<String>> selectedFilters = {};
 
   @override
   void initState() {
@@ -43,13 +44,16 @@ class _SelectFeedbackCategoryState
             options.add(i.categoryTitle);
           }
           sections = [
-            FilterSection(
+            FilterSection<String>(
                 title: "category",
                 showTitle: false,
                 values: options,
                 labels: options,
                 allowMultipleSelection: false),
           ];
+          selectedFilters = {
+            "category": {options.first}
+          };
         }
       }
     });
@@ -68,10 +72,16 @@ class _SelectFeedbackCategoryState
           child: SingleChildScrollView(
             child: Column(
               children: [
-                FilterContent(
+                FilterContent<String>(
                   hasHeader: false,
                   sections: sections,
-                  onFiltersChanged: widget.onFiltersChanged,
+                  onFiltersChanged: (p0) {
+                    setState(() {
+                      selectedFilters = p0;
+                      widget.onFiltersChanged!(p0['category']?.first ?? '');
+                    });
+                  },
+                  selectedFilters: selectedFilters,
                   onApply: () {
                     Log.info('Filters applied');
                   },

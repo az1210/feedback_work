@@ -23,6 +23,8 @@ class _SelectFeedbackuserState extends ConsumerState<SelectParent> {
 
   List<UserModel> users = [];
 
+  Map<String, Set<UserModel>> selectedFilters = {};
+
   @override
   void initState() {
     Future.microtask(() {
@@ -57,6 +59,9 @@ class _SelectFeedbackuserState extends ConsumerState<SelectParent> {
                 imageUrls: imageUrls,
                 allowMultipleSelection: false),
           ];
+          selectedFilters = {
+            'parent': {values.first}
+          };
         }
       }
     });
@@ -78,9 +83,7 @@ class _SelectFeedbackuserState extends ConsumerState<SelectParent> {
                 child: FilterContent<UserModel>(
                   hasHeader: false,
                   sections: sections,
-                  initialFilters: {
-                    'parent': {sections[0].values[0]}
-                  },
+                  selectedFilters: selectedFilters,
                   onFiltersChanged: widget.onFiltersChanged,
                   onApply: () {
                     Log.info('Filters applied');

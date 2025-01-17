@@ -1,4 +1,5 @@
 import 'package:feedback_work/core/router/navbar.dart';
+import 'package:feedback_work/models/project_model.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/screens/feedback/provide/provide_feedback_screen.dart';
 import 'package:feedback_work/screens/user/screens/add_child_screen.dart';
@@ -161,7 +162,9 @@ final routerProvider = Provider<GoRouter>(
         GoRoute(
           name: Routes.requestFeedback,
           path: Routes.requestFeedback.p,
-          builder: (context, state) => const RequestFeedbackScreen(),
+          builder: (context, state) => RequestFeedbackScreen(
+            project: state.extra as ProjectModel,
+          ),
         ),
         GoRoute(
           name: Routes.statusReport,

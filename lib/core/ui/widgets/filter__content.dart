@@ -57,8 +57,9 @@ class FilterContent<T> extends StatefulWidget {
   final String? title;
   final List<FilterSection<T>>? sections;
   final RangeSliderConfig? rangeSliderConfig;
-  final Map<String, Set<T>>? initialFilters;
-  final double? initialSliderValue;
+  final Map<String, Set<T>>
+      selectedFilters; // Changed to required, non-nullable
+  final RangeValues? currentRangeValues; // Added for controlling range slider
   final OnFiltersChanged<T>? onFiltersChanged;
   final Function(RangeValues)? onRangeChanged;
   final VoidCallback? onApply;
@@ -76,8 +77,8 @@ class FilterContent<T> extends StatefulWidget {
     this.title,
     this.sections,
     this.rangeSliderConfig,
-    this.initialFilters,
-    this.initialSliderValue,
+    required this.selectedFilters, // Made required
+    this.currentRangeValues,
     this.onFiltersChanged,
     this.onRangeChanged,
     this.onApply,
@@ -97,7 +98,6 @@ class FilterContent<T> extends StatefulWidget {
 
 class _FilterContentState<T> extends State<FilterContent<T>> {
   late TextEditingController _searchController;
-  late Map<String, Set<T>> selectedSectionFilters;
   late RangeValues rangeValues;
   String _searchQuery = '';
 
@@ -107,21 +107,24 @@ class _FilterContentState<T> extends State<FilterContent<T>> {
     _searchController = TextEditingController();
     _searchController.addListener(_onSearchChanged);
 
-    if (widget.sections != null) {
-      selectedSectionFilters = widget.initialFilters?.map(
-            (key, value) => MapEntry(key, Set<T>.from(value)),
-          ) ??
-          {
-            for (var section in widget.sections!) section.title: <T>{},
-          };
-    }
-
     if (widget.rangeSliderConfig != null) {
-      rangeValues = widget.rangeSliderConfig!.initialRange ??
+      rangeValues = widget.currentRangeValues ??
+          widget.rangeSliderConfig!.initialRange ??
           RangeValues(
             widget.rangeSliderConfig!.min,
             widget.rangeSliderConfig!.max,
           );
+    }
+  }
+
+  @override
+  void didUpdateWidget(FilterContent<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.currentRangeValues != null &&
+        widget.currentRangeValues != oldWidget.currentRangeValues) {
+      setState(() {
+        rangeValues = widget.currentRangeValues!;
+      });
     }
   }
 
@@ -163,34 +166,31 @@ class _FilterContentState<T> extends State<FilterContent<T>> {
   }
 
   void _resetFilters() {
-    setState(() {
-      if (widget.sections != null) {
-        selectedSectionFilters = {
-          for (var section in widget.sections!) section.title: <T>{},
-        };
-      }
-    });
+    if (widget.sections != null) {
+      final emptyFilters = {
+        for (var section in widget.sections!) section.title: <T>{},
+      };
+      widget.onFiltersChanged?.call(emptyFilters);
+    }
     widget.onReset?.call();
   }
 
   void _updateFilters(String section, T value) {
-    setState(() {
-      if (widget.sections != null) {
-        final sectionConfig =
-            widget.sections!.firstWhere((s) => s.title == section);
-        if (sectionConfig.allowMultipleSelection) {
-          if (selectedSectionFilters[section]!.contains(value)) {
-            selectedSectionFilters[section]!.remove(value);
-          } else {
-            selectedSectionFilters[section]!.add(value);
-          }
-        } else {
-          selectedSectionFilters[section] = {value};
-        }
+    final updatedFilters = Map<String, Set<T>>.from(widget.selectedFilters);
+    final sectionConfig =
+        widget.sections!.firstWhere((s) => s.title == section);
 
-        widget.onFiltersChanged?.call(selectedSectionFilters);
+    if (sectionConfig.allowMultipleSelection) {
+      if (updatedFilters[section]!.contains(value)) {
+        updatedFilters[section]!.remove(value);
+      } else {
+        updatedFilters[section]!.add(value);
       }
-    });
+    } else {
+      updatedFilters[section] = {value};
+    }
+
+    widget.onFiltersChanged?.call(updatedFilters);
   }
 
   @override
@@ -307,7 +307,7 @@ class _FilterContentState<T> extends State<FilterContent<T>> {
     required FilterItem<T> item,
   }) {
     final isSelected =
-        selectedSectionFilters[sectionTitle]?.contains(item.value) ?? false;
+        widget.selectedFilters[sectionTitle]?.contains(item.value) ?? false;
 
     return InkWell(
       onTap: () => _updateFilters(sectionTitle, item.value),
@@ -364,7 +364,7 @@ class _FilterContentState<T> extends State<FilterContent<T>> {
     required FilterItem<T> item,
   }) {
     final isSelected =
-        selectedSectionFilters[sectionTitle]?.contains(item.value) ?? false;
+        widget.selectedFilters[sectionTitle]?.contains(item.value) ?? false;
 
     return InkWell(
       onTap: () => _updateFilters(sectionTitle, item.value),

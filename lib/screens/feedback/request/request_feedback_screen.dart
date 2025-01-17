@@ -1,8 +1,15 @@
+import 'dart:convert';
+
 import 'package:feedback_work/core/extensions/extensions.dart';
+import 'package:feedback_work/core/extensions/string_extension.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/models/feedback_model.dart';
+import 'package:feedback_work/models/project_model.dart';
+import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/category_providers.dart';
 import 'package:feedback_work/providers/feedback_providers.dart';
+import 'package:feedback_work/providers/firebase_providers.dart';
+import 'package:feedback_work/screens/feedback/request/widgets/define_price.dart';
 import 'package:feedback_work/screens/feedback/request/widgets/preview_feedback_request.dart';
 import 'package:feedback_work/screens/feedback/request/widgets/select_feedback_category.dart';
 import 'package:feedback_work/screens/feedback/request/widgets/select_feedback_privacy.dart';
@@ -12,9 +19,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_quill/flutter_quill.dart' as quill;
 
 class RequestFeedbackScreen extends ConsumerStatefulWidget {
-  const RequestFeedbackScreen({super.key});
+  const RequestFeedbackScreen({required this.project, super.key});
+
+  final ProjectModel project;
 
   @override
   ConsumerState<RequestFeedbackScreen> createState() =>
@@ -24,9 +34,29 @@ class RequestFeedbackScreen extends ConsumerStatefulWidget {
 class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
   late PageController requestFeedbackController;
 
+  final TextEditingController projectNameController = TextEditingController();
+  final TextEditingController problemNameController = TextEditingController();
+  final TextEditingController solutionNameController = TextEditingController();
+  final TextEditingController solutionFunctionController =
+      TextEditingController();
+  final TextEditingController youtubeLinkController = TextEditingController();
+  final quill.QuillController messageController = quill.QuillController.basic();
+
+  List<UserModel> selectedUsers = [];
+  String? subject;
+  String? youtubeLink;
+  String? feedbackCost;
+  bool isAnnonymous = false;
+  String? selectedCategory;
+  String? selectedPrivacy;
+  String? feedbackLimit;
+  String? currentUserId;
+  String? selectedGroupId;
+
   final List<String> pageTitles = [
     "Select Feedback Category",
     "Select Privacy",
+    "Define Price",
     "Select Feedback Provider",
     "Type Message",
     "Preview Feedback Request",
@@ -35,16 +65,22 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
   @override
   void initState() {
     requestFeedbackController = PageController();
+    Future.microtask(() {
+      currentUserId = ref.watch(firebaseAuthProvider).currentUser?.uid;
+    });
     super.initState();
   }
 
   @override
   void dispose() {
+    projectNameController.dispose();
+    problemNameController.dispose();
+    solutionNameController.dispose();
+    solutionFunctionController.dispose();
+    youtubeLinkController.dispose();
     requestFeedbackController.dispose();
     super.dispose();
   }
-
-  String? selectedCategory;
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +127,7 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                               ref.watch(requestFeedbackStepProvider) - 1],
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
-                        ref.watch(requestFeedbackStepProvider) == 5
+                        ref.watch(requestFeedbackStepProvider) == 6
                             ? const SizedBox.shrink()
                             : Text(
                                 "Next: ${pageTitles[ref.watch(requestFeedbackStepProvider)]}",
@@ -110,16 +146,76 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                   SelectFeedbackCategory(
                     onFiltersChanged: (p0) {
                       setState(() {
-                        selectedCategory = p0["category"]?.first ?? "";
+                        selectedCategory = p0;
                       });
                     },
                   ),
-                  const SelectFeedbackPrivacy(),
+                  SelectFeedbackPrivacy(
+                    onSelectPrivacy: (p0) {
+                      setState(() {
+                        selectedPrivacy = p0;
+                      });
+                    },
+                    onChangeAnnonymous: (p0) {
+                      setState(() {
+                        isAnnonymous = p0!;
+                      });
+                    },
+                    onChangeFeedbackLimit: (p0) {
+                      setState(() {
+                        feedbackLimit = p0;
+                      });
+                    },
+                  ),
+                  DefinePrice(
+                    onDefinePrice: (p0) {
+                      setState(() {
+                        feedbackCost = p0;
+                      });
+                    },
+                  ),
                   SelectFeedbackProvider(
                     category: selectedCategory ?? "",
+                    selectedUsers: (p0) {
+                      setState(() {
+                        selectedUsers = p0;
+                        selectedGroupId = null;
+                      });
+                    },
+                    selectedGroupId: (p0) {
+                      setState(() {
+                        selectedGroupId = p0;
+                      });
+                    },
                   ),
-                  const TypeMessage(),
-                  const PreviewFeedbackRequest(),
+                  TypeMessage(
+                    message: messageController,
+                    subject: (p0) {
+                      setState(() {
+                        subject = p0;
+                      });
+                    },
+                    youtubeLink: (p0) {
+                      setState(() {
+                        youtubeLink = p0;
+                      });
+                    },
+                  ),
+                  PreviewFeedbackRequest(
+                    project: widget.project,
+                    feedback: FeedbackModel(
+                      providers: selectedUsers,
+                      privacy: selectedPrivacy,
+                      message: MessageModel(
+                        subject: subject,
+                        message: messageController.document.toDelta(),
+                        ytUrl: youtubeLink,
+                      ),
+                      cost: double.tryParse(
+                        feedbackCost ?? "0",
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -157,12 +253,41 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                     child: AppButton.filled(
                       horizontalPadding: 16.w,
                       width: 8.h,
-                      label: ref.watch(requestFeedbackStepProvider) == 5
+                      label: ref.watch(requestFeedbackStepProvider) == 6
                           ? "Send Request"
                           : 'Next',
-                      onTap: ref.watch(requestFeedbackStepProvider) == 5
+                      onTap: ref.watch(requestFeedbackStepProvider) == 6
                           ? () {
-                              // ref.read(feedbackProvider.notifier).createFeedback(feedback: FeedbackModel(givenToUsers: givenToUsers, isPrivate: isPrivate, message: message, cost: cost))
+                              ref
+                                  .read(feedbackProvider.notifier)
+                                  .createFeedback(
+                                    feedback: FeedbackModel(
+                                      providers: selectedUsers,
+                                      isAnnonymous: isAnnonymous,
+                                      message: MessageModel(
+                                        message: messageController.document
+                                            .toDelta(),
+                                        subject: subject,
+                                        ytUrl: youtubeLink,
+                                      ),
+                                      cost:
+                                          double.tryParse(feedbackCost ?? "0"),
+                                      feedbackLimit:
+                                          int.tryParse(feedbackLimit ?? "0"),
+                                      feedbackStatus: Status(
+                                        status: FeedbackStatus.requested
+                                            .toString()
+                                            .toTitleCase(),
+                                      ),
+                                      privacy: selectedPrivacy,
+                                      projectId: widget.project.id,
+                                      projectOwnerId: currentUserId,
+                                      groupId: selectedGroupId,
+                                    ),
+                                    callback: () {
+                                      context.pop();
+                                    },
+                                  );
                             }
                           : () {
                               requestFeedbackController.nextPage(

@@ -32,6 +32,8 @@ class _SelectFeedbackProviderState extends ConsumerState<AddMemberContent> {
   List<UserModel> selectedUser = [];
   UserModel? currentUser;
 
+  Map<String, Set<UserModel>> selectedFilters = {};
+
   @override
   void initState() {
     Future.microtask(() async {
@@ -62,8 +64,14 @@ class _SelectFeedbackProviderState extends ConsumerState<AddMemberContent> {
             showTitle: false,
           ),
         );
+        selectedFilters = {
+          "users": {
+            values.firstWhere((u) => u.username == currentUser!.username)
+          },
+        };
       }
     });
+
     return Builder(builder: (context) {
       if (userState.state == AsyncState.loading) {
         return const Center(
@@ -124,12 +132,7 @@ class _SelectFeedbackProviderState extends ConsumerState<AddMemberContent> {
               FilterContent<UserModel>(
                 hasHeader: false,
                 sections: sections,
-                initialFilters: {
-                  "users": {
-                    values
-                        .firstWhere((u) => u.username == currentUser!.username)
-                  },
-                },
+                selectedFilters: selectedFilters,
                 onFiltersChanged: (Map<String, Set<UserModel>> filters) {
                   Set<UserModel> users = {};
                   users.addAll(filters['users'] ?? {});

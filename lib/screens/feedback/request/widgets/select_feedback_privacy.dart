@@ -7,7 +7,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class SelectFeedbackPrivacy extends StatefulWidget {
   const SelectFeedbackPrivacy({
     super.key,
+    this.onSelectPrivacy,
+    this.onChangeFeedbackLimit,
+    this.onChangeAnnonymous,
   });
+
+  final void Function(String?)? onSelectPrivacy;
+  final void Function(String?)? onChangeFeedbackLimit;
+  final void Function(bool?)? onChangeAnnonymous;
 
   @override
   State<SelectFeedbackPrivacy> createState() => _SelectFeedbackPrivacyState();
@@ -23,6 +30,10 @@ class _SelectFeedbackPrivacyState extends State<SelectFeedbackPrivacy> {
     ),
   ];
 
+  Map<String, Set<String>> selectedFilters = {
+    'Privacy': {'All'}
+  };
+
   bool isAnonymous = false;
 
   @override
@@ -36,9 +47,12 @@ class _SelectFeedbackPrivacyState extends State<SelectFeedbackPrivacy> {
               hasHeader: false,
               hasSearchOption: false,
               sections: sections,
-              initialFilters: const {},
-              initialSliderValue: 50,
+              selectedFilters: selectedFilters,
               onFiltersChanged: (filters) {
+                setState(() {
+                  selectedFilters = filters;
+                });
+                widget.onSelectPrivacy!(filters['Privacy']?.first);
                 Log.info('Filters updated: $filters');
               },
               onApply: () {
@@ -60,36 +74,45 @@ class _SelectFeedbackPrivacyState extends State<SelectFeedbackPrivacy> {
                   ],
                 ),
                 8.ph,
-                Container(
-                  height: 48.h,
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10.r),
-                    color: context.colors.pureWhite,
+                TextFormField(
+                  onSaved: widget.onChangeFeedbackLimit,
+                  decoration: InputDecoration(
+                    hintText: "Type here",
+                    hintStyle: Theme.of(context).textTheme.bodySmall,
+                    filled: true,
+                    fillColor: context.colors.pureWhite,
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
-                  child: const Row(
-                    children: [Text("10")],
-                  ),
-                )
+                ),
               ],
             ),
             16.ph,
             Container(
-              height: 48.h,
-              padding: EdgeInsets.symmetric(horizontal: 10.w),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10.r),
-                color: context.colors.pureWhite,
+              padding: EdgeInsets.symmetric(
+                horizontal: 8.w,
+                vertical: 2.h,
               ),
+              decoration: BoxDecoration(
+                  color: context.colors.pureWhite,
+                  borderRadius: BorderRadius.circular(10.r)),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text("Send feedback anonymously"),
+                  Text(
+                    "Send feedback annonymously",
+                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                          fontSize: 15,
+                        ),
+                  ),
                   Switch(
                       value: isAnonymous,
                       onChanged: (val) {
                         setState(() {
-                          isAnonymous = !isAnonymous;
+                          isAnonymous = val;
+                          widget.onChangeAnnonymous!(val);
                         });
                       })
                 ],

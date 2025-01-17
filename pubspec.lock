@@ -193,6 +193,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "10.8.3"
+  date_time_format:
+    dependency: "direct main"
+    description:
+      name: date_time_format
+      sha256: dc47de14c95a7511e98ca429e1ebfd98c339badb496c9f2aaf56a70d07c7c0bf
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
   device_frame:
     dependency: transitive
     description:
@@ -503,10 +511,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_quill_delta_from_html
-      sha256: "63873b5391b56daa999ce8fa7dd23dfd7d0417a70e00a647ba450f4a8988afd0"
+      sha256: "79405765612016de9de2361be86383360b0b43a6bf88b818c079a953583f1849"
       url: "https://pub.dev"
     source: hosted
-    version: "1.4.3"
+    version: "1.5.0"
   flutter_riverpod:
     dependency: "direct main"
     description:
@@ -769,10 +777,10 @@ packages:
     dependency: transitive
     description:
       name: markdown
-      sha256: ef2a1298144e3f985cc736b22e0ccdaf188b5b3970648f2d9dc13efd1d9df051
+      sha256: "935e23e1ff3bc02d390bad4d4be001208ee92cc217cb5b5a6c19bc14aaa318c1"
       url: "https://pub.dev"
     source: hosted
-    version: "7.2.2"
+    version: "7.3.0"
   matcher:
     dependency: transitive
     description:
@@ -953,10 +961,10 @@ packages:
     dependency: transitive
     description:
       name: quill_native_bridge_platform_interface
-      sha256: "2d71b6c5106db0a4b1d788640d1b949ccdd0e570b5a5e0384f7b28be9630a94a"
+      sha256: ea48bd12bf426741747ec8a575b122350971f338a75049099b349c63447582a2
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.1"
+    version: "0.0.1+1"
   quill_native_bridge_web:
     dependency: transitive
     description:

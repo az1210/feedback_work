@@ -39,6 +39,10 @@ class _SelectPrincipleState extends State<SelectPrinciple> {
     ),
   ];
 
+  Map<String, Set<String>> selectedFilters = {
+    'Select Principle': {'The Given Set'}
+  };
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -50,8 +54,7 @@ class _SelectPrincipleState extends State<SelectPrinciple> {
               hasHeader: false,
               hasSearchOption: false,
               sections: sections,
-              initialFilters: const {},
-              initialSliderValue: 50,
+              selectedFilters: selectedFilters,
               onFiltersChanged: (filters) {
                 Log.info('Filters updated: $filters');
               },

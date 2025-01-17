@@ -62,6 +62,13 @@ void showNetworkFilters(BuildContext context) {
     labelFormatter: (value) => value.round().toString(),
   );
 
+  RangeValues currentRange = const RangeValues(0, 100);
+  Map<String, Set<String>> selectedFilters = {
+    'Expertise': {'All'},
+    'Sort by Feedback Type': {'Feedback Provided'},
+    'Connection Type': {'Teacher'},
+    'Sort by Feedback Count': {'Feedback Provided'},
+  };
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -73,12 +80,10 @@ void showNetworkFilters(BuildContext context) {
       title: 'Filters',
       sections: sections,
       rangeSliderConfig: rangeSliderConfig,
-      initialFilters: const {
-        'Expertise': {'Private'},
-        'Connection Type': {'Student'},
-      },
-      initialSliderValue: 50,
+      selectedFilters: selectedFilters,
+      currentRangeValues: currentRange,
       onFiltersChanged: (filters) {
+        selectedFilters = filters;
         Log.info('Filters updated: $filters');
       },
       onRangeChanged: (RangeValues values) {

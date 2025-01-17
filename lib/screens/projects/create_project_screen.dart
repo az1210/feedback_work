@@ -1,7 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/ui/widgets/dotted_border_big_button.dart';
+import 'package:feedback_work/models/project_model.dart';
+import 'package:feedback_work/models/user_model.dart';
+import 'package:feedback_work/providers/new_project_providers.dart';
+import 'package:feedback_work/providers/user_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -30,6 +35,7 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
       TextEditingController();
   final TextEditingController youtubeLinkController = TextEditingController();
 
+  UserModel? currentUser;
   final quill.QuillController projectDescriptionController =
       quill.QuillController.basic();
 
@@ -66,8 +72,7 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
 
   Future<void> createProject() async {
     try {
-      final projectService = ref.read(projectServiceProvider);
-      final currentUser = FirebaseAuth.instance.currentUser;
+      final projectService = ref.read(projectProvider.notifier);
 
       String? imageUrl;
 
@@ -86,18 +91,22 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
       }
 
       await projectService.createProject(
-        projectName: projectNameController.text.trim(),
-        problemName: problemNameController.text.trim(),
-        solutionName: solutionNameController.text.trim(),
-        solutionFunctionName: solutionFunctionController.text.trim().isNotEmpty
-            ? solutionFunctionController.text.trim()
-            : null,
-        projectDescription: projectDescriptionJson.toString(),
-        youtubeLink: youtubeLinkController.text.trim().isNotEmpty
-            ? youtubeLinkController.text.trim()
-            : null,
-        imageUrl: imageUrl,
-        userId: currentUser!.uid,
+        project: ProjectModel(
+          projectName: projectNameController.text.trim(),
+          problemName: problemNameController.text.trim(),
+          solutionName: solutionNameController.text.trim(),
+          solutionFunctionName:
+              solutionFunctionController.text.trim().isNotEmpty
+                  ? solutionFunctionController.text.trim()
+                  : null,
+          projectDescription: projectDescriptionController.document.toDelta(),
+          youtubeLink: youtubeLinkController.text.trim().isNotEmpty
+              ? youtubeLinkController.text.trim()
+              : null,
+          imageUrl: imageUrl,
+          owner: currentUser,
+          ownerId: currentUser!.id,
+        ),
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -109,6 +118,14 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
         SnackBar(content: Text('Error: ${e.toString()}')),
       );
     }
+  }
+
+  @override
+  void initState() {
+    Future.microtask(() {
+      ref.read(userProvider.notifier).currentUser();
+    });
+    super.initState();
   }
 
   @override
@@ -124,6 +141,7 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
 
   @override
   Widget build(BuildContext context) {
+    currentUser = ref.watch(currentUserProvider);
     final bool keyboardVisible = isKeyboardVisible(context);
 
     const config = quill.QuillSimpleToolbarConfigurations(

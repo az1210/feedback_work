@@ -11,11 +11,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SelectFeedbackProvider extends ConsumerStatefulWidget {
   const SelectFeedbackProvider({
+    this.selectedGroupId,
+    this.selectedUsers,
     required this.category,
     super.key,
   });
 
   final String category;
+
+  final void Function(List<UserModel>)? selectedUsers;
+  final void Function(String?)? selectedGroupId;
 
   @override
   ConsumerState<SelectFeedbackProvider> createState() =>
@@ -24,9 +29,15 @@ class SelectFeedbackProvider extends ConsumerStatefulWidget {
 
 class _SelectFeedbackProviderState
     extends ConsumerState<SelectFeedbackProvider> {
-  List<FilterSection> sections = [];
+  List<FilterSection<UserModel>> sections = [];
   List<GroupModel> groups = [];
   List<GroupModel> filteredGroups = [];
+
+  List<UserModel> users = [];
+  List<UserModel> selectedUsers = [];
+  Map<String, List<UserModel>> selectedGroupUsers = {};
+  Map<String, Set<UserModel>> selectedIndividulaUsers = {};
+  String? groupId;
 
   @override
   void initState() {
@@ -46,20 +57,24 @@ class _SelectFeedbackProviderState
     final userState = ref.watch(userProvider);
     ref.listen(userProvider, (_, newState) {
       if (newState.state == AsyncState.success) {
+        users = newState.data!;
         List<String> names = [];
         for (var i in newState.data!) {
           names.add("${i.firstName ?? ''} ${i.lastName ?? ''}");
         }
         Log.info(names.first.toString());
         sections.add(
-          FilterSection(
+          FilterSection<UserModel>(
             title: "provider",
-            values: names,
+            values: users,
             labels: names,
-            allowMultipleSelection: false,
+            allowMultipleSelection: true,
             showTitle: false,
           ),
         );
+        selectedIndividulaUsers = {
+          'provider': {users.first}
+        };
       }
     });
 
@@ -86,11 +101,20 @@ class _SelectFeedbackProviderState
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  FilterContent(
+                  FilterContent<UserModel>(
                     hasHeader: false,
                     sections: sections,
+                    selectedFilters: selectedIndividulaUsers,
                     onFiltersChanged: (filters) {
                       Log.info('Filters updated: $filters');
+                      setState(() {
+                        selectedGroupUsers = {};
+                        selectedIndividulaUsers = filters;
+                        widget.selectedGroupId != null
+                            ? widget.selectedGroupId!(null)
+                            : null;
+                        widget.selectedUsers!(filters['users']?.toList() ?? []);
+                      });
                     },
                     onApply: () {
                       Log.info('Filters applied');
@@ -123,10 +147,21 @@ class _SelectFeedbackProviderState
                           ),
                         )
                         .toList(),
-                    onUserSelection: (groupId, selectedUsers) {},
-                    onGroupExpand: (groupId) {
-                      // Handle group expansion
+                    selectedUsers: selectedGroupUsers,
+                    onUserSelection: (groupId, users) {
+                      setState(() {
+                        selectedIndividulaUsers = {'provider': {}};
+                        selectedGroupUsers = {
+                          ...selectedGroupUsers,
+                          groupId: users,
+                        };
+                        widget.selectedGroupId!(groupId);
+                        Log.info(users.length.toString());
+
+                        widget.selectedGroupId!(groupId);
+                      });
                     },
+                    onGroupExpand: (groupId) {},
                   ),
                 ],
               ),

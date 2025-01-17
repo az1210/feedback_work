@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:feedback_work/models/user_model.dart';
+import 'package:flutter_quill/quill_delta.dart';
 
 enum FeedbackStatus {
   requested,
@@ -13,21 +17,25 @@ class FeedbackModel {
   final String? projectId;
   final String? projectOwnerId;
   final Status? feedbackStatus;
-  final String? givenByUserId;
-  final List<UserModel> givenToUsers;
-  final bool isPrivate;
+  final List<UserModel> providers;
+  final String? privacy;
   final MessageModel message;
-  final double cost;
+  final double? cost;
+  final int? feedbackLimit;
+  final bool? isAnnonymous;
+  final String? groupId;
   FeedbackModel({
     this.id,
     this.projectId,
     this.projectOwnerId,
     this.feedbackStatus,
-    this.givenByUserId,
-    required this.givenToUsers,
-    required this.isPrivate,
+    required this.providers,
+    this.privacy,
     required this.message,
-    required this.cost,
+    this.cost,
+    this.feedbackLimit,
+    this.isAnnonymous,
+    this.groupId,
   });
 
   FeedbackModel copyWith({
@@ -35,22 +43,26 @@ class FeedbackModel {
     String? projectId,
     String? projectOwnerId,
     Status? feedbackStatus,
-    String? givenByUserId,
-    List<UserModel>? givenToUsers,
-    bool? isPrivate,
+    List<UserModel>? providers,
+    String? privacy,
     MessageModel? message,
     double? cost,
+    int? feedbackLimit,
+    bool? isAnnonymous,
+    String? groupId,
   }) {
     return FeedbackModel(
       id: id ?? this.id,
       projectId: projectId ?? this.projectId,
       projectOwnerId: projectOwnerId ?? this.projectOwnerId,
       feedbackStatus: feedbackStatus ?? this.feedbackStatus,
-      givenByUserId: givenByUserId ?? this.givenByUserId,
-      givenToUsers: givenToUsers ?? this.givenToUsers,
-      isPrivate: isPrivate ?? this.isPrivate,
+      providers: providers ?? this.providers,
+      privacy: privacy ?? this.privacy,
       message: message ?? this.message,
       cost: cost ?? this.cost,
+      feedbackLimit: feedbackLimit ?? this.feedbackLimit,
+      isAnnonymous: isAnnonymous ?? this.isAnnonymous,
+      groupId: groupId ?? this.groupId,
     );
   }
 
@@ -60,11 +72,13 @@ class FeedbackModel {
       'projectId': projectId,
       'projectOwnerId': projectOwnerId,
       'feedbackStatus': feedbackStatus?.toMap(),
-      'givenByUserId': givenByUserId,
-      'givenToUsers': givenToUsers.map((x) => x.toMap()).toList(),
-      'isPrivate': isPrivate,
+      'providers': providers.map((x) => x.toMap()).toList(),
+      'privacy': privacy,
       'message': message.toMap(),
       'cost': cost,
+      'feedbackLimit': feedbackLimit,
+      'isAnnonymous': isAnnonymous,
+      'groupId': groupId,
     };
   }
 
@@ -78,23 +92,26 @@ class FeedbackModel {
       feedbackStatus: map['feedbackStatus'] != null
           ? Status.fromMap(map['feedbackStatus'] as Map<String, dynamic>)
           : null,
-      givenByUserId:
-          map['givenByUserId'] != null ? map['givenByUserId'] as String : null,
-      givenToUsers: List<UserModel>.from(
-        (map['givenToUsers'] as List<dynamic>).map<UserModel>(
+      providers: List<UserModel>.from(
+        (map['providers'] as List<int>).map<UserModel>(
           (x) => UserModel.fromMap(x as Map<String, dynamic>),
         ),
       ),
-      isPrivate: map['isPrivate'] as bool,
+      privacy: map['privacy'] != null ? map['privacy'] as String : null,
       message: MessageModel.fromMap(map['message'] as Map<String, dynamic>),
-      cost: map['cost'] as double,
+      cost: map['cost'] != null ? map['cost'] as double : null,
+      feedbackLimit:
+          map['feedbackLimit'] != null ? map['feedbackLimit'] as int : null,
+      isAnnonymous:
+          map['isAnnonymous'] != null ? map['isAnnonymous'] as bool : null,
+      groupId: map['groupId'] != null ? map['groupId'] as String : null,
     );
   }
 }
 
 class MessageModel {
   final String? subject;
-  final String? message;
+  final Delta? message;
   final String? imageUrl;
   final String? ytUrl;
   MessageModel({
@@ -106,7 +123,7 @@ class MessageModel {
 
   MessageModel copyWith({
     String? subject,
-    String? message,
+    Delta? message,
     String? imageUrl,
     String? ytUrl,
   }) {
@@ -121,16 +138,17 @@ class MessageModel {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'subject': subject,
-      'message': message,
+      'message': jsonEncode(message?.toJson()),
       'imageUrl': imageUrl,
       'ytUrl': ytUrl,
     };
   }
 
   factory MessageModel.fromMap(Map<String, dynamic> map) {
+    final message = (map['message'] == null) ? [] : jsonDecode(map["message"]);
     return MessageModel(
       subject: map['subject'] != null ? map['subject'] as String : null,
-      message: map['message'] != null ? map['message'] as String : null,
+      message: Delta.fromJson(message),
       imageUrl: map['imageUrl'] != null ? map['imageUrl'] as String : null,
       ytUrl: map['ytUrl'] != null ? map['ytUrl'] as String : null,
     );
@@ -138,16 +156,16 @@ class MessageModel {
 }
 
 class Status {
-  final String status;
-  final FieldValue modifiedAt;
+  final String? status;
+  final String? modifiedAt;
   Status({
-    required this.status,
-    required this.modifiedAt,
+    this.status,
+    this.modifiedAt,
   });
 
   Status copyWith({
     String? status,
-    FieldValue? modifiedAt,
+    String? modifiedAt,
   }) {
     return Status(
       status: status ?? this.status,
@@ -158,14 +176,14 @@ class Status {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'status': status,
-      'modifiedAt': modifiedAt,
+      'modifiedAt': FieldValue.serverTimestamp(),
     };
   }
 
   factory Status.fromMap(Map<String, dynamic> map) {
     return Status(
       status: map['status'] as String,
-      modifiedAt: map['modifiedAt'] as FieldValue,
+      modifiedAt: map['modifiedAt'] as String,
     );
   }
 }

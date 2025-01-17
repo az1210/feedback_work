@@ -17,39 +17,58 @@ class SelectRelationship extends ConsumerStatefulWidget {
 }
 
 class _SelectFeedbackuserState extends ConsumerState<SelectRelationship> {
-  List<FilterSection<String>> sections = [];
-
-  List<String> relationships = [
-    'Mother',
-    'Father',
-    'Brother',
-    'Sister',
-    'Uncle',
-    'Aunt',
-    'Cousin',
-    'Niece',
-    'Nephew',
-    'Guardian',
-    'Grandmother',
-    'Grandfather',
-    'Grandma',
-    'Grandpa',
-    'In-law',
-    'Nani',
-    'Friend',
-    'Other',
+  List<FilterSection<String>> sections = [
+    FilterSection(
+      title: "relationship",
+      values: [
+        'Mother',
+        'Father',
+        'Brother',
+        'Sister',
+        'Uncle',
+        'Aunt',
+        'Cousin',
+        'Niece',
+        'Nephew',
+        'Guardian',
+        'Grandmother',
+        'Grandfather',
+        'Grandma',
+        'Grandpa',
+        'In-law',
+        'Nani',
+        'Friend',
+        'Other',
+      ],
+      labels: [
+        'Mother',
+        'Father',
+        'Brother',
+        'Sister',
+        'Uncle',
+        'Aunt',
+        'Cousin',
+        'Niece',
+        'Nephew',
+        'Guardian',
+        'Grandmother',
+        'Grandfather',
+        'Grandma',
+        'Grandpa',
+        'In-law',
+        'Nani',
+        'Friend',
+        'Other',
+      ],
+    )
   ];
+
+  Map<String, Set<String>> selectedFilters = {
+    'relationship': {'Mother'}
+  };
 
   @override
   Widget build(BuildContext context) {
-    sections = [
-      FilterSection<String>(
-          title: "relationship",
-          showTitle: false,
-          values: relationships,
-          labels: relationships,
-          allowMultipleSelection: false),
-    ];
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Column(
@@ -59,9 +78,7 @@ class _SelectFeedbackuserState extends ConsumerState<SelectRelationship> {
               hasHeader: false,
               hasSearchOption: false,
               sections: sections,
-              initialFilters: {
-                'relationship': {sections[0].values[0]}
-              },
+              selectedFilters: selectedFilters,
               onFiltersChanged: widget.onFiltersChanged,
               onApply: () {
                 Log.info('Filters applied');

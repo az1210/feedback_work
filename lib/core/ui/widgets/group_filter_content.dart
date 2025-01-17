@@ -7,7 +7,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class GroupFilterContent extends StatefulWidget {
   final List<GroupModel> groups;
-  final Function(String groupId, List<UserModel> selectedUserIds)?
+  final Map<String, List<UserModel>> selectedUsers; // Added this
+  final Function(String groupId, List<UserModel> selectedUsers)?
       onUserSelection;
   final Function(String)? onGroupExpand;
   final String? searchHint;
@@ -15,6 +16,7 @@ class GroupFilterContent extends StatefulWidget {
   const GroupFilterContent({
     super.key,
     required this.groups,
+    required this.selectedUsers, // Added this
     this.onUserSelection,
     this.onGroupExpand,
     this.searchHint,
@@ -27,7 +29,6 @@ class GroupFilterContent extends StatefulWidget {
 class _GroupFilterContentState extends State<GroupFilterContent> {
   late TextEditingController _searchController;
   String _searchQuery = '';
-  Map<String, List<UserModel>> selectedUsers = {};
   Set<String> expandedGroups = {};
   Set<String> selectionModeGroups = {};
 
@@ -73,26 +74,32 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
     }).toList();
   }
 
-  void _toggleUserSelection(String groupId, UserModel userId) {
-    setState(() {
-      selectedUsers.putIfAbsent(groupId, () => []);
-      if (selectedUsers[groupId]!.contains(userId)) {
-        selectedUsers[groupId]!.remove(userId);
-      } else {
-        selectedUsers[groupId]!.add(userId);
-      }
-      widget.onUserSelection?.call(groupId, selectedUsers[groupId]!);
-    });
+  void _toggleUserSelection(String groupId, UserModel user) {
+    final currentSelectedUsers =
+        List<UserModel>.from(widget.selectedUsers[groupId] ?? []);
+
+    if (currentSelectedUsers.any((u) => u.id == user.id)) {
+      currentSelectedUsers.removeWhere((u) => u.id == user.id);
+    } else {
+      currentSelectedUsers.add(user);
+    }
+
+    widget.onUserSelection?.call(groupId, currentSelectedUsers);
   }
 
   void _selectAllUsers(GroupModel group) {
     final groupId = group.id ?? group.name;
-    setState(() {
-      if (group.users == null || group.users!.isEmpty) return;
+    if (group.users == null || group.users!.isEmpty) return;
 
-      selectedUsers[groupId] = group.users!.map((u) => u).toList();
-      widget.onUserSelection?.call(groupId, selectedUsers[groupId]!);
-    });
+    final currentSelectedUsers = widget.selectedUsers[groupId] ?? [];
+    final allSelected = group.users!.every((user) =>
+        currentSelectedUsers.any((selectedUser) => selectedUser.id == user.id));
+
+    if (allSelected) {
+      widget.onUserSelection?.call(groupId, []);
+    } else {
+      widget.onUserSelection?.call(groupId, group.users!);
+    }
   }
 
   void _toggleGroupExpansion(String groupId, {bool selectionMode = false}) {
@@ -120,23 +127,6 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
           searchController: _searchController,
           hintText: "Search Group",
         ),
-        // TextField(
-        //   controller: _searchController,
-        //   decoration: InputDecoration(
-        //     filled: true,
-        //     fillColor: context.colors.pureWhite,
-        //     hintText: widget.searchHint ?? 'Search Group',
-        //     hintStyle: Theme.of(context)
-        //         .textTheme
-        //         .bodySmall!
-        //         .copyWith(color: context.colors.darkGrey),
-        //     prefixIcon: Icon(Icons.search, color: context.colors.primaryBlue),
-        //     border: OutlineInputBorder(
-        //       borderRadius: BorderRadius.circular(30.r),
-        //       borderSide: BorderSide.none,
-        //     ),
-        //   ),
-        // ),
         ListView.builder(
           shrinkWrap: true,
           itemCount: filteredGroups.length,
@@ -197,8 +187,12 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
           trailing: TextButton(
             onPressed: () {
               final groupId = group.id ?? group.name;
-              _toggleGroupExpansion(groupId, selectionMode: true);
-              _selectAllUsers(group);
+              if (isExpanded) {
+                _selectAllUsers(group);
+              } else {
+                _toggleGroupExpansion(groupId, selectionMode: true);
+                _selectAllUsers(group);
+              }
             },
             child: Text(
               'Select',
@@ -240,7 +234,8 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
       itemCount: group.users!.length,
       itemBuilder: (context, index) {
         final user = group.users![index];
-        final isSelected = selectedUsers[groupId]?.contains(user) ?? false;
+        final isSelected =
+            widget.selectedUsers[groupId]?.any((u) => u.id == user.id) ?? false;
 
         return showDetails
             ? GestureDetector(
@@ -436,7 +431,7 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
                         overflow: TextOverflow.ellipsis,
                       )
                     : null,
-                trailing: isSelected && isSelectionMode
+                trailing: isSelected
                     ? Icon(Icons.check, color: context.colors.primaryBlue)
                     : null,
                 onTap: () => _toggleUserSelection(groupId, user),

@@ -3,7 +3,14 @@ import 'package:feedback_work/core/ui/widgets/filter__content.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:flutter/material.dart';
 
-void showFeedbackFilters(BuildContext context) {
+class FeedbackFilterContent extends StatefulWidget {
+  const FeedbackFilterContent({super.key});
+
+  @override
+  _FeedbackFilterContentState createState() => _FeedbackFilterContentState();
+}
+
+class _FeedbackFilterContentState extends State<FeedbackFilterContent> {
   final sections = [
     FilterSection<String>(
       title: 'Privacy',
@@ -73,25 +80,31 @@ void showFeedbackFilters(BuildContext context) {
     ),
   ];
 
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    showDragHandle: true,
-    backgroundColor: context.colors.background,
-    useRootNavigator: true,
-    useSafeArea: true,
-    builder: (context) => FilterContent(
+  Map<String, Set<String>> selectedFilters = {
+    'Privacy': {'All'},
+    'Sort by': {'Date'},
+    'Category': {'Social Media'},
+  };
+
+  RangeValues currentRange = const RangeValues(0, 100);
+
+  @override
+  Widget build(BuildContext context) {
+    return FilterContent(
       title: 'Filters',
       sections: sections,
-      initialFilters: const {
-        'Expertise': {'Private'},
-        'Connection Type': {'Student'},
-      },
-      initialSliderValue: 50,
+      selectedFilters: selectedFilters,
+      currentRangeValues: currentRange,
       onFiltersChanged: (filters) {
+        setState(() {
+          selectedFilters = filters;
+        });
         Log.info('Filters updated: $filters');
       },
       onRangeChanged: (RangeValues values) {
+        setState(() {
+          currentRange = values;
+        });
         Log.info('Range changed: ${values.start} - ${values.end}');
       },
       onApply: () {
@@ -100,6 +113,6 @@ void showFeedbackFilters(BuildContext context) {
       onReset: () {
         Log.info('Filters reset');
       },
-    ),
-  );
+    );
+  }
 }

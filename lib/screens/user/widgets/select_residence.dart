@@ -17,24 +17,28 @@ class SelectResidence extends ConsumerStatefulWidget {
 }
 
 class _SelectFeedbackuserState extends ConsumerState<SelectResidence> {
-  List<FilterSection<String>> sections = [];
-
-  List<String> residences = [
-    'Same Residence',
-    'Separate Residence',
+  List<FilterSection<String>> sections = [
+    FilterSection<String>(
+      title: "residences",
+      showTitle: false,
+      values: [
+        'Same Residence',
+        'Separate Residence',
+      ],
+      labels: [
+        'Same Residence',
+        'Separate Residence',
+      ],
+      allowMultipleSelection: false,
+    ),
   ];
+
+  Map<String, Set<String>> selectedFilters = {
+    'residences': {'Same Residence'}
+  };
 
   @override
   Widget build(BuildContext context) {
-    sections = [
-      FilterSection<String>(
-        title: "residences",
-        showTitle: false,
-        values: residences,
-        labels: residences,
-        allowMultipleSelection: false,
-      ),
-    ];
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Column(
@@ -44,9 +48,7 @@ class _SelectFeedbackuserState extends ConsumerState<SelectResidence> {
               hasHeader: false,
               hasSearchOption: false,
               sections: sections,
-              initialFilters: {
-                'residences': {sections[0].values[0]}
-              },
+              selectedFilters: selectedFilters,
               onFiltersChanged: widget.onFiltersChanged,
               onApply: () {
                 Log.info('Filters applied');

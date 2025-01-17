@@ -64,7 +64,15 @@ class _FeedbackSearchAndFilterState extends State<FeedbackSearchAndFilter> {
                 8.pw,
                 InkWell(
                   onTap: () {
-                    showFeedbackFilters(context);
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      showDragHandle: true,
+                      backgroundColor: context.colors.background,
+                      useRootNavigator: true,
+                      useSafeArea: true,
+                      builder: (context) => const FeedbackFilterContent(),
+                    );
                   },
                   borderRadius: BorderRadius.circular(40.r),
                   child: Container(
