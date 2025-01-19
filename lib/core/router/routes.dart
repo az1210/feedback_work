@@ -1,7 +1,10 @@
 import 'package:feedback_work/core/router/navbar.dart';
+import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/models/project_model.dart';
 import 'package:feedback_work/models/user_model.dart';
+import 'package:feedback_work/screens/feedback/provide/preview_set_screen.dart';
 import 'package:feedback_work/screens/feedback/provide/provide_feedback_screen.dart';
+import 'package:feedback_work/screens/feedback/provide/widgets/set_feedback_model.dart';
 import 'package:feedback_work/screens/user/screens/add_child_screen.dart';
 import 'package:feedback_work/screens/user/screens/add_parent_screen.dart';
 import 'package:feedback_work/screens/user/screens/edit_profile_screen.dart';
@@ -72,6 +75,7 @@ class Routes {
   static const parentAndChildren = 'parent-children';
   static const addChild = 'add-child';
   static const addParent = 'add-parent';
+  static const previewSet = 'preview-set';
 }
 
 final authProvider = StateProvider<bool>((ref) => false);
@@ -232,7 +236,16 @@ final routerProvider = Provider<GoRouter>(
         GoRoute(
           name: Routes.provideFeedback,
           path: Routes.provideFeedback.p,
-          builder: (context, state) => const ProvideFeedbackScreen(),
+          builder: (context, state) => ProvideFeedbackScreen(
+            feedbackModel: state.extra as FeedbackModel,
+          ),
+        ),
+        GoRoute(
+          name: Routes.previewSet,
+          path: Routes.previewSet.p,
+          builder: (context, state) => PreviewSetScreen(
+            feedback: state.extra as FeedbackModel,
+          ),
         ),
 
         // NavBar Routes

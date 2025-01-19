@@ -5,11 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class PreviewFeedbackRequest extends StatelessWidget {
-  const PreviewFeedbackRequest(
-      {super.key, required this.feedback, required this.project});
+  const PreviewFeedbackRequest({
+    super.key,
+    required this.feedback,
+  });
 
   final FeedbackModel feedback;
-  final ProjectModel project;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +20,6 @@ class PreviewFeedbackRequest extends StatelessWidget {
         children: [
           PreviewFeedbackCard(
             feedbackModel: feedback,
-            project: project,
           ),
         ],
       ),

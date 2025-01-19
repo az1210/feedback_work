@@ -113,7 +113,8 @@ class _SelectFeedbackProviderState
                         widget.selectedGroupId != null
                             ? widget.selectedGroupId!(null)
                             : null;
-                        widget.selectedUsers!(filters['users']?.toList() ?? []);
+                        widget.selectedUsers!(
+                            filters['provider']?.toList() ?? []);
                       });
                     },
                     onApply: () {

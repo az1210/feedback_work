@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:date_time_format/date_time_format.dart';
 import 'package:feedback_work/core/extensions/extensions.dart';
+import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/models/project_model.dart';
 import 'package:flutter/material.dart';
@@ -10,14 +11,12 @@ import 'package:flutter_quill/flutter_quill.dart' as quill;
 
 class PreviewFeedbackCard extends StatefulWidget {
   final FeedbackModel feedbackModel;
-  final ProjectModel project;
   final bool isGrid;
 
   const PreviewFeedbackCard({
     super.key,
     this.isGrid = false,
     required this.feedbackModel,
-    required this.project,
   });
 
   @override
@@ -31,8 +30,9 @@ class _PreviewFeedbackCardState extends State<PreviewFeedbackCard> {
 
   @override
   void initState() {
-    projectDescriptionController.document =
-        quill.Document.fromDelta(widget.project.projectDescription!);
+    Log.info(widget.feedbackModel.project?.toMap().toString() ?? 'No Project');
+    projectDescriptionController.document = quill.Document.fromDelta(
+        widget.feedbackModel.project!.projectDescription!);
     projectDescriptionController.readOnly = true;
     projectDescriptionFocusNode.canRequestFocus = false;
     super.initState();
@@ -63,7 +63,10 @@ class _PreviewFeedbackCardState extends State<PreviewFeedbackCard> {
                       ),
                 ),
                 Text(
-                  DateTime.now().format('h:i A'),
+                  DateTime.parse(
+                          widget.feedbackModel.feedbackStatus?.modifiedAt ??
+                              DateTime.now().toString())
+                      .format('h:i A'),
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontSize: 14,
                       ),
@@ -97,7 +100,7 @@ class _PreviewFeedbackCardState extends State<PreviewFeedbackCard> {
                           ),
                           8.ph,
                           Text(
-                            "${widget.project.owner?.firstName ?? ''} ${widget.project.owner?.lastName ?? ''}",
+                            "${widget.feedbackModel.project?.owner?.firstName ?? ''} ${widget.feedbackModel.project?.owner?.lastName ?? ''}",
                             style:
                                 Theme.of(context).textTheme.bodySmall!.copyWith(
                                       fontWeight: FontWeight.bold,
@@ -126,7 +129,8 @@ class _PreviewFeedbackCardState extends State<PreviewFeedbackCard> {
                                       ),
                                 ),
                                 TextSpan(
-                                  text: widget.project.projectName,
+                                  text:
+                                      widget.feedbackModel.project?.projectName,
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall!
@@ -157,7 +161,8 @@ class _PreviewFeedbackCardState extends State<PreviewFeedbackCard> {
                                       ),
                                 ),
                                 TextSpan(
-                                  text: widget.project.problemName,
+                                  text:
+                                      widget.feedbackModel.project?.problemName,
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall!
@@ -189,7 +194,8 @@ class _PreviewFeedbackCardState extends State<PreviewFeedbackCard> {
                                       ),
                                 ),
                                 TextSpan(
-                                  text: widget.project.solutionName,
+                                  text: widget
+                                      .feedbackModel.project?.solutionName,
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall!
@@ -221,7 +227,8 @@ class _PreviewFeedbackCardState extends State<PreviewFeedbackCard> {
                                       ),
                                 ),
                                 TextSpan(
-                                  text: widget.project.solutionFunctionName,
+                                  text: widget.feedbackModel.project!
+                                      .solutionFunctionName,
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall!
@@ -242,7 +249,8 @@ class _PreviewFeedbackCardState extends State<PreviewFeedbackCard> {
                   ],
                 ),
                 16.ph,
-                if (widget.project.projectDescription != null) ...[
+                if (widget.feedbackModel.project?.projectDescription !=
+                    null) ...[
                   quill.QuillEditor.basic(
                     controller: projectDescriptionController,
                     focusNode: projectDescriptionFocusNode,

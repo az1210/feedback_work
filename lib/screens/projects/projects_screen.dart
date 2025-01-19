@@ -1,6 +1,8 @@
+import 'package:feedback_work/core/constants/firebase_constants.dart';
 import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/project_model.dart';
+import 'package:feedback_work/providers/feedback_providers.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:feedback_work/providers/new_project_providers.dart';
 import 'package:feedback_work/screens/projects/widgets/project_card.dart';
@@ -90,7 +92,9 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
                     const SizedBox(height: 20),
                     InkWell(
                       onTap: () {
-                        context.push('/create-project');
+                        ref.read(feedbackProvider.notifier).deleteCollection(
+                            FirebaseConstants.feedbackCollection);
+                        // context.push('/create-project');
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 24),
@@ -137,7 +141,10 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
                 const SizedBox(height: 4),
                 InkWell(
                   onTap: () {
-                    context.pushNamed(Routes.createProject);
+                    ref
+                        .read(feedbackProvider.notifier)
+                        .deleteCollection(FirebaseConstants.feedbackCollection);
+                    // context.pushNamed(Routes.createProject);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 24),

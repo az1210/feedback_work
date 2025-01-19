@@ -1,12 +1,14 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
+import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/core/utils/utils.dart';
+import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/models/provide_feedback_people_model.dart';
 import 'package:feedback_work/providers/category_providers.dart';
 import 'package:feedback_work/providers/feedback_providers.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/add_people_details.dart';
-import 'package:feedback_work/screens/feedback/provide/widgets/feedback_model.dart';
-import 'package:feedback_work/screens/feedback/provide/widgets/preview_set.dart';
+import 'package:feedback_work/screens/feedback/provide/widgets/set_feedback_model.dart';
+import 'package:feedback_work/screens/feedback/provide/preview_set_screen.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/select_principle.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/select_principle_to_derive.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/type_principle.dart';
@@ -17,7 +19,9 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 
 class ProvideFeedbackScreen extends ConsumerStatefulWidget {
-  const ProvideFeedbackScreen({super.key});
+  const ProvideFeedbackScreen({required this.feedbackModel, super.key});
+
+  final FeedbackModel feedbackModel;
 
   @override
   ConsumerState<ProvideFeedbackScreen> createState() =>
@@ -40,6 +44,7 @@ class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
   ];
 
   String selectedPrinciple = '';
+  String selectedModel = '';
   List<String> selectedPrinciplesToDeriveForm = [];
   List<PeopleInfoModel> peopleInfo = [];
 
@@ -133,8 +138,14 @@ class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
                   controller: principleDetailsController,
                   focusNode: principleDetailsFocusNode,
                 ),
-                FeedbackModel(
-                  principles: selectedPrinciplesToDeriveForm,
+                SetFeedbackModel(
+                  principle: selectedPrinciple,
+                  principlesToDeriveForm: selectedPrinciplesToDeriveForm,
+                  onSelectModel: (p0) {
+                    setState(() {
+                      selectedModel = p0;
+                    });
+                  },
                 ),
               ],
             ),
@@ -172,10 +183,25 @@ class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
                     horizontalPadding: 16.w,
                     width: 8.h,
                     label: ref.watch(provideFeedbackStepProvider) == 5
-                        ? "Send Request"
+                        ? "Preview Feedback"
                         : 'Next',
                     onTap: ref.watch(provideFeedbackStepProvider) == 5
-                        ? () {}
+                        ? () {
+                            final providedFeedback =
+                                widget.feedbackModel.copyWith(
+                                    provideFeedback: ProvideModel(
+                              peoples: peopleInfo,
+                              principle: selectedPrinciple,
+                              principleDetails:
+                                  principleDetailsController.document.toDelta(),
+                              principleToDeriveFrom:
+                                  selectedPrinciplesToDeriveForm,
+                            ));
+                            context.pushNamed(
+                              Routes.previewSet,
+                              extra: providedFeedback,
+                            );
+                          }
                         : () {
                             Log.info(provideFeedbackController.page.toString());
                             Log.info(ref

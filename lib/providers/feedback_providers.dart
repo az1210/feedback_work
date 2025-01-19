@@ -39,7 +39,7 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
     }
   }
 
-  Future<void> createFeedback(
+  Future<void> createFeedbackRequest(
       {required FeedbackModel feedback, void Function()? callback}) async {
     state = state.copyWith(state: AsyncState.loading);
     FirebaseFirestore firestore = ref.read(firestoreProvider);
@@ -48,10 +48,14 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
       const uuid = Uuid();
       final feedbackId = uuid.v1();
       final fb = feedback.copyWith(id: feedbackId);
+
+      Log.info(fb.requestFeedback?.toMap().toString() ?? '');
+
       await firestore
           .collection(FirebaseConstants.feedbackCollection)
           .doc(feedbackId)
           .set(fb.toMap());
+
       await firestore
           .collection(FirebaseConstants.userCollection)
           .doc(feedback.projectOwnerId)
@@ -59,18 +63,21 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
           .doc(feedbackId)
           .set({'id': feedbackId});
 
-      for (var i in feedback.providers) {
-        await firestore
-            .collection(FirebaseConstants.userCollection)
-            .doc(i.id)
-            .collection(FirebaseConstants.feedbackCollection)
-            .doc(feedbackId)
-            .set({'id': feedbackId});
+      if (feedback.requestFeedback != null) {
+        for (var i in feedback.requestFeedback!.providers!) {
+          await firestore
+              .collection(FirebaseConstants.userCollection)
+              .doc(i.id)
+              .collection(FirebaseConstants.feedbackCollection)
+              .doc(feedbackId)
+              .set({'id': feedbackId});
+        }
       }
-      if (feedback.groupId != null) {
+
+      if (feedback.requestFeedback?.groupId != null) {
         await firestore
             .collection(FirebaseConstants.groupCollection)
-            .doc(feedback.groupId)
+            .doc(feedback.requestFeedback!.groupId)
             .collection(FirebaseConstants.feedbackCollection)
             .doc(feedbackId)
             .set({'id': feedbackId});
@@ -81,6 +88,54 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+    }
+  }
+
+  Future<void> provideFeedback(
+      {required FeedbackModel feedback, void Function()? callback}) async {
+    state = state.copyWith(state: AsyncState.loading);
+    FirebaseFirestore firestore = ref.read(firestoreProvider);
+
+    try {
+      state = state.copyWith(state: AsyncState.loading);
+      Log.info(feedback.provideFeedback?.toMap().toString() ?? '');
+      final doc = await firestore
+          .collection(FirebaseConstants.feedbackCollection)
+          .doc(feedback.id)
+          .get();
+      if (doc.exists) {
+        await firestore
+            .collection(FirebaseConstants.feedbackCollection)
+            .doc(feedback.id)
+            .update(feedback.toMap());
+      } else {
+        state = state.copyWith(
+            error: "Feedback doesn't exist!", state: AsyncState.failure);
+      }
+      fetchAllFeedbacks(userId: feedback.projectOwnerId!);
+      callback?.call();
+      state = state.copyWith(state: AsyncState.success);
+    } catch (e, stackTrace) {
+      Log.error(e.toString());
+      Log.error(stackTrace.toString());
+    }
+  }
+
+  Future<void> deleteCollection(String collectionPath) async {
+    final collectionRef = FirebaseFirestore.instance.collection(collectionPath);
+
+    try {
+      // Fetch the documents in the collection
+      final querySnapshot = await collectionRef.get();
+
+      // Delete each document in the collection
+      for (final document in querySnapshot.docs) {
+        await document.reference.delete();
+      }
+
+      print("Collection '$collectionPath' deleted successfully.");
+    } catch (e) {
+      print("Error deleting collection '$collectionPath': $e");
     }
   }
 }

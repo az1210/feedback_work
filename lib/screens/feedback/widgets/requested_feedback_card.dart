@@ -55,7 +55,7 @@ class _RequestedFeedbackCardState extends State<RequestedFeedbackCard> {
               alignment: WrapAlignment.spaceBetween,
               children: [
                 Text(
-                  "Feedback ${widget.feedback.feedbackStatus?.last.status}",
+                  "Feedback ${widget.feedback.feedbackStatus?.status}",
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         fontSize: 14,
                       ),
@@ -66,7 +66,7 @@ class _RequestedFeedbackCardState extends State<RequestedFeedbackCard> {
                   children: [
                     Text(
                       DateTime.parse(
-                              widget.feedback.feedbackStatus?.last.modifiedAt ??
+                              widget.feedback.feedbackStatus?.modifiedAt ??
                                   DateTime.now().toString())
                           .format("h:i A"),
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -277,14 +277,23 @@ class _RequestedFeedbackCardState extends State<RequestedFeedbackCard> {
                       focusNode: projectDescriptionFocusNode,
                     ),
                     8.ph,
-                    AppButton.filled(
-                      label: "Provide Feedback",
-                      bgColor: context.colors.primaryBlue,
-                      fgColor: context.colors.pureWhite,
-                      onTap: () {
-                        context.pushNamed(Routes.provideFeedback);
-                      },
-                      verticalPadding: 8.h,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: AppButton.filled(
+                            label: "Provide Feedback",
+                            bgColor: context.colors.primaryBlue,
+                            fgColor: context.colors.pureWhite,
+                            onTap: () {
+                              context.pushNamed(
+                                Routes.provideFeedback,
+                                extra: widget.feedback,
+                              );
+                            },
+                            verticalPadding: 8.h,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 )

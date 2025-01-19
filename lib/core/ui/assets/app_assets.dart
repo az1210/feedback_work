@@ -41,4 +41,5 @@ class Images {
   String roadToHome = 'assets/images/solution_function/road-to-home.png';
   String serveBurger1 = 'assets/images/solution_function/serve-burger-1.png';
   String serveBurger = 'assets/images/solution_function/serve-burger.png';
+  String ecf = 'assets/images/solution_function/ECF.png';
 }

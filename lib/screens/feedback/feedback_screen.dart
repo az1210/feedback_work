@@ -45,10 +45,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
     ref.listen(feedbackProvider, (_, newState) {
       if (newState.state == AsyncState.success) {
         feedbacks = newState.data!;
-        Log.info(feedbacks
-            .map((f) => Text(f.id ?? "Id Unknown"))
-            .toList()
-            .toString());
+        Log.info(feedbacks.map((f) => f.toMap()).toList().toString());
       }
     });
     return Scaffold(
@@ -84,33 +81,31 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
             child: Text("Something went wrong"),
           );
         } else {
-          filteredFeedbacks = feedbackScreenConnectionType ==
-                  FeedbackScreenConnectionType.all
-              ? feedbacks
-              : feedbackScreenConnectionType ==
-                      FeedbackScreenConnectionType.requested
+          filteredFeedbacks =
+              feedbackScreenConnectionType == FeedbackScreenConnectionType.all
                   ? feedbacks
-                      .where((f) =>
-                          f.feedbackStatus!.last.status! ==
-                          FeedbackStatus.requested.toString().toTitleCase())
-                      .toList()
                   : feedbackScreenConnectionType ==
-                          FeedbackScreenConnectionType.received
+                          FeedbackScreenConnectionType.requested
                       ? feedbacks
                           .where((f) =>
-                              f.feedbackStatus!.last.status! ==
-                              FeedbackStatus.received.toString().toTitleCase())
+                              f.feedbackStatus!.status! ==
+                              FeedbackStatus.requested.name.toTitleCase())
                           .toList()
                       : feedbackScreenConnectionType ==
-                              FeedbackScreenConnectionType.applied
+                              FeedbackScreenConnectionType.received
                           ? feedbacks
                               .where((f) =>
-                                  f.feedbackStatus!.last.status! ==
-                                  FeedbackStatus.applied
-                                      .toString()
-                                      .toTitleCase())
+                                  f.feedbackStatus!.status! ==
+                                  FeedbackStatus.received.name.toTitleCase())
                               .toList()
-                          : feedbacks;
+                          : feedbackScreenConnectionType ==
+                                  FeedbackScreenConnectionType.applied
+                              ? feedbacks
+                                  .where((f) =>
+                                      f.feedbackStatus!.status! ==
+                                      FeedbackStatus.applied.name.toTitleCase())
+                                  .toList()
+                              : feedbacks;
           return Column(
             children: [
               FeedbackSearchAndFilter(
