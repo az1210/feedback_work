@@ -105,7 +105,15 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                                       f.feedbackStatus!.status! ==
                                       FeedbackStatus.applied.name.toTitleCase())
                                   .toList()
-                              : feedbacks;
+                              : feedbackScreenConnectionType ==
+                                      FeedbackScreenConnectionType.provided
+                                  ? feedbacks
+                                      .where((f) =>
+                                          f.feedbackStatus!.status! ==
+                                          FeedbackStatus.provided.name
+                                              .toTitleCase())
+                                      .toList()
+                                  : feedbacks;
           return Column(
             children: [
               FeedbackSearchAndFilter(
