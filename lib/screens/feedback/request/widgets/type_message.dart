@@ -1,55 +1,46 @@
-import 'dart:io';
-
 import 'package:feedback_work/core/extensions/extensions.dart';
+import 'package:feedback_work/core/utils/file_upload_helper.dart';
+import 'package:feedback_work/core/utils/toast_message.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 
 class TypeMessage extends ConsumerStatefulWidget {
-  TypeMessage(
-      {this.subject, this.youtubeLink, required this.message, super.key});
+  const TypeMessage(
+      {this.subject,
+      this.youtubeLink,
+      required this.message,
+      required this.imageUrl,
+      super.key});
 
   final void Function(String?)? subject;
   final void Function(String?)? youtubeLink;
+  final void Function(String?) imageUrl;
   final quill.QuillController message;
-  String? selectedFilePath;
 
   @override
   ConsumerState<TypeMessage> createState() => _CreateProjectScreenState();
 }
 
 class _CreateProjectScreenState extends ConsumerState<TypeMessage> {
+  String? selectedFilePath;
   bool isKeyboardVisible(BuildContext context) {
     return MediaQuery.of(context).viewInsets.bottom > 0;
   }
 
   Future<void> pickFile() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['jpg', 'png', 'pdf'],
-    );
+    final fileUrl = await FileUploadHelper.pickAndUploadFile();
 
-    if (result != null && result.files.single.path != null) {
+    if (fileUrl != null) {
       setState(() {
-        widget.selectedFilePath = result.files.single.path!;
+        selectedFilePath = fileUrl;
+        widget.imageUrl(selectedFilePath);
       });
+      showToast(message: 'File uploaded successfully: $fileUrl');
+    } else {
+      showToast(message: 'File upload failed or was cancelled.');
     }
-  }
-
-  Future<String> uploadFileToFirebase(String filePath) async {
-    final formKey = GlobalKey<FormState>();
-    final fileName = filePath.split('/').last; // Extract the file name
-    final storageRef = FirebaseStorage.instance.ref().child(
-        'project_images/$fileName'); // Create a reference in Firebase Storage
-
-    final file = File(filePath); // Local file reference
-
-    await storageRef.putFile(file);
-
-    return await storageRef.getDownloadURL();
   }
 
   @override
@@ -154,7 +145,7 @@ class _CreateProjectScreenState extends ConsumerState<TypeMessage> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            widget.selectedFilePath ?? 'Upload the file here',
+                            selectedFilePath ?? 'Upload the file here',
                             style: const TextStyle(
                                 color: Color.fromARGB(255, 8, 102, 255)),
                           ),

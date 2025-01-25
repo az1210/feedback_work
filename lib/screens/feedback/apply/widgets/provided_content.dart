@@ -1,5 +1,7 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:feedback_work/core/extensions/extensions.dart';
+import 'package:feedback_work/core/utils/file_upload_helper.dart';
+import 'package:feedback_work/core/utils/toast_message.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
@@ -28,16 +30,15 @@ class _ProvidedContentState extends State<ProvidedContent> {
   bool isAnonymous = false;
 
   Future<void> pickFile() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['jpg', 'png', 'pdf'],
-    );
+    final fileUrl = await FileUploadHelper.pickAndUploadFile();
 
-    if (result != null && result.files.single.path != null) {
+    if (fileUrl != null) {
       setState(() {
-        selectedFilePath = result.files.single.path!;
-        widget.onSelectedFilePath(result.files.single.path!);
+        selectedFilePath = fileUrl;
       });
+      showToast(message: 'File uploaded successfully: $fileUrl');
+    } else {
+      showToast(message: 'File upload failed or was cancelled.');
     }
   }
 

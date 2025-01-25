@@ -51,7 +51,7 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
   String? selectedCategory;
   String selectedPrivacy = '';
   String? feedbackLimit;
-  // String currentUserId = '';
+  String imageUrl = '';
   String? selectedGroupId;
 
   final List<String> pageTitles = [
@@ -209,6 +209,9 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                         youtubeLink = p0;
                       });
                     },
+                    imageUrl: (p0) {
+                      imageUrl = p0 ?? '';
+                    },
                   ),
                   PreviewFeedbackRequest(
                     feedback: FeedbackModel(
@@ -219,10 +222,10 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                         selectedGroupMemberIds: selectedGrpupUserIds ?? [],
                         privacy: selectedPrivacy,
                         message: MessageModel(
-                          subject: subject,
-                          message: messageController.document.toDelta(),
-                          ytUrl: youtubeLink,
-                        ),
+                            subject: subject,
+                            message: messageController.document.toDelta(),
+                            ytUrl: youtubeLink,
+                            imageUrl: imageUrl),
                         cost: double.tryParse(
                               feedbackCost ?? '0',
                             ) ??

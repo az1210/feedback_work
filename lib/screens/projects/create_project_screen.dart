@@ -1,8 +1,7 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/ui/widgets/dotted_border_big_button.dart';
+import 'package:feedback_work/core/utils/file_upload_helper.dart';
+import 'package:feedback_work/core/utils/toast_message.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/project_model.dart';
 import 'package:feedback_work/models/user_model.dart';
@@ -10,16 +9,10 @@ import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:feedback_work/providers/new_project_providers.dart';
 import 'package:feedback_work/providers/user_providers.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
-
-import '../../providers/project_providers.dart';
 
 class CreateProjectScreen extends ConsumerStatefulWidget {
   const CreateProjectScreen({super.key});
@@ -50,40 +43,21 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
   String? selectedFilePath;
 
   Future<void> pickFile() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['jpg', 'png', 'pdf'],
-    );
+    final fileUrl = await FileUploadHelper.pickAndUploadFile();
 
-    if (result != null && result.files.single.path != null) {
+    if (fileUrl != null) {
       setState(() {
-        selectedFilePath = result.files.single.path!;
+        selectedFilePath = fileUrl;
       });
+      showToast(message: 'File uploaded successfully: $fileUrl');
+    } else {
+      Log.error('File upload failed or was cancelled.');
     }
-  }
-
-  Future<String> uploadFileToFirebase(String filePath) async {
-    final fileName = filePath.split('/').last; // Extract the file name
-    final storageRef = FirebaseStorage.instance.ref().child(
-        'project_images/$fileName'); // Create a reference in Firebase Storage
-
-    final file = File(filePath); // Local file reference
-
-    await storageRef.putFile(file);
-
-    return await storageRef.getDownloadURL();
   }
 
   Future<void> createProject() async {
     try {
       final projectService = ref.read(projectProvider.notifier);
-
-      String? imageUrl;
-
-      // Upload the file to Firebase Storage
-      if (selectedFilePath != null && selectedFilePath!.isNotEmpty) {
-        imageUrl = await uploadFileToFirebase(selectedFilePath!);
-      }
 
       Log.info(currentUser!.toMap().toString());
       await projectService.createProject(
@@ -99,20 +73,15 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
           youtubeLink: youtubeLinkController.text.trim().isNotEmpty
               ? youtubeLinkController.text.trim()
               : null,
-          imageUrl: imageUrl,
+          imageUrl: selectedFilePath,
           owner: currentUser,
           ownerId: currentUserId,
         ),
       );
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Project Created Successfully!')),
-      );
+      showToast(message: 'Project Created Successfully!');
       context.pop();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
+      showToast(message: 'Error: ${e.toString()}');
     }
   }
 

@@ -3,6 +3,8 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
+import 'package:feedback_work/core/utils/file_upload_helper.dart';
+import 'package:feedback_work/core/utils/toast_message.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/feedback_providers.dart';
@@ -45,15 +47,15 @@ class _FeedbackAppliedCardState extends ConsumerState<FeedbackAppliedCard> {
   }
 
   Future<void> pickFile() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['jpg', 'png', 'pdf'],
-    );
+    final fileUrl = await FileUploadHelper.pickAndUploadFile();
 
-    if (result != null && result.files.single.path != null) {
+    if (fileUrl != null) {
       setState(() {
-        selectedFilePath = result.files.single.path!;
+        selectedFilePath = fileUrl;
       });
+      showToast(message: 'File uploaded successfully: $fileUrl');
+    } else {
+      showToast(message: 'File upload failed or was cancelled.');
     }
   }
 
