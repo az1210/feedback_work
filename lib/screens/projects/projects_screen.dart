@@ -27,7 +27,9 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
   void initState() {
     Future.microtask(() {
       final auth = ref.read(firebaseAuthProvider);
-      ref.read(projectProvider.notifier).fetchAllProjects();
+      ref
+          .read(projectProvider.notifier)
+          .fetchAllProjects(userId: auth.currentUser!.uid);
     });
     super.initState();
   }
@@ -58,6 +60,14 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
           IconButton(
             icon: const Icon(Icons.grid_view, color: Colors.black),
             onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red),
+            onPressed: () {
+              ref
+                  .read(feedbackProvider.notifier)
+                  .deleteCollection(FirebaseConstants.projectCollection);
+            },
           ),
         ],
         backgroundColor: Colors.white,
@@ -92,9 +102,7 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
                     const SizedBox(height: 20),
                     InkWell(
                       onTap: () {
-                        ref.read(feedbackProvider.notifier).deleteCollection(
-                            FirebaseConstants.feedbackCollection);
-                        // context.push('/create-project');
+                        context.push('/create-project');
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 24),
@@ -141,10 +149,7 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
                 const SizedBox(height: 4),
                 InkWell(
                   onTap: () {
-                    ref
-                        .read(feedbackProvider.notifier)
-                        .deleteCollection(FirebaseConstants.feedbackCollection);
-                    // context.pushNamed(Routes.createProject);
+                    context.pushNamed(Routes.createProject);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 24),

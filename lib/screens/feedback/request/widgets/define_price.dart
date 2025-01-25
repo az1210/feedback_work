@@ -40,11 +40,9 @@ class _DefinePriceState extends ConsumerState<DefinePrice> {
     ),
   ];
 
-  Map<String, Set<String>> selectedFilters = {
-    "price": {"At Cost"},
-  };
+  Map<String, Set<String>> selectedFilters = {};
 
-  String selectedPricetype = 'At Cost';
+  String? selectedPricetype;
   double? price;
   double? minimumPrice;
 
@@ -80,7 +78,6 @@ class _DefinePriceState extends ConsumerState<DefinePrice> {
                     setState(() {
                       selectedPricetype = filters['price']?.first ?? 'At Cost';
                       selectedFilters = filters;
-                      widget.onDefinePrice!(filters['price']?.first);
                     });
                     Log.info('Filters updated: ${['price'].first as String?}');
                   },
@@ -103,9 +100,10 @@ class _DefinePriceState extends ConsumerState<DefinePrice> {
                   ),
                   8.ph,
                   TextFormField(
-                    onSaved: widget.onDefinePrice,
+                    onChanged: widget.onDefinePrice,
                     decoration: InputDecoration(
-                      hintText: "Min price: \$$minimumPrice",
+                      hintText:
+                          "Min price: \$${minimumPrice == -1.0 ? 0 : minimumPrice}",
                       hintStyle: Theme.of(context).textTheme.bodySmall,
                       filled: true,
                       fillColor: context.colors.pureWhite,
@@ -114,6 +112,7 @@ class _DefinePriceState extends ConsumerState<DefinePrice> {
                         borderSide: BorderSide.none,
                       ),
                     ),
+                    keyboardType: TextInputType.number,
                   ),
                 ],
                 16.ph,

@@ -30,9 +30,7 @@ class _SelectFeedbackPrivacyState extends State<SelectFeedbackPrivacy> {
     ),
   ];
 
-  Map<String, Set<String>> selectedFilters = {
-    'Privacy': {'All'}
-  };
+  Map<String, Set<String>> selectedFilters = {};
 
   bool isAnonymous = false;
 
@@ -75,7 +73,7 @@ class _SelectFeedbackPrivacyState extends State<SelectFeedbackPrivacy> {
                 ),
                 8.ph,
                 TextFormField(
-                  onSaved: widget.onChangeFeedbackLimit,
+                  onChanged: widget.onChangeFeedbackLimit,
                   decoration: InputDecoration(
                     hintText: "Type here",
                     hintStyle: Theme.of(context).textTheme.bodySmall,
@@ -86,6 +84,7 @@ class _SelectFeedbackPrivacyState extends State<SelectFeedbackPrivacy> {
                       borderSide: BorderSide.none,
                     ),
                   ),
+                  keyboardType: TextInputType.number,
                 ),
               ],
             ),

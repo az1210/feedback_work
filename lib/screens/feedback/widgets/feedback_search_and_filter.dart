@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 enum FeedbackScreenConnectionType {
   all,
   requested,
+  providing,
   received,
   applied,
   provided,

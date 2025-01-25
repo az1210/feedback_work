@@ -209,11 +209,11 @@ class _AddChildScreenState extends ConsumerState<AddChildScreen> {
                 onTap: () {
                   ref.read(childProvider.notifier).createChildAccount(
                         childModel: ChildModel(
-                          ageRange: selectedAgeRange,
+                          ageRange: selectedAgeRange!,
                           email: emailController.text,
                           firstName: firstNameController.text,
                           lastName: lastNameController.text,
-                          grade: selectedGrade,
+                          grade: selectedGrade!,
                         ),
                         password: passwordController.text,
                         parentId: widget.parentId,

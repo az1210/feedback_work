@@ -1,35 +1,41 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_quill/quill_delta.dart';
 
+import 'package:feedback_work/core/extensions/string_extension.dart';
+import 'package:feedback_work/core/utils/helper_functions.dart';
 import 'package:feedback_work/models/project_model.dart';
 import 'package:feedback_work/models/provide_feedback_people_model.dart';
 import 'package:feedback_work/models/user_model.dart';
 
 enum FeedbackStatus {
   requested,
+  providing,
   received,
   applied,
   provided,
 }
 
 class FeedbackModel {
-  final String? id;
+  final String id;
   final ProjectModel? project;
   final String? projectOwnerId;
   final RequestModel? requestFeedback;
   final ProvideModel? provideFeedback;
-  final Status? feedbackStatus;
+  final AppliedModel? appliedFeedback;
+  final Status? ownerSideStatus;
+  final Status? providerSideStatus;
   FeedbackModel({
-    this.id,
+    this.id = '',
     this.project,
-    this.projectOwnerId,
+    this.projectOwnerId = '',
     this.requestFeedback,
     this.provideFeedback,
-    this.feedbackStatus,
+    this.appliedFeedback,
+    this.ownerSideStatus,
+    this.providerSideStatus,
   });
 
   FeedbackModel copyWith({
@@ -38,7 +44,9 @@ class FeedbackModel {
     String? projectOwnerId,
     RequestModel? requestFeedback,
     ProvideModel? provideFeedback,
-    Status? feedbackStatus,
+    AppliedModel? appliedFeedback,
+    Status? ownerSideStatus,
+    Status? providerSideStatus,
   }) {
     return FeedbackModel(
       id: id ?? this.id,
@@ -46,7 +54,9 @@ class FeedbackModel {
       projectOwnerId: projectOwnerId ?? this.projectOwnerId,
       requestFeedback: requestFeedback ?? this.requestFeedback,
       provideFeedback: provideFeedback ?? this.provideFeedback,
-      feedbackStatus: feedbackStatus ?? this.feedbackStatus,
+      appliedFeedback: appliedFeedback ?? this.appliedFeedback,
+      ownerSideStatus: ownerSideStatus ?? this.ownerSideStatus,
+      providerSideStatus: providerSideStatus ?? this.providerSideStatus,
     );
   }
 
@@ -57,34 +67,41 @@ class FeedbackModel {
       'projectOwnerId': projectOwnerId,
       'requestFeedback': requestFeedback?.toMap(),
       'provideFeedback': provideFeedback?.toMap(),
-      'feedbackStatus': feedbackStatus?.toMap(),
+      'appliedFeedback': appliedFeedback?.toMap(),
+      'ownerSideStatus': ownerSideStatus?.toMap(),
+      'providerSideStatus': providerSideStatus?.toMap(),
     };
   }
 
   factory FeedbackModel.fromMap(Map<String, dynamic> map) {
     return FeedbackModel(
-      id: map['id'] != null ? map['id'] as String : null,
+      id: map['id'] as String? ?? '',
       project: map['project'] != null
           ? ProjectModel.fromMap(map['project'] as Map<String, dynamic>)
           : null,
-      projectOwnerId: map['projectOwnerId'] != null
-          ? map['projectOwnerId'] as String
-          : null,
+      projectOwnerId: map['projectOwnerId'] as String? ?? '',
       requestFeedback: map['requestFeedback'] != null
           ? RequestModel.fromMap(map['requestFeedback'] as Map<String, dynamic>)
           : null,
       provideFeedback: map['provideFeedback'] != null
           ? ProvideModel.fromMap(map['provideFeedback'] as Map<String, dynamic>)
           : null,
-      feedbackStatus: map['feedbackStatus'] != null
-          ? Status.fromMap(map['feedbackStatus'] as Map<String, dynamic>)
+      appliedFeedback: map['appliedFeedback'] != null
+          ? AppliedModel.fromMap(map['appliedFeedback'] as Map<String, dynamic>)
+          : null,
+      ownerSideStatus: map['ownerSideStatus'] != null
+          ? Status.fromMap(map['ownerSideStatus'] as Map<String, dynamic>)
+          : null,
+      providerSideStatus: map['providerSideStatus'] != null
+          ? Status.fromMap(map['providerSideStatus'] as Map<String, dynamic>)
           : null,
     );
   }
 }
 
 class RequestModel {
-  final List<UserModel>? providers;
+  final String? provider;
+  final List<String?>? selectedGroupMemberIds;
   final String? privacy;
   final MessageModel? message;
   final double? cost;
@@ -92,17 +109,19 @@ class RequestModel {
   final bool? isAnnonymous;
   final String? groupId;
   RequestModel({
-    this.providers,
-    this.privacy,
+    this.provider,
+    this.selectedGroupMemberIds = const [],
+    this.privacy = '',
     this.message,
-    this.cost,
-    this.feedbackLimit,
-    this.isAnnonymous,
-    this.groupId,
+    this.cost = -1.0,
+    this.feedbackLimit = -1,
+    this.isAnnonymous = false,
+    this.groupId = '',
   });
 
   RequestModel copyWith({
-    List<UserModel>? providers,
+    String? provider,
+    List<String?>? selectedGroupMemberIds,
     String? privacy,
     MessageModel? message,
     double? cost,
@@ -111,7 +130,9 @@ class RequestModel {
     String? groupId,
   }) {
     return RequestModel(
-      providers: providers ?? this.providers,
+      provider: provider ?? this.provider,
+      selectedGroupMemberIds:
+          selectedGroupMemberIds ?? this.selectedGroupMemberIds,
       privacy: privacy ?? this.privacy,
       message: message ?? this.message,
       cost: cost ?? this.cost,
@@ -123,7 +144,8 @@ class RequestModel {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'providers': providers?.map((x) => x.toMap()).toList(),
+      'provider': provider,
+      'selectedGroupMemberIds': selectedGroupMemberIds,
       'privacy': privacy,
       'message': message?.toMap(),
       'cost': cost,
@@ -135,43 +157,35 @@ class RequestModel {
 
   factory RequestModel.fromMap(Map<String, dynamic> map) {
     return RequestModel(
-      providers: map['providers'] != null
-          ? List<UserModel>.from(
-              (map['providers']).map<UserModel>(
-                (x) => UserModel.fromMap(x as Map<String, dynamic>),
-              ),
-            )
-          : null,
-      privacy: map['privacy'] != null ? map['privacy'] as String : null,
-      message: map['message'] != null
-          ? MessageModel.fromMap(map['message'] as Map<String, dynamic>)
-          : null,
-      cost: map['cost'] != null ? map['cost'] as double : null,
-      feedbackLimit:
-          map['feedbackLimit'] != null ? map['feedbackLimit'] as int : null,
-      isAnnonymous:
-          map['isAnnonymous'] != null ? map['isAnnonymous'] as bool : null,
-      groupId: map['groupId'] != null ? map['groupId'] as String : null,
+      provider: map['provider'] as String? ?? '',
+      selectedGroupMemberIds:
+          List<String?>.from((map['selectedGroupMemberIds'] as List<dynamic>)),
+      privacy: map['privacy'] as String? ?? '',
+      message: MessageModel.fromMap(map['message'] as Map<String, dynamic>),
+      cost: map['cost'] as double? ?? -1.0,
+      feedbackLimit: map['feedbackLimit'] as int? ?? -1,
+      isAnnonymous: map['isAnnonymous'] as bool,
+      groupId: map['groupId'] as String? ?? '',
     );
   }
 }
 
 class ProvideModel {
-  final String? principle;
-  final List<String>? principleToDeriveFrom;
+  final String principle;
+  final List<String> principleToDeriveFrom;
   final List<PeopleInfoModel>? peoples;
   final Delta? principleDetails;
   final Delta? feedbackMessage;
-  final String? feedbackFile;
-  final bool? annonymous;
+  final String feedbackFile;
+  final bool annonymous;
   ProvideModel({
-    this.principle,
-    this.principleToDeriveFrom,
-    this.peoples,
+    this.principle = '',
+    this.principleToDeriveFrom = const [],
+    this.peoples = const [],
     this.principleDetails,
     this.feedbackMessage,
-    this.feedbackFile,
-    this.annonymous,
+    this.feedbackFile = '',
+    this.annonymous = false,
   });
 
   ProvideModel copyWith({
@@ -215,23 +229,63 @@ class ProvideModel {
         ? []
         : jsonDecode(map["feedbackMessage"]);
     return ProvideModel(
-      principle: map['principle'] != null ? map['principle'] as String : null,
-      principleToDeriveFrom: map['principleToDeriveFrom'] != null
-          ? List<String>.from(
-              (map['principleToDeriveFrom']).map((x) => x.toString()))
-          : null,
-      peoples: map['peoples'] != null
-          ? List<PeopleInfoModel>.from(
-              (map['peoples']).map<PeopleInfoModel?>(
-                (x) => PeopleInfoModel.fromMap(x as Map<String, dynamic>),
-              ),
-            )
-          : null,
+      principle: map['principle'] as String? ?? '',
+      principleToDeriveFrom: (map['principleToDeriveFrom'] as List<dynamic>)
+          .map((x) => x.toString())
+          .toList(),
+      peoples: (map['peoples'] as List<dynamic>)
+          .map(
+            (x) => PeopleInfoModel.fromMap(x as Map<String, dynamic>),
+          )
+          .toList(),
       principleDetails: Delta.fromJson(principleDetails),
       feedbackMessage: Delta.fromJson(feedbackMessage),
-      feedbackFile:
-          map['feedbackFile'] != null ? map['feedbackFile'] as String : null,
-      annonymous: map['annonymous'] != null ? map['annonymous'] as bool : null,
+      feedbackFile: map['feedbackFile'] as String? ?? '',
+      annonymous: map['annonymous'] as bool,
+    );
+  }
+}
+
+class AppliedModel {
+  final Delta? appliedMessage;
+  final String? appliedFile;
+  final bool? isHelpToSolve;
+  AppliedModel({
+    this.appliedMessage,
+    this.appliedFile,
+    this.isHelpToSolve,
+  });
+
+  AppliedModel copyWith({
+    Delta? appliedMessage,
+    String? appliedFile,
+    bool? isHelpToSolve,
+  }) {
+    return AppliedModel(
+      appliedMessage: appliedMessage ?? this.appliedMessage,
+      appliedFile: appliedFile ?? this.appliedFile,
+      isHelpToSolve: isHelpToSolve ?? this.isHelpToSolve,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'appliedMessage': jsonEncode(appliedMessage?.toJson()),
+      'appliedFile': appliedFile,
+      'isHelpToSolve': isHelpToSolve,
+    };
+  }
+
+  factory AppliedModel.fromMap(Map<String, dynamic> map) {
+    final appliedMessage = (map['appliedMessage'] == null)
+        ? []
+        : jsonDecode(map["appliedMessage"]);
+    return AppliedModel(
+      appliedMessage: Delta.fromJson(appliedMessage),
+      appliedFile:
+          map['appliedFile'] != null ? map['appliedFile'] as String : null,
+      isHelpToSolve:
+          map['isHelpToSolve'] != null ? map['isHelpToSolve'] as bool : null,
     );
   }
 }
@@ -242,10 +296,10 @@ class MessageModel {
   final String? imageUrl;
   final String? ytUrl;
   MessageModel({
-    this.subject,
+    this.subject = '',
     this.message,
-    this.imageUrl,
-    this.ytUrl,
+    this.imageUrl = '',
+    this.ytUrl = '',
   });
 
   MessageModel copyWith({
@@ -274,10 +328,10 @@ class MessageModel {
   factory MessageModel.fromMap(Map<String, dynamic> map) {
     final message = (map['message'] == null) ? [] : jsonDecode(map["message"]);
     return MessageModel(
-      subject: map['subject'] != null ? map['subject'] as String : null,
+      subject: map['subject'] as String? ?? '',
       message: Delta.fromJson(message),
-      imageUrl: map['imageUrl'] != null ? map['imageUrl'] as String : null,
-      ytUrl: map['ytUrl'] != null ? map['ytUrl'] as String : null,
+      imageUrl: map['imageUrl'] as String? ?? '',
+      ytUrl: map['ytUrl'] as String? ?? '',
     );
   }
 }
@@ -286,8 +340,8 @@ class Status {
   final String? status;
   final String? modifiedAt;
   Status({
-    this.status,
-    this.modifiedAt,
+    this.status = '',
+    this.modifiedAt = '',
   });
 
   Status copyWith({
@@ -309,8 +363,8 @@ class Status {
 
   factory Status.fromMap(Map<String, dynamic> map) {
     return Status(
-      status: map['status'] as String,
-      modifiedAt: map['modifiedAt'] as String,
+      status: map['status'] as String? ?? '',
+      modifiedAt: map['modifiedAt'] as String? ?? '',
     );
   }
 }

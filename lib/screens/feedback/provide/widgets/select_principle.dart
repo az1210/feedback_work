@@ -7,10 +7,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class SelectPrinciple extends StatefulWidget {
   const SelectPrinciple({
     super.key,
-    this.onSelectPrinciple,
+    required this.onSelectPrinciple,
   });
 
-  final void Function(String)? onSelectPrinciple;
+  final void Function(String) onSelectPrinciple;
 
   @override
   State<SelectPrinciple> createState() => _SelectPrincipleState();
@@ -42,9 +42,7 @@ class _SelectPrincipleState extends State<SelectPrinciple> {
     ),
   ];
 
-  Map<String, Set<String>> selectedFilters = {
-    'Select Principle': {'The Given Set'}
-  };
+  Map<String, Set<String>>? selectedFilters;
 
   @override
   Widget build(BuildContext context) {
@@ -53,15 +51,16 @@ class _SelectPrincipleState extends State<SelectPrinciple> {
       child: SingleChildScrollView(
         child: Column(
           children: [
-            FilterContent(
+            FilterContent<String>(
               hasHeader: false,
               hasSearchOption: false,
               sections: sections,
-              selectedFilters: selectedFilters,
+              selectedFilters: selectedFilters ?? {},
               onFiltersChanged: (filters) {
                 setState(() {
-                  widget.onSelectPrinciple!(filters['Select Principle']!.first);
                   selectedFilters = filters;
+                  widget.onSelectPrinciple(
+                      selectedFilters?['Select Principle']!.first ?? '');
                 });
                 Log.info('Filters updated: $filters');
               },

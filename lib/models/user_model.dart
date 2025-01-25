@@ -19,22 +19,22 @@ class UserModel {
   final int? problemHelpSolved;
 
   UserModel({
-    this.id,
-    this.firstName,
-    this.lastName,
-    this.email,
-    this.username,
-    this.avaterUrl,
-    this.phoneNumber,
-    this.title,
-    this.expertise,
-    this.accountType,
-    this.createdAt,
-    this.minimumRate,
-    this.feedbackProvided,
-    this.feedbackApplied,
-    this.problemSolved,
-    this.problemHelpSolved,
+    this.id = '',
+    this.firstName = '',
+    this.lastName = '',
+    this.email = '',
+    this.username = '',
+    this.avaterUrl = '',
+    this.phoneNumber = '',
+    this.title = '',
+    this.expertise = '',
+    this.accountType = '',
+    this.createdAt = '',
+    this.minimumRate = -1.0,
+    this.feedbackProvided = -1,
+    this.feedbackApplied = -1,
+    this.problemSolved = -1,
+    this.problemHelpSolved = -1,
   });
 
   UserModel copyWith({
@@ -98,31 +98,22 @@ class UserModel {
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
-      id: map['id'] != null ? map['id'] as String : null,
-      firstName: map['firstName'] != null ? map['firstName'] as String : null,
-      lastName: map['lastName'] != null ? map['lastName'] as String : null,
-      email: map['email'] != null ? map['email'] as String : null,
-      username: map['username'] != null ? map['username'] as String : null,
-      avaterUrl: map['avaterUrl'] != null ? map['avaterUrl'] as String : null,
-      phoneNumber:
-          map['phoneNumber'] != null ? map['phoneNumber'] as String : null,
-      title: map['title'] != null ? map['title'] as String : null,
-      expertise: map['expertise'] != null ? map['expertise'] as String : null,
-      accountType:
-          map['accountType'] != null ? map['accountType'] as String : null,
-      // createdAt: map['createdAt'] != null ? map['createdAt'] as String : null,
-      minimumRate:
-          map['minimumRate'] != null ? map['minimumRate'] as double : null,
-      feedbackProvided: map['feedbackProvided'] != null
-          ? map['feedbackProvided'] as int
-          : null,
-      feedbackApplied:
-          map['feedbackApplied'] != null ? map['feedbackApplied'] as int : null,
-      problemSolved:
-          map['problemSolved'] != null ? map['problemSolved'] as int : null,
-      problemHelpSolved: map['problemHelpSolved'] != null
-          ? map['problemHelpSolved'] as int
-          : null,
+      id: map['id'] as String? ?? '',
+      firstName: map['firstName'] as String? ?? '',
+      lastName: map['lastName'] as String? ?? '',
+      email: map['email'] as String? ?? '',
+      username: map['username'] as String? ?? '',
+      avaterUrl: map['avaterUrl'] as String? ?? '',
+      phoneNumber: map['phoneNumber'] as String? ?? '',
+      title: map['title'] as String? ?? '',
+      expertise: map['expertise'] as String? ?? '',
+      accountType: map['accountType'] as String? ?? '',
+      // createdAt: map['createdAt'] as String? ?? '',
+      minimumRate: map['minimumRate'] as double? ?? -1.0,
+      feedbackProvided: map['feedbackProvided'] as int? ?? -1,
+      feedbackApplied: map['feedbackApplied'] as int? ?? -1,
+      problemSolved: map['problemSolved'] as int? ?? -1,
+      problemHelpSolved: map['problemHelpSolved'] as int? ?? -1,
     );
   }
 }

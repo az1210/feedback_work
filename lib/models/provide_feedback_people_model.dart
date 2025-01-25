@@ -1,9 +1,9 @@
 class PeopleInfoModel {
-  final String? name;
-  final String? avaterUrl;
+  String? name;
+  String? avaterUrl;
   PeopleInfoModel({
-    this.name,
-    this.avaterUrl,
+    this.name = '',
+    this.avaterUrl = '',
   });
 
   PeopleInfoModel copyWith({
@@ -25,8 +25,8 @@ class PeopleInfoModel {
 
   factory PeopleInfoModel.fromMap(Map<String, dynamic> map) {
     return PeopleInfoModel(
-      name: map['name'] != null ? map['name'] as String : null,
-      avaterUrl: map['avaterUrl'] != null ? map['avaterUrl'] as String : null,
+      name: map['name'] as String? ?? '',
+      avaterUrl: map['avaterUrl'] as String? ?? '',
     );
   }
 }

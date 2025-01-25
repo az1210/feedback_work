@@ -51,9 +51,9 @@ class _SelectFeedbackCategoryState
                 labels: options,
                 allowMultipleSelection: false),
           ];
-          selectedFilters = {
-            "category": {options.first}
-          };
+          // selectedFilters = {
+          //   "category": {options.first}
+          // };
         }
       }
     });

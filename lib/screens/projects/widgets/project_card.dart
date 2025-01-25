@@ -156,7 +156,7 @@ class _ProjectCardState extends State<ProjectCard> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          '${project.completionPercentage ?? '0'}% Completed',
+                          '${project.completionPercentage == -1 ? '0' : project.completionPercentage}% Completed',
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium
@@ -406,7 +406,7 @@ class _ProjectCardState extends State<ProjectCard> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          '${project.completionPercentage ?? '0'}% Completed',
+                          '${project.completionPercentage == -1 ? '0' : project.completionPercentage}% Completed',
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium

@@ -7,13 +7,13 @@ class ParentModel {
   final String? relationship;
   final String? residence;
   ParentModel({
-    this.id,
-    this.firstName,
-    this.lastName,
-    this.email,
-    this.avaterUrl,
-    this.relationship,
-    this.residence,
+    this.id = '',
+    this.firstName = '',
+    this.lastName = '',
+    this.email = '',
+    this.avaterUrl = '',
+    this.relationship = '',
+    this.residence = '',
   });
 
   ParentModel copyWith({
@@ -32,7 +32,7 @@ class ParentModel {
       email: email ?? this.email,
       avaterUrl: avaterUrl ?? this.avaterUrl,
       relationship: relationship ?? this.relationship,
-      residence: residense ?? this.residence,
+      residence: residense ?? residence,
     );
   }
 
@@ -50,14 +50,13 @@ class ParentModel {
 
   factory ParentModel.fromMap(Map<String, dynamic> map) {
     return ParentModel(
-      id: map['id'] != null ? map['id'] as String : null,
-      firstName: map['firstName'] != null ? map['firstName'] as String : null,
-      lastName: map['lastName'] != null ? map['lastName'] as String : null,
-      email: map['email'] != null ? map['email'] as String : null,
-      avaterUrl: map['avaterUrl'] != null ? map['avaterUrl'] as String : null,
-      relationship:
-          map['relationship'] != null ? map['relationship'] as String : null,
-      residence: map['residense'] != null ? map['residense'] as String : null,
+      id: map['id'] as String? ?? '',
+      firstName: map['firstName'] as String? ?? '',
+      lastName: map['lastName'] as String? ?? '',
+      email: map['email'] as String? ?? '',
+      avaterUrl: map['avaterUrl'] as String? ?? '',
+      relationship: map['relationship'] as String? ?? '',
+      residence: map['residense'] as String? ?? '',
     );
   }
 }

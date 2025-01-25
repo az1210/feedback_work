@@ -15,31 +15,31 @@ class ProjectModel {
   final String? imageUrl;
   final UserModel? owner;
   final String? ownerId;
-  final dynamic createdAt;
-  final dynamic startDateTime;
-  final dynamic finishDateTime;
-  final dynamic breakDateTime;
+  final String? createdAt;
+  final String? startDateTime;
+  final String? finishDateTime;
+  final String? breakDateTime;
   final String? audioUrl;
   final String? popUpText;
   final double? completionPercentage;
   ProjectModel({
-    this.id,
-    this.projectName,
-    this.problemName,
-    this.solutionName,
-    this.solutionFunctionName,
+    this.id = '',
+    this.projectName = '',
+    this.problemName = '',
+    this.solutionName = '',
+    this.solutionFunctionName = '',
     this.projectDescription,
-    this.youtubeLink,
-    this.imageUrl,
+    this.youtubeLink = '',
+    this.imageUrl = '',
     this.owner,
-    this.ownerId,
-    this.createdAt,
-    this.startDateTime,
-    this.finishDateTime,
-    this.breakDateTime,
-    this.audioUrl,
-    this.popUpText,
-    this.completionPercentage,
+    this.ownerId = '',
+    this.createdAt = '',
+    this.startDateTime = '',
+    this.finishDateTime = '',
+    this.breakDateTime = '',
+    this.audioUrl = '',
+    this.popUpText = '',
+    this.completionPercentage = -1.0,
   });
 
   ProjectModel copyWith({
@@ -109,37 +109,23 @@ class ProjectModel {
         ? []
         : jsonDecode(map["projectDescription"]);
     return ProjectModel(
-      id: map['id'] != null ? map['id'] as String : null,
-      projectName:
-          map['projectName'] != null ? map['projectName'] as String : null,
-      problemName:
-          map['problemName'] != null ? map['problemName'] as String : null,
-      solutionName:
-          map['solutionName'] != null ? map['solutionName'] as String : null,
-      solutionFunctionName: map['solutionFunctionName'] != null
-          ? map['solutionFunctionName'] as String
-          : null,
+      id: map['id'] as String? ?? '',
+      projectName: map['projectName'] as String? ?? '',
+      problemName: map['problemName'] as String? ?? '',
+      solutionName: map['solutionName'] as String? ?? '',
+      solutionFunctionName: map['solutionFunctionName'] as String? ?? '',
       projectDescription: Delta.fromJson(projectDescription),
-      youtubeLink:
-          map['youtubeLink'] != null ? map['youtubeLink'] as String : null,
-      imageUrl: map['imageUrl'] != null ? map['imageUrl'] as String : null,
-      owner: map['owner'] != null
-          ? UserModel.fromMap(map['owner'] as Map<String, dynamic>)
-          : null,
-      ownerId: map['ownerId'] != null ? map['ownerId'] as String : null,
-      createdAt: map['createdAt'] != null ? map['createdAt'] as String : null,
-      startDateTime:
-          map['startDateTime'] != null ? map['startDateTime'] as String : null,
-      finishDateTime: map['finishDateTime'] != null
-          ? map['finishDateTime'] as String
-          : null,
-      breakDateTime:
-          map['breakDateTime'] != null ? map['breakDateTime'] as String : null,
-      audioUrl: map['audioUrl'] != null ? map['audioUrl'] as String : null,
-      popUpText: map['popUpText'] != null ? map['popUpText'] as String : null,
-      completionPercentage: map['completionPercentage'] != null
-          ? map['completionPercentage'] as double
-          : null,
+      youtubeLink: map['youtubeLink'] as String? ?? '',
+      imageUrl: map['imageUrl'] as String? ?? '',
+      owner: UserModel.fromMap(map['owner'] as Map<String, dynamic>),
+      ownerId: map['ownerId'] as String? ?? '',
+      createdAt: map['createdAt'] as String? ?? '',
+      startDateTime: map['startDateTime'] as String? ?? '',
+      finishDateTime: map['finishDateTime'] as String? ?? '',
+      breakDateTime: map['breakDateTime'] as String? ?? '',
+      audioUrl: map['audioUrl'] as String? ?? '',
+      popUpText: map['popUpText'] as String? ?? '',
+      completionPercentage: map['completionPercentage'] as double? ?? -1.0,
     );
   }
 }

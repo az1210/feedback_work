@@ -109,37 +109,22 @@ class _ModelTwoContentState extends State<ModelTwoContent> {
               color: context.colors.inputBorder,
             ),
           ),
-          child: Column(
-            children: [
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.white,
-                ),
-                child: quill.QuillToolbar.simple(
-                  controller: feedbackMessageController,
-                  configurations: config,
-                ),
-              ),
-              Container(
-                height: 200,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: context.colors.background,
-                ),
-                padding: EdgeInsets.all(16.r),
-                child: quill.QuillEditor.basic(
-                  controller: feedbackMessageController,
-                  focusNode: FocusNode(),
+          child: Container(
+            height: 200,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: context.colors.background,
+            ),
+            padding: EdgeInsets.all(16.r),
+            child: quill.QuillEditor.basic(
+              controller: feedbackMessageController,
+              focusNode: FocusNode(),
 
-                  // padding: const EdgeInsets.all(16),
-                  // autoFocus: true,
-                  // showCursor: true,
-                  // enableInteractiveSelection: true,
-                ),
-              ),
-            ],
+              // padding: const EdgeInsets.all(16),
+              // autoFocus: true,
+              // showCursor: true,
+              // enableInteractiveSelection: true,
+            ),
           ),
         ),
       ],

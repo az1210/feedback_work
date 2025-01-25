@@ -3,10 +3,12 @@ import 'dart:io';
 import 'package:date_time_format/date_time_format.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:feedback_work/core/extensions/extensions.dart';
+import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/assets/app_assets.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
+import 'package:feedback_work/screens/feedback/apply/widgets/provided_content.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/feedback_provided_content.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/model2_content.dart';
 import 'package:file_picker/file_picker.dart';
@@ -16,53 +18,40 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'package:go_router/go_router.dart';
 
-class ProvidedFeedbackCard extends ConsumerStatefulWidget {
-  const ProvidedFeedbackCard(
-      {required this.feedbackMessageController,
-      required this.onSelectedFilePath,
-      required this.feedback,
-      super.key});
+class ReceivedFeedbackDetailsCard extends ConsumerStatefulWidget {
+  const ReceivedFeedbackDetailsCard({required this.feedback, super.key});
 
   final FeedbackModel feedback;
-  final quill.QuillController feedbackMessageController;
-  final void Function(String) onSelectedFilePath;
 
   @override
-  ConsumerState<ProvidedFeedbackCard> createState() =>
+  ConsumerState<ReceivedFeedbackDetailsCard> createState() =>
       _ProvidedFeedbackCardState();
 }
 
-class _ProvidedFeedbackCardState extends ConsumerState<ProvidedFeedbackCard> {
-  Future<String> uploadFileToFirebase(String filePath) async {
-    final fileName = filePath.split('/').last; // Extract the file name
-    final firebaseStorage = ref.read(storageProvider);
-    final storageRef = firebaseStorage.ref().child(
-        'project_images/$fileName'); // Create a reference in Firebase Storage
+class _ProvidedFeedbackCardState
+    extends ConsumerState<ReceivedFeedbackDetailsCard> {
+  quill.QuillController feedbackMessageController =
+      quill.QuillController.basic();
 
-    final file = File(filePath); // Local file reference
+  String? selectedPath;
 
-    await storageRef.putFile(file);
+  @override
+  void initState() {
+    if (widget.feedback.provideFeedback != null) {
+      if (widget.feedback.provideFeedback!.feedbackMessage != null) {
+        feedbackMessageController.document = quill.Document.fromDelta(
+            widget.feedback.provideFeedback!.feedbackMessage!);
+      }
+    }
 
-    return await storageRef.getDownloadURL();
+    feedbackMessageController.readOnly = true;
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    const config = quill.QuillSimpleToolbarConfigurations(
-      multiRowsDisplay: true,
-      showFontFamily: true,
-      showFontSize: true,
-      showBoldButton: true,
-      showItalicButton: true,
-      showUnderLineButton: true,
-      showStrikeThrough: true,
-      showColorButton: true,
-      showAlignmentButtons: true,
-      showSubscript: true,
-      showSuperscript: true,
-      showLink: true,
-    );
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4.r),
@@ -87,6 +76,22 @@ class _ProvidedFeedbackCardState extends ConsumerState<ProvidedFeedbackCard> {
                         fontSize: 14,
                       ),
                 ),
+                if (widget.feedback.requestFeedback!.cost != -1) ...[
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 4.r),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: context.colors.successGreen),
+                      borderRadius: BorderRadius.circular(4.r),
+                    ),
+                    child: Text(
+                      "\$${widget.feedback.requestFeedback!.cost}",
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            fontSize: 12,
+                            color: context.colors.successGreen,
+                          ),
+                    ),
+                  ),
+                ],
                 Text(
                   DateTime.now().format("h:i A"),
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -288,9 +293,14 @@ class _ProvidedFeedbackCardState extends ConsumerState<ProvidedFeedbackCard> {
             width: 0.9.sw,
             child: TabBarView(
               children: [
-                FeedbackProvidedContent(
-                  feedbackMessageController: widget.feedbackMessageController,
-                  onSelectedFilePath: widget.onSelectedFilePath,
+                ProvidedContent(
+                  feedbackMessage:
+                      widget.feedback.provideFeedback!.feedbackMessage!,
+                  onSelectedFilePath: (p0) {
+                    setState(() {
+                      selectedPath = p0;
+                    });
+                  },
                 ),
                 Column(
                   children: [
@@ -304,6 +314,49 @@ class _ProvidedFeedbackCardState extends ConsumerState<ProvidedFeedbackCard> {
               ],
             ),
           ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Row(
+              children: [
+                Expanded(
+                  child: AppButton.filled(
+                    label: "Accept",
+                    bgColor: context.colors.successGreen,
+                    fgColor: context.colors.pureWhite,
+                    onTap: () {
+                      context.pushNamed(Routes.applyFeedback,
+                          extra: widget.feedback);
+                    },
+                    verticalPadding: 8.h,
+                  ),
+                ),
+                8.pw,
+                Expanded(
+                  child: AppButton.filled(
+                    label: "Decline",
+                    bgColor: context.colors.errorRed,
+                    fgColor: context.colors.pureWhite,
+                    onTap: () {},
+                    verticalPadding: 8.h,
+                  ),
+                ),
+                8.pw,
+                Expanded(
+                  child: AppButton.filled(
+                    label: "Apply",
+                    bgColor: context.colors.primaryBlue,
+                    fgColor: context.colors.pureWhite,
+                    onTap: () {
+                      context.pushNamed(Routes.applyFeedback,
+                          extra: widget.feedback);
+                    },
+                    verticalPadding: 8.h,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          16.ph,
         ],
       ),
     );

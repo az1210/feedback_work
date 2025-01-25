@@ -7,10 +7,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class SelectPrincipleToDerive extends StatefulWidget {
   const SelectPrincipleToDerive({
     super.key,
-    this.selectedPrinciples,
+    required this.selectedPrinciples,
   });
 
-  final void Function(List<String>)? selectedPrinciples;
+  final void Function(List<String>) selectedPrinciples;
 
   @override
   State<SelectPrincipleToDerive> createState() =>
@@ -44,9 +44,7 @@ class _SelectPrincipleToDeriveState extends State<SelectPrincipleToDerive> {
   ];
 
   Map<String, Set<String>> selectedFilters = {
-    'Select Principle to derive from': {
-      'The Given Set of Communication Principle'
-    }
+    'Select Principle to derive from': {}
   };
 
   @override
@@ -63,7 +61,8 @@ class _SelectPrincipleToDeriveState extends State<SelectPrincipleToDerive> {
               selectedFilters: selectedFilters,
               onFiltersChanged: (filters) {
                 setState(() {
-                  widget.selectedPrinciples!(
+                  selectedFilters = filters;
+                  widget.selectedPrinciples(
                       filters['Select Principle to derive from']?.toList() ??
                           []);
                 });

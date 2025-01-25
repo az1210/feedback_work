@@ -56,7 +56,7 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
     if (_searchQuery.isEmpty) return widget.groups;
 
     return widget.groups.where((group) {
-      bool groupMatches = group.name.toLowerCase().contains(_searchQuery) ||
+      bool groupMatches = group.name!.toLowerCase().contains(_searchQuery) ||
           (group.description?.toLowerCase().contains(_searchQuery) ?? false);
       bool usersMatch = group.users?.any(
             (user) =>
@@ -96,9 +96,9 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
         currentSelectedUsers.any((selectedUser) => selectedUser.id == user.id));
 
     if (allSelected) {
-      widget.onUserSelection?.call(groupId, []);
+      widget.onUserSelection?.call(groupId!, []);
     } else {
-      widget.onUserSelection?.call(groupId, group.users!);
+      widget.onUserSelection?.call(groupId!, group.users!);
     }
   }
 
@@ -152,7 +152,7 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
 
   Widget _buildGroupItem(GroupModel group, bool isExpanded) {
     return GestureDetector(
-      onTap: () => _toggleGroupExpansion(group.id ?? group.name),
+      onTap: () => _toggleGroupExpansion(group.id!),
       child: Container(
         decoration: BoxDecoration(
           color: context.colors.pureWhite,
@@ -168,12 +168,12 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
           leading: CircleAvatar(
             backgroundColor: context.colors.primaryBlue.withValues(alpha: 0.1),
             child: Text(
-              group.name[0].toUpperCase(),
+              group.name![0].toUpperCase(),
               style: TextStyle(color: context.colors.primaryBlue),
             ),
           ),
           title: Text(
-            group.name,
+            group.name!,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           subtitle: group.description != null
@@ -190,7 +190,7 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
               if (isExpanded) {
                 _selectAllUsers(group);
               } else {
-                _toggleGroupExpansion(groupId, selectionMode: true);
+                _toggleGroupExpansion(groupId!, selectionMode: true);
                 _selectAllUsers(group);
               }
             },
@@ -239,7 +239,7 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
 
         return showDetails
             ? GestureDetector(
-                onTap: () => _toggleUserSelection(groupId, user),
+                onTap: () => _toggleUserSelection(groupId!, user),
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
@@ -434,7 +434,7 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
                 trailing: isSelected
                     ? Icon(Icons.check, color: context.colors.primaryBlue)
                     : null,
-                onTap: () => _toggleUserSelection(groupId, user),
+                onTap: () => _toggleUserSelection(groupId!, user),
               );
       },
       separatorBuilder: (context, index) => Container(

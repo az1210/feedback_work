@@ -2,9 +2,12 @@ import 'package:feedback_work/core/router/navbar.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/models/project_model.dart';
 import 'package:feedback_work/models/user_model.dart';
+import 'package:feedback_work/screens/feedback/apply/apply_feedback_screen.dart';
+import 'package:feedback_work/screens/feedback/apply/received_feedback_details_screen.dart';
 import 'package:feedback_work/screens/feedback/provide/preview_set_screen.dart';
 import 'package:feedback_work/screens/feedback/provide/provide_feedback_screen.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/set_feedback_model.dart';
+import 'package:feedback_work/screens/payment/payment_screen.dart';
 import 'package:feedback_work/screens/user/screens/add_child_screen.dart';
 import 'package:feedback_work/screens/user/screens/add_parent_screen.dart';
 import 'package:feedback_work/screens/user/screens/edit_profile_screen.dart';
@@ -76,6 +79,8 @@ class Routes {
   static const addChild = 'add-child';
   static const addParent = 'add-parent';
   static const previewSet = 'preview-set';
+  static const applyFeedback = 'apply-feedback';
+  static const payment = 'payment';
 }
 
 final authProvider = StateProvider<bool>((ref) => false);
@@ -161,7 +166,9 @@ final routerProvider = Provider<GoRouter>(
         GoRoute(
           name: Routes.receivedFeedbackDetails,
           path: Routes.receivedFeedbackDetails.p,
-          builder: (context, state) => const ReceivedFeedbackDetails(),
+          builder: (context, state) => ReceivedFeedbackDetailsScreen(
+            feedbackModel: state.extra as FeedbackModel,
+          ),
         ),
         GoRoute(
           name: Routes.requestFeedback,
@@ -246,6 +253,18 @@ final routerProvider = Provider<GoRouter>(
           builder: (context, state) => PreviewSetScreen(
             feedback: state.extra as FeedbackModel,
           ),
+        ),
+        GoRoute(
+          name: Routes.applyFeedback,
+          path: Routes.applyFeedback.p,
+          builder: (context, state) => ApplyFeedbackScreen(
+            feedback: state.extra as FeedbackModel,
+          ),
+        ),
+        GoRoute(
+          name: Routes.payment,
+          path: Routes.payment.p,
+          builder: (context, state) => const PaymentScreen(),
         ),
 
         // NavBar Routes

@@ -6,16 +6,19 @@ import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class FeedbackProvidedContent extends StatefulWidget {
-  const FeedbackProvidedContent({super.key});
+  const FeedbackProvidedContent(
+      {super.key,
+      required this.feedbackMessageController,
+      required this.onSelectedFilePath});
 
+  final quill.QuillController feedbackMessageController;
+  final void Function(String) onSelectedFilePath;
   @override
   State<FeedbackProvidedContent> createState() =>
       _FeedbackProvidedContentState();
 }
 
 class _FeedbackProvidedContentState extends State<FeedbackProvidedContent> {
-  final quill.QuillController feedbackMessageController =
-      quill.QuillController.basic();
   String? selectedFilePath;
 
   bool isAnonymous = false;
@@ -29,6 +32,7 @@ class _FeedbackProvidedContentState extends State<FeedbackProvidedContent> {
     if (result != null && result.files.single.path != null) {
       setState(() {
         selectedFilePath = result.files.single.path!;
+        widget.onSelectedFilePath(result.files.single.path!);
       });
     }
   }
@@ -80,7 +84,7 @@ class _FeedbackProvidedContentState extends State<FeedbackProvidedContent> {
                   color: Colors.white,
                 ),
                 child: quill.QuillToolbar.simple(
-                  controller: feedbackMessageController,
+                  controller: widget.feedbackMessageController,
                   configurations: config,
                 ),
               ),
@@ -92,7 +96,7 @@ class _FeedbackProvidedContentState extends State<FeedbackProvidedContent> {
                 ),
                 padding: EdgeInsets.all(16.r),
                 child: quill.QuillEditor.basic(
-                  controller: feedbackMessageController,
+                  controller: widget.feedbackMessageController,
                   focusNode: FocusNode(),
 
                   // padding: const EdgeInsets.all(16),

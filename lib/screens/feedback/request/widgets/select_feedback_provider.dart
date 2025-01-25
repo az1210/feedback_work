@@ -11,15 +11,19 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SelectFeedbackProvider extends ConsumerStatefulWidget {
   const SelectFeedbackProvider({
+    this.selectedGroupUsers,
+    required this.currentUserId,
     this.selectedGroupId,
-    this.selectedUsers,
+    required this.selectedIndividualUser,
     required this.category,
     super.key,
   });
 
   final String category;
+  final String currentUserId;
 
-  final void Function(List<UserModel>)? selectedUsers;
+  final void Function(String?) selectedIndividualUser;
+  final void Function(List<String?>)? selectedGroupUsers;
   final void Function(String?)? selectedGroupId;
 
   @override
@@ -29,14 +33,14 @@ class SelectFeedbackProvider extends ConsumerStatefulWidget {
 
 class _SelectFeedbackProviderState
     extends ConsumerState<SelectFeedbackProvider> {
-  List<FilterSection<UserModel>> sections = [];
+  List<FilterSection<String>> sections = [];
   List<GroupModel> groups = [];
   List<GroupModel> filteredGroups = [];
 
   List<UserModel> users = [];
-  List<UserModel> selectedUsers = [];
+  List<UserModel> filteredUsers = [];
   Map<String, List<UserModel>> selectedGroupUsers = {};
-  Map<String, Set<UserModel>> selectedIndividulaUsers = {};
+  Map<String, Set<String>> selectedIndividulaUser = {};
   String? groupId;
 
   @override
@@ -58,23 +62,27 @@ class _SelectFeedbackProviderState
     ref.listen(userProvider, (_, newState) {
       if (newState.state == AsyncState.success) {
         users = newState.data!;
+        filteredUsers =
+            users.where((u) => u.id != widget.currentUserId).toList();
         List<String> names = [];
-        for (var i in newState.data!) {
+        List<String> ids = [];
+        for (var i in filteredUsers) {
           names.add("${i.firstName ?? ''} ${i.lastName ?? ''}");
+          ids.add(i.id ?? '');
         }
         Log.info(names.first.toString());
         sections.add(
-          FilterSection<UserModel>(
+          FilterSection<String>(
             title: "provider",
-            values: users,
+            values: ids,
             labels: names,
-            allowMultipleSelection: true,
+            allowMultipleSelection: false,
             showTitle: false,
           ),
         );
-        selectedIndividulaUsers = {
-          'provider': {users.first}
-        };
+        // selectedIndividulaUsers = {
+        //   'provider': {users.first}
+        // };
       }
     });
 
@@ -101,20 +109,20 @@ class _SelectFeedbackProviderState
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  FilterContent<UserModel>(
+                  FilterContent<String>(
                     hasHeader: false,
                     sections: sections,
-                    selectedFilters: selectedIndividulaUsers,
+                    selectedFilters: selectedIndividulaUser,
                     onFiltersChanged: (filters) {
                       Log.info('Filters updated: $filters');
                       setState(() {
                         selectedGroupUsers = {};
-                        selectedIndividulaUsers = filters;
+                        selectedIndividulaUser = filters;
                         widget.selectedGroupId != null
                             ? widget.selectedGroupId!(null)
                             : null;
-                        widget.selectedUsers!(
-                            filters['provider']?.toList() ?? []);
+                        widget
+                            .selectedIndividualUser(filters['provider']?.first);
                       });
                     },
                     onApply: () {
@@ -151,15 +159,17 @@ class _SelectFeedbackProviderState
                     selectedUsers: selectedGroupUsers,
                     onUserSelection: (groupId, users) {
                       setState(() {
-                        selectedIndividulaUsers = {'provider': {}};
+                        widget.selectedIndividualUser(
+                            groups.firstWhere((g) => g.id == groupId).ownerId);
+                        selectedIndividulaUser = {};
                         selectedGroupUsers = {
                           ...selectedGroupUsers,
                           groupId: users,
                         };
                         widget.selectedGroupId!(groupId);
-                        Log.info(users.length.toString());
-
-                        widget.selectedGroupId!(groupId);
+                        widget.selectedGroupUsers!(
+                            users.map((u) => u.id).toList());
+                        Log.info(users.map((u) => u.toMap()).toString());
                       });
                     },
                     onGroupExpand: (groupId) {},

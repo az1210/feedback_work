@@ -1,11 +1,11 @@
 class CategoryModel {
-  final String? id;
+  final String id;
   final String categoryTitle;
-  final String? categoryIcon;
+  final String categoryIcon;
   CategoryModel({
-    this.id,
-    required this.categoryTitle,
-    this.categoryIcon,
+    this.id = '',
+    this.categoryTitle = '',
+    this.categoryIcon = '',
   });
 
   CategoryModel copyWith({
@@ -30,10 +30,9 @@ class CategoryModel {
 
   factory CategoryModel.fromMap(Map<String, dynamic> map) {
     return CategoryModel(
-      id: map['id'] != null ? map['id'] as String : null,
-      categoryTitle: map['categoryTitle'] as String,
-      categoryIcon:
-          map['categoryIcon'] != null ? map['categoryIcon'] as String : null,
+      id: map['id'] as String? ?? '',
+      categoryTitle: map['categoryTitle'] as String? ?? '',
+      categoryIcon: map['categoryIcon'] as String? ?? '',
     );
   }
 }

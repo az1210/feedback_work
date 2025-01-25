@@ -40,6 +40,7 @@ class _CreateProjectScreenState extends ConsumerState<TypeMessage> {
   }
 
   Future<String> uploadFileToFirebase(String filePath) async {
+    final formKey = GlobalKey<FormState>();
     final fileName = filePath.split('/').last; // Extract the file name
     final storageRef = FirebaseStorage.instance.ref().child(
         'project_images/$fileName'); // Create a reference in Firebase Storage
@@ -83,7 +84,7 @@ class _CreateProjectScreenState extends ConsumerState<TypeMessage> {
               ),
               const SizedBox(height: 5),
               TextFormField(
-                onSaved: widget.subject,
+                onChanged: widget.subject,
                 decoration: InputDecoration(
                   hintText: "Type here",
                   hintStyle: Theme.of(context).textTheme.bodySmall,
@@ -180,7 +181,7 @@ class _CreateProjectScreenState extends ConsumerState<TypeMessage> {
               ),
               const SizedBox(height: 5),
               TextFormField(
-                onSaved: widget.youtubeLink,
+                onChanged: widget.youtubeLink,
                 decoration: InputDecoration(
                   hintText: "Insert link",
                   hintStyle: Theme.of(context).textTheme.bodySmall,

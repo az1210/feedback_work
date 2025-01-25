@@ -20,6 +20,7 @@ class ProjectNotifier extends Notifier<ProjectNotifierState> {
     required ProjectModel project,
     void Function()? callBack,
   }) async {
+    Log.info(project.owner!.toMap().toString());
     state = state.copyWith(state: AsyncState.loading);
     FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
@@ -38,7 +39,7 @@ class ProjectNotifier extends Notifier<ProjectNotifierState> {
           .collection(FirebaseConstants.projectCollection)
           .doc(docRef.id)
           .update({"id": docRef.id}).then((_) {
-        fetchAllProjects();
+        fetchAllProjects(userId: project.owner!.id!);
       });
       callBack?.call();
       state = state.copyWith(state: AsyncState.success);
@@ -48,12 +49,14 @@ class ProjectNotifier extends Notifier<ProjectNotifierState> {
     }
   }
 
-  Future<void> fetchAllProjects() async {
+  Future<void> fetchAllProjects({required String userId}) async {
     state = state.copyWith(state: AsyncState.loading);
     FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
-      final usersSnapshot =
-          await firestore.collection(FirebaseConstants.projectCollection).get();
+      final usersSnapshot = await firestore
+          .collection(FirebaseConstants.projectCollection)
+          .where('ownerId', isEqualTo: userId)
+          .get();
       final projects = usersSnapshot.docs
           .map((u) => ProjectModel.fromMap(u.data()))
           .toList();

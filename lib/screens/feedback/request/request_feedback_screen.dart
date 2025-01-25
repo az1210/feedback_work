@@ -7,6 +7,7 @@ import 'package:feedback_work/models/project_model.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/feedback_providers.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
+import 'package:feedback_work/providers/user_providers.dart';
 import 'package:feedback_work/screens/feedback/request/widgets/define_price.dart';
 import 'package:feedback_work/screens/feedback/request/widgets/preview_feedback_request.dart';
 import 'package:feedback_work/screens/feedback/request/widgets/select_feedback_category.dart';
@@ -40,15 +41,17 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
   final TextEditingController youtubeLinkController = TextEditingController();
   final quill.QuillController messageController = quill.QuillController.basic();
 
-  List<UserModel> selectedUsers = [];
+  String? selectedUser;
+  List<String?>? selectedGrpupUserIds;
+  UserModel? currentUser;
   String? subject;
   String? youtubeLink;
   String? feedbackCost;
   bool isAnnonymous = false;
   String? selectedCategory;
-  String? selectedPrivacy;
+  String selectedPrivacy = '';
   String? feedbackLimit;
-  String? currentUserId;
+  // String currentUserId = '';
   String? selectedGroupId;
 
   final List<String> pageTitles = [
@@ -64,8 +67,8 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
   void initState() {
     Log.info(widget.project.toMap().toString());
     requestFeedbackController = PageController();
-    Future.microtask(() {
-      currentUserId = ref.watch(firebaseAuthProvider).currentUser?.uid;
+    Future.microtask(() async {
+      currentUser = await ref.watch(userProvider.notifier).currentUser();
     });
     super.initState();
   }
@@ -83,6 +86,7 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // currentUserId = ref.read(firebaseAuthProvider).currentUser!.uid;
     return PopScope(
       onPopInvokedWithResult: (didPop, result) {
         ref.read(requestFeedbackStepProvider.notifier).state = 1;
@@ -152,7 +156,7 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                   SelectFeedbackPrivacy(
                     onSelectPrivacy: (p0) {
                       setState(() {
-                        selectedPrivacy = p0;
+                        selectedPrivacy = p0!;
                       });
                     },
                     onChangeAnnonymous: (p0) {
@@ -175,18 +179,23 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                   ),
                   SelectFeedbackProvider(
                     category: selectedCategory ?? "",
-                    selectedUsers: (p0) {
+                    selectedIndividualUser: (p0) {
                       setState(() {
-                        selectedUsers = p0;
-                        selectedGroupId = null;
+                        selectedUser = p0;
+                        selectedGroupId = '';
                       });
-                      Log.info(selectedUsers.map((u) => u).toString());
                     },
                     selectedGroupId: (p0) {
                       setState(() {
                         selectedGroupId = p0;
                       });
                     },
+                    selectedGroupUsers: (p0) {
+                      setState(() {
+                        selectedGrpupUserIds = p0;
+                      });
+                    },
+                    currentUserId: currentUser?.id ?? '',
                   ),
                   TypeMessage(
                     message: messageController,
@@ -204,13 +213,10 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                   PreviewFeedbackRequest(
                     feedback: FeedbackModel(
                       project: widget.project,
-                      feedbackStatus: Status(
-                        status: FeedbackStatus.requested.name.toTitleCase(),
-                        modifiedAt: DateTime.now().toString(),
-                      ),
                       projectOwnerId: widget.project.ownerId,
                       requestFeedback: RequestModel(
-                        providers: selectedUsers,
+                        provider: selectedUser,
+                        selectedGroupMemberIds: selectedGrpupUserIds ?? [],
                         privacy: selectedPrivacy,
                         message: MessageModel(
                           subject: subject,
@@ -218,10 +224,11 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                           ytUrl: youtubeLink,
                         ),
                         cost: double.tryParse(
-                          feedbackCost ?? "0",
-                        ),
-                        feedbackLimit: int.tryParse(feedbackLimit ?? '0'),
-                        groupId: selectedGroupId,
+                              feedbackCost ?? '0',
+                            ) ??
+                            0,
+                        feedbackLimit: int.tryParse(feedbackLimit ?? "1") ?? 1,
+                        groupId: selectedGroupId ?? '',
                         isAnnonymous: isAnnonymous,
                       ),
                     ),
@@ -270,7 +277,7 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                           ? () {
                               final feedback = FeedbackModel(
                                 requestFeedback: RequestModel(
-                                  providers: selectedUsers,
+                                  provider: selectedUser,
                                   isAnnonymous: isAnnonymous,
                                   message: MessageModel(
                                     message:
@@ -278,18 +285,16 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                                     subject: subject,
                                     ytUrl: youtubeLink,
                                   ),
-                                  cost: double.tryParse(feedbackCost ?? "0"),
+                                  cost:
+                                      double.tryParse(feedbackCost ?? "0") ?? 0,
                                   feedbackLimit:
-                                      int.tryParse(feedbackLimit ?? "0"),
+                                      int.tryParse(feedbackLimit ?? "0") ?? 0,
                                   privacy: selectedPrivacy,
-                                  groupId: selectedGroupId,
-                                ),
-                                feedbackStatus: Status(
-                                  status: FeedbackStatus.requested.name
-                                      .toTitleCase(),
+                                  groupId: selectedGroupId ?? '',
+                                  selectedGroupMemberIds: selectedGrpupUserIds,
                                 ),
                                 project: widget.project,
-                                projectOwnerId: currentUserId,
+                                projectOwnerId: widget.project.ownerId!,
                               );
 
                               Log.info(feedback.toMap().toString());
@@ -297,6 +302,7 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                                   .read(feedbackProvider.notifier)
                                   .createFeedbackRequest(
                                     feedback: feedback,
+                                    userId: currentUser!.id!,
                                     callback: () {
                                       context.pop();
                                     },

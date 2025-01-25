@@ -3,17 +3,17 @@ import 'package:feedback_work/models/user_model.dart';
 class GroupModel {
   final String? id;
   final String? ownerId;
-  final String name;
+  final String? name;
   final String? description;
   final bool? isPublic;
   final List<UserModel>? users;
   GroupModel({
-    this.id,
-    this.ownerId,
-    required this.name,
-    this.description,
-    this.isPublic,
-    this.users,
+    this.id = '',
+    this.ownerId = '',
+    this.name = '',
+    this.description = '',
+    this.isPublic = false,
+    this.users = const [],
   });
 
   GroupModel copyWith({
@@ -47,19 +47,16 @@ class GroupModel {
 
   factory GroupModel.fromMap(Map<String, dynamic> map) {
     return GroupModel(
-      id: map['id'] != null ? map['id'] as String : null,
-      ownerId: map['ownerId'] != null ? map['ownerId'] as String : null,
-      name: map['name'] as String,
-      description:
-          map['description'] != null ? map['description'] as String : null,
-      isPublic: map['isPublic'] != null ? map['isPublic'] as bool : null,
-      users: map['users'] != null
-          ? List<UserModel>.from(
-              (map['users'] as List<dynamic>).map<UserModel?>(
-                (x) => UserModel.fromMap(x as Map<String, dynamic>),
-              ),
-            )
-          : null,
+      id: map['id'] as String? ?? '',
+      ownerId: map['ownerId'] as String? ?? '',
+      name: map['name'] as String? ?? '',
+      description: map['description'] as String? ?? '',
+      isPublic: map['isPublic'] as bool,
+      users: (map['users'] as List<dynamic>)
+          .map(
+            (x) => UserModel.fromMap(x as Map<String, dynamic>),
+          )
+          .toList(),
     );
   }
 }

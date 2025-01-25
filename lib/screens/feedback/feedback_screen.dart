@@ -1,11 +1,13 @@
+import 'package:feedback_work/core/constants/firebase_constants.dart';
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/extensions/string_extension.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/feedback_model.dart';
+import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/feedback_providers.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
-import 'package:feedback_work/screens/feedback/widgets/received_feedback_card.dart';
-import 'package:feedback_work/screens/feedback/widgets/requested_feedback_card.dart';
+import 'package:feedback_work/providers/user_providers.dart';
+import 'package:feedback_work/screens/feedback/widgets/feedback_card.dart';
 import 'package:feedback_work/screens/feedback/widgets/feedback_search_and_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,19 +24,26 @@ class FeedbackScreen extends ConsumerStatefulWidget {
 class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
   bool isGrid = true;
 
+  UserModel? currentUser;
+
   FeedbackScreenConnectionType feedbackScreenConnectionType =
       FeedbackScreenConnectionType.all;
 
-  List<FeedbackModel> feedbacks = [];
+  List<FeedbackModel> ownFeedbacks = [];
+  List<FeedbackModel> anotherFeedbacks = [];
   List<FeedbackModel> filteredFeedbacks = [];
 
   @override
   void initState() {
-    Future.microtask(() {
+    Future.microtask(() async {
       final auth = ref.read(firebaseAuthProvider);
+      currentUser = await ref.watch(userProvider.notifier).currentUser();
       ref
           .read(feedbackProvider.notifier)
-          .fetchAllFeedbacks(userId: auth.currentUser!.uid);
+          .fetchAllOwnFeedbacks(userId: auth.currentUser!.uid);
+      anotherFeedbacks = await ref
+          .watch(feedbackProvider.notifier)
+          .fetchAllFeedbacksAsProvider(userId: currentUser!.id!);
     });
     super.initState();
   }
@@ -44,10 +53,21 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
     final feedbackState = ref.watch(feedbackProvider);
     ref.listen(feedbackProvider, (_, newState) {
       if (newState.state == AsyncState.success) {
-        feedbacks = newState.data!;
-        Log.info(feedbacks.map((f) => f.toMap()).toList().toString());
+        ownFeedbacks = newState.data!
+            .where((f) =>
+                f.ownerSideStatus!.status !=
+                FeedbackStatus.requested.name.toTitleCase())
+            .toList();
+        Log.info(ownFeedbacks
+            .map(
+                (f) => f.requestFeedback!.selectedGroupMemberIds!.map((p) => p))
+            .toList()
+            .toString());
       }
     });
+    Log.info(anotherFeedbacks.length.toString());
+    final List<FeedbackModel> allFeedbacks = ownFeedbacks + anotherFeedbacks;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -69,6 +89,14 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                   ),
           ),
           8.pw,
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red),
+            onPressed: () {
+              ref
+                  .read(feedbackProvider.notifier)
+                  .deleteCollection(FirebaseConstants.feedbackCollection);
+            },
+          ),
         ],
       ),
       body: Builder(builder: (context) {
@@ -81,39 +109,48 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
             child: Text("Something went wrong"),
           );
         } else {
-          filteredFeedbacks =
-              feedbackScreenConnectionType == FeedbackScreenConnectionType.all
-                  ? feedbacks
-                  : feedbackScreenConnectionType ==
-                          FeedbackScreenConnectionType.requested
-                      ? feedbacks
-                          .where((f) =>
-                              f.feedbackStatus!.status! ==
+          filteredFeedbacks = feedbackScreenConnectionType ==
+                  FeedbackScreenConnectionType.all
+              ? allFeedbacks
+              : feedbackScreenConnectionType ==
+                      FeedbackScreenConnectionType.requested
+                  ? allFeedbacks
+                      .where((f) =>
+                          f.ownerSideStatus!.status ==
+                              FeedbackStatus.requested.name.toTitleCase() ||
+                          f.providerSideStatus!.status ==
                               FeedbackStatus.requested.name.toTitleCase())
+                      .toList()
+                  : feedbackScreenConnectionType ==
+                          FeedbackScreenConnectionType.providing
+                      ? anotherFeedbacks
+                          .where((f) =>
+                              f.providerSideStatus!.status ==
+                              FeedbackStatus.providing.name.toTitleCase())
                           .toList()
                       : feedbackScreenConnectionType ==
                               FeedbackScreenConnectionType.received
-                          ? feedbacks
+                          ? ownFeedbacks
                               .where((f) =>
-                                  f.feedbackStatus!.status! ==
+                                  f.ownerSideStatus!.status ==
                                   FeedbackStatus.received.name.toTitleCase())
                               .toList()
                           : feedbackScreenConnectionType ==
                                   FeedbackScreenConnectionType.applied
-                              ? feedbacks
+                              ? ownFeedbacks
                                   .where((f) =>
-                                      f.feedbackStatus!.status! ==
+                                      f.ownerSideStatus!.status ==
                                       FeedbackStatus.applied.name.toTitleCase())
                                   .toList()
                               : feedbackScreenConnectionType ==
                                       FeedbackScreenConnectionType.provided
-                                  ? feedbacks
+                                  ? anotherFeedbacks
                                       .where((f) =>
-                                          f.feedbackStatus!.status! ==
+                                          f.providerSideStatus!.status ==
                                           FeedbackStatus.provided.name
                                               .toTitleCase())
                                       .toList()
-                                  : feedbacks;
+                                  : allFeedbacks;
           return Column(
             children: [
               FeedbackSearchAndFilter(
@@ -137,9 +174,10 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                                 crossAxisCount: isGrid ? 2 : 1),
                         itemBuilder: (context, index) => Padding(
                           padding: EdgeInsets.all(8.r),
-                          child: RequestedFeedbackCard(
+                          child: FeedbackCard(
                             isGrid: isGrid,
                             feedback: filteredFeedbacks[index],
+                            currentUserId: currentUser!.id!,
                           ),
                         ),
                       ),
