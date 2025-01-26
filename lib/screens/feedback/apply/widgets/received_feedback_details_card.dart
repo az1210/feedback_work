@@ -8,6 +8,7 @@ import 'package:feedback_work/core/ui/assets/app_assets.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
+import 'package:feedback_work/screens/feedback/apply/widgets/corrected_communication.dart';
 import 'package:feedback_work/screens/feedback/apply/widgets/provided_content.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/feedback_provided_content.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/model2_content.dart';
@@ -336,7 +337,12 @@ class _ProvidedFeedbackCardState
                     label: "Decline",
                     bgColor: context.colors.errorRed,
                     fgColor: context.colors.pureWhite,
-                    onTap: () {},
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) => const CorrectedCommunication(),
+                      );
+                    },
                     verticalPadding: 8.h,
                   ),
                 ),

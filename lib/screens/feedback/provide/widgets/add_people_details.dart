@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:dotted_border/dotted_border.dart';
 import 'package:feedback_work/core/extensions/extensions.dart';
+import 'package:feedback_work/core/utils/file_upload_helper.dart';
+import 'package:feedback_work/core/utils/toast_message.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/provide_feedback_people_model.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
@@ -45,29 +47,16 @@ class _BeforeState extends ConsumerState<AddPeopleDetails> {
   }
 
   Future<void> pickFile() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['jpg', 'png', 'pdf'],
-    );
+    final fileUrl = await FileUploadHelper.pickAndUploadFile();
 
-    if (result != null && result.files.single.path != null) {
+    if (fileUrl != null) {
       setState(() {
-        selectedFilePath = result.files.single.path!;
+        selectedFilePath = fileUrl;
       });
+      showToast(message: 'File uploaded successfully: $fileUrl');
+    } else {
+      showToast(message: 'File upload failed or was cancelled.');
     }
-  }
-
-  Future<String> uploadFileToFirebase(String filePath) async {
-    final fileName = filePath.split('/').last; // Extract the file name
-    final firebaseStorage = ref.read(storageProvider);
-    final storageRef = firebaseStorage.ref().child(
-        'project_images/$fileName'); // Create a reference in Firebase Storage
-
-    final file = File(filePath); // Local file reference
-
-    await storageRef.putFile(file);
-
-    return await storageRef.getDownloadURL();
   }
 
   @override

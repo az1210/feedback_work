@@ -32,7 +32,7 @@ class _ReceivedFeedbackDetailsScreenState
                 16.ph,
                 ReceivedFeedbackDetailsCard(
                   feedback: widget.feedbackModel,
-                )
+                ),
               ],
             ),
           ),

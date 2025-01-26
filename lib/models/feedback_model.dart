@@ -27,6 +27,7 @@ class FeedbackModel {
   final AppliedModel? appliedFeedback;
   final Status? ownerSideStatus;
   final Status? providerSideStatus;
+  final List<EcfModel>? errors;
   FeedbackModel({
     this.id = '',
     this.project,
@@ -36,6 +37,7 @@ class FeedbackModel {
     this.appliedFeedback,
     this.ownerSideStatus,
     this.providerSideStatus,
+    this.errors,
   });
 
   FeedbackModel copyWith({
@@ -47,6 +49,7 @@ class FeedbackModel {
     AppliedModel? appliedFeedback,
     Status? ownerSideStatus,
     Status? providerSideStatus,
+    List<EcfModel>? errors,
   }) {
     return FeedbackModel(
       id: id ?? this.id,
@@ -57,6 +60,7 @@ class FeedbackModel {
       appliedFeedback: appliedFeedback ?? this.appliedFeedback,
       ownerSideStatus: ownerSideStatus ?? this.ownerSideStatus,
       providerSideStatus: providerSideStatus ?? this.providerSideStatus,
+      errors: errors ?? this.errors,
     );
   }
 
@@ -70,6 +74,7 @@ class FeedbackModel {
       'appliedFeedback': appliedFeedback?.toMap(),
       'ownerSideStatus': ownerSideStatus?.toMap(),
       'providerSideStatus': providerSideStatus?.toMap(),
+      'errors': errors?.map((e) => e.toMap()).toList(),
     };
   }
 
@@ -94,6 +99,11 @@ class FeedbackModel {
           : null,
       providerSideStatus: map['providerSideStatus'] != null
           ? Status.fromMap(map['providerSideStatus'] as Map<String, dynamic>)
+          : null,
+      errors: map['errors'] != null
+          ? (map['errors'] as List<dynamic>)
+              .map((e) => EcfModel.fromMap(e as Map<String, dynamic>))
+              .toList()
           : null,
     );
   }
@@ -242,6 +252,35 @@ class ProvideModel {
       feedbackMessage: Delta.fromJson(feedbackMessage),
       feedbackFile: map['feedbackFile'] as String? ?? '',
       annonymous: map['annonymous'] as bool,
+    );
+  }
+}
+
+class EcfModel {
+  final Delta? correctionMessage;
+  EcfModel({
+    this.correctionMessage,
+  });
+
+  EcfModel copyWith({
+    Delta? correctionMessage,
+  }) {
+    return EcfModel(
+      correctionMessage: correctionMessage ?? this.correctionMessage,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'correctionMessage': jsonEncode(correctionMessage?.toJson()),
+    };
+  }
+
+  factory EcfModel.fromMap(Map<String, dynamic> map) {
+    return EcfModel(
+      correctionMessage: map['correctionMessage'] != null
+          ? Delta.fromJson(jsonDecode(map['correctionMessage']))
+          : null,
     );
   }
 }

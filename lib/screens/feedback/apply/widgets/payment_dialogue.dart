@@ -2,11 +2,13 @@ import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/models/feedback_model.dart';
+import 'package:feedback_work/providers/feedback_providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
-class PaymentDialogue extends StatelessWidget {
+class PaymentDialogue extends ConsumerWidget {
   final FeedbackModel feedback;
 
   const PaymentDialogue({
@@ -15,7 +17,7 @@ class PaymentDialogue extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.r),
@@ -34,7 +36,7 @@ class PaymentDialogue extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () => context.pop(),
                   icon: const Icon(Icons.close),
                 ),
               ],
@@ -102,8 +104,13 @@ class PaymentDialogue extends StatelessWidget {
                   child: AppButton.filled(
                     label: "Confirm Payment",
                     onTap: () {
-                      context.pop();
-                      context.pushNamed(Routes.payment);
+                      ref.read(feedbackProvider.notifier).appliedFeedback(
+                            feedback: feedback,
+                            userId: feedback.projectOwnerId!,
+                            callback: () {
+                              context.goNamed(Routes.feedback);
+                            },
+                          );
                     },
                   ),
                 ),

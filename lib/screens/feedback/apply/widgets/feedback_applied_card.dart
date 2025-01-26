@@ -397,26 +397,19 @@ class _FeedbackAppliedCardState extends ConsumerState<FeedbackAppliedCard> {
                       child: AppButton.filled(
                         label: "Finish",
                         onTap: () {
-                          final appliedModel = AppliedModel(
+                          final feedback = widget.feedback.copyWith(
+                              appliedFeedback: AppliedModel(
                             appliedMessage:
                                 appliedMessageController.document.toDelta(),
                             appliedFile: selectedFilePath,
                             isHelpToSolve: isHelpful,
+                          ));
+                          showDialog(
+                            context: context,
+                            builder: (context) => PaymentDialogue(
+                              feedback: feedback,
+                            ),
                           );
-                          ref.read(feedbackProvider.notifier).appliedFeedback(
-                                feedback: widget.feedback.copyWith(
-                                  appliedFeedback: appliedModel,
-                                ),
-                                userId: currentUser!.id!,
-                                callback: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => PaymentDialogue(
-                                      feedback: widget.feedback,
-                                    ),
-                                  );
-                                },
-                              );
                         },
                       ),
                     ),
