@@ -201,8 +201,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     SignInButton(
                       onPressed: () async {
                         try {
-                          await authService.signInWithGoogle();
-                          context.push('/projects');
+                          await authService.signInWithGoogle(
+                            callBack: () {
+                              context.push('/projects');
+                            },
+                          );
                         } catch (e) {
                           // Handle errors
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -258,6 +261,9 @@ Future<void> handleSignIn({
     await authService.signInWithEmailOrUsername(
       emailOrUsername: emailController.text.trim(),
       password: passwordController.text.trim(),
+      callback: () {
+        context.push('/projects');
+      },
     );
 
     // Show success message or navigate
@@ -267,7 +273,6 @@ Future<void> handleSignIn({
     //     backgroundColor: Color.fromARGB(255, 0, 161, 76),
     //   ),
     // );
-    context.push('/projects');
   } catch (e) {
     final snackBar = CustomSnackbar.build(
       title: 'Oh Snap!',

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:feedback_work/core/utils/toast_message.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -106,6 +107,7 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
   Future<void> signInWithEmailOrUsername({
     required String emailOrUsername,
     required String password,
+    void Function()? callback,
   }) async {
     FirebaseAuth auth = ref.read(firebaseAuthProvider);
     FirebaseFirestore firestore = ref.read(firestoreProvider);
@@ -132,17 +134,30 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
       // Save session after sign-in
       final user = auth.currentUser;
       if (user != null) {
+        Log.info(user.uid);
         await saveSession(user);
+        ref.read(authProvider.notifier).state = true;
+        callback?.call();
+      } else {
+        return;
       }
-      ref.read(authProvider.notifier).state = true;
-    } catch (e, stackTrace) {
-      Log.error(e.toString());
+    } on FirebaseAuthException catch (e, stackTrace) {
+      if (e.code == 'user-not-found') {
+        showToast(message: "No user found for that email.");
+      } else if (e.code == 'wrong-password') {
+        showToast(message: 'Wrong password provided for that user.');
+      } else if (e.code == 'invalid-email') {
+        showToast(message: "Wrong email provided for that user.");
+      } else if (e.code == 'invalid-credential') {
+        showToast(message: "Invalid Credential provided for that user.");
+      }
+      Log.error(e.code);
       Log.error(stackTrace.toString());
     }
   }
 
   // Google Sign-In
-  Future<void> signInWithGoogle() async {
+  Future<void> signInWithGoogle({void Function()? callBack}) async {
     FirebaseAuth auth = ref.read(firebaseAuthProvider);
     FirebaseFirestore firestore = ref.read(firestoreProvider);
     GoogleSignIn googleSignIn = ref.read(googleSignInProvider);
@@ -177,6 +192,7 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
       // Save session after sign-in
       await saveSession(userCredential.user!);
       ref.read(authProvider.notifier).state = true;
+      callBack?.call();
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
