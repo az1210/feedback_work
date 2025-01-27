@@ -340,7 +340,10 @@ class _ProvidedFeedbackCardState
                     onTap: () {
                       showModalBottomSheet(
                         context: context,
-                        builder: (context) => const CorrectedCommunication(),
+                        builder: (context) => CorrectedCommunication(
+                          feedback: widget.feedback,
+                          userId: widget.feedback.projectOwnerId!,
+                        ),
                       );
                     },
                     verticalPadding: 8.h,

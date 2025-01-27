@@ -1,20 +1,39 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
+import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
+import 'package:feedback_work/models/feedback_model.dart';
+import 'package:feedback_work/providers/feedback_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
-class CorrectedCommunication extends StatefulWidget {
-  const CorrectedCommunication({super.key});
+class CorrectedCommunication extends ConsumerStatefulWidget {
+  const CorrectedCommunication(
+      {required this.userId, required this.feedback, super.key});
+
+  final FeedbackModel feedback;
+  final String userId;
 
   @override
-  _CorrectedCommunicationState createState() => _CorrectedCommunicationState();
+  ConsumerState<CorrectedCommunication> createState() =>
+      _CorrectedCommunicationState();
 }
 
-class _CorrectedCommunicationState extends State<CorrectedCommunication> {
-  final quill.QuillController appliedMessageController =
+class _CorrectedCommunicationState
+    extends ConsumerState<CorrectedCommunication> {
+  final quill.QuillController ecfMessageController =
       quill.QuillController.basic();
+  final FocusNode ecfMessageFocusNode = FocusNode();
+
+  @override
+  void dispose() {
+    ecfMessageController.dispose();
+    ecfMessageFocusNode.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     const config = quill.QuillSimpleToolbarConfigurations(
@@ -45,7 +64,7 @@ class _CorrectedCommunicationState extends State<CorrectedCommunication> {
             color: Colors.white,
           ),
           child: quill.QuillToolbar.simple(
-            controller: appliedMessageController,
+            controller: ecfMessageController,
             configurations: config,
           ),
         ),
@@ -57,8 +76,8 @@ class _CorrectedCommunicationState extends State<CorrectedCommunication> {
           ),
           padding: EdgeInsets.all(16.r),
           child: quill.QuillEditor.basic(
-            controller: appliedMessageController,
-            focusNode: FocusNode(),
+            controller: ecfMessageController,
+            focusNode: ecfMessageFocusNode,
 
             // padding: const EdgeInsets.all(16),
             // autoFocus: true,
@@ -79,7 +98,18 @@ class _CorrectedCommunicationState extends State<CorrectedCommunication> {
             Expanded(
               child: AppButton.filled(
                 label: 'Save',
-                onTap: () {},
+                onTap: () {
+                  ref.read(feedbackProvider.notifier).declineFeedback(
+                        ecf: EcfModel(
+                            correctionMessage:
+                                ecfMessageController.document.toDelta()),
+                        feedback: widget.feedback,
+                        userId: widget.userId,
+                        callback: () {
+                          context.goNamed(Routes.feedback);
+                        },
+                      );
+                },
               ),
             ),
           ],

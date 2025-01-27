@@ -1,7 +1,6 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/screens/feedback/apply/widgets/received_feedback_details_card.dart';
-import 'package:feedback_work/screens/feedback/widgets/received_feedback_details_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 

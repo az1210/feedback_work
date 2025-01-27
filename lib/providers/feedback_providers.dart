@@ -211,7 +211,7 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
             .collection(FirebaseConstants.feedbackCollection)
             .doc(feedback.id)
             .update({
-          "providerSideStatus": feedback.ownerSideStatus!
+          "providerSideStatus": feedback.providerSideStatus!
               .copyWith(
                 status: FeedbackStatus.provided.name.toTitleCase(),
                 modifiedAt: DateTime.now().toString(),
@@ -222,6 +222,52 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
             .collection(FirebaseConstants.feedbackCollection)
             .doc(feedback.id)
             .update({"appliedFeedback": feedback.appliedFeedback!.toMap()});
+      } else {
+        state = state.copyWith(
+            error: "Feedback doesn't exist!", state: AsyncState.failure);
+      }
+      fetchAllFeedbacksAsProvider(userId: userId);
+      fetchAllOwnFeedbacks(userId: userId);
+      callback?.call();
+      state = state.copyWith(state: AsyncState.success);
+    } catch (e, stackTrace) {
+      Log.error(e.toString());
+      Log.error(stackTrace.toString());
+    }
+  }
+
+  Future<void> declineFeedback(
+      {required EcfModel ecf,
+      required FeedbackModel feedback,
+      required String userId,
+      void Function()? callback}) async {
+    state = state.copyWith(state: AsyncState.loading);
+    FirebaseFirestore firestore = ref.read(firestoreProvider);
+
+    try {
+      state = state.copyWith(state: AsyncState.loading);
+
+      final doc = await firestore
+          .collection(FirebaseConstants.feedbackCollection)
+          .doc(feedback.id)
+          .get();
+      if (doc.exists) {
+        await firestore
+            .collection(FirebaseConstants.feedbackCollection)
+            .doc(feedback.id)
+            .collection(FirebaseConstants.ecfCollection)
+            .add(ecf.toMap());
+        await firestore
+            .collection(FirebaseConstants.feedbackCollection)
+            .doc(feedback.id)
+            .update({
+          "providerSideStatus": feedback.providerSideStatus!
+              .copyWith(
+                status: FeedbackStatus.requested.name.toTitleCase(),
+                modifiedAt: DateTime.now().toString(),
+              )
+              .toMap()
+        });
       } else {
         state = state.copyWith(
             error: "Feedback doesn't exist!", state: AsyncState.failure);

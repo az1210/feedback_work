@@ -1,4 +1,5 @@
 import 'package:feedback_work/core/router/routes.dart';
+import 'package:feedback_work/providers/user_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -19,6 +20,10 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       final authService = ref.read(authServiceProvider.notifier);
       ref.read(authProvider.notifier).state =
           await authService.isUserSignedIn();
+      if (ref.read(authProvider.notifier).state) {
+        ref.read(currentUserProvider.notifier).state =
+            await ref.read(userProvider.notifier).currentUser();
+      }
     });
     super.initState();
   }

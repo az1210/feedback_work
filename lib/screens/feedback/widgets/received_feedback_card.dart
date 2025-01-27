@@ -1,36 +1,52 @@
+import 'package:date_time_format/date_time_format.dart';
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
+import 'package:feedback_work/core/utils/helper_functions.dart';
+import 'package:feedback_work/models/feedback_model.dart';
+import 'package:feedback_work/screens/feedback/apply/widgets/corrected_communication.dart';
+import 'package:feedback_work/screens/feedback/widgets/feedback_search_and_filter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 
-class ReceivedFeedbackCard extends StatelessWidget {
-  final String username;
-  final int totalFeedbackProvided;
-  final int totalFeedbackApplied;
-  final int totalProblemSolved;
-  final int totalProblemHelpSolved;
-  final String description;
+class ReceivedFeedbackCard extends StatefulWidget {
+  final FeedbackModel feedback;
   final bool isGrid;
+  final String currentUserId;
 
   const ReceivedFeedbackCard({
     super.key,
     required this.isGrid,
-    this.description = "Need help floor cleaning hard surface",
-    required this.username,
-    required this.totalFeedbackProvided,
-    required this.totalFeedbackApplied,
-    required this.totalProblemSolved,
-    required this.totalProblemHelpSolved,
+    required this.feedback,
+    required this.currentUserId,
   });
+
+  @override
+  State<ReceivedFeedbackCard> createState() => _ReceivedFeedbackCardState();
+}
+
+class _ReceivedFeedbackCardState extends State<ReceivedFeedbackCard> {
+  final QuillController projectDescriptionController = QuillController.basic();
+  FocusNode projectDescriptionFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    projectDescriptionController.document =
+        Document.fromDelta(widget.feedback.project!.projectDescription!);
+    projectDescriptionController.readOnly = true;
+    projectDescriptionFocusNode.canRequestFocus = false;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        context.pushNamed(Routes.receivedFeedbackDetails);
+        context.pushNamed(Routes.receivedFeedbackDetails,
+            extra: widget.feedback);
       },
       child: Card(
         elevation: 4,
@@ -54,11 +70,45 @@ class ReceivedFeedbackCard extends StatelessWidget {
                           fontSize: 14,
                         ),
                   ),
-                  Text(
-                    "02:42 PM",
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          fontSize: 14,
-                        ),
+                  if (widget.feedback.requestFeedback!.cost != -1) ...[
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 4.r),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: context.colors.successGreen),
+                        borderRadius: BorderRadius.circular(4.r),
+                      ),
+                      child: Text(
+                        "\$${widget.feedback.requestFeedback!.cost}",
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                              fontSize: 12,
+                              color: context.colors.successGreen,
+                            ),
+                      ),
+                    ),
+                  ],
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        DateTime.parse(
+                          "${widget.feedback.ownerSideStatus!.modifiedAt}",
+                        ).format("h:i A"),
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontSize: 14,
+                            ),
+                      ),
+                      Text(
+                        " • ",
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontSize: 14,
+                            ),
+                      ),
+                      Icon(
+                        Icons.lock_outline,
+                        size: 16.r,
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -69,11 +119,11 @@ class ReceivedFeedbackCard extends StatelessWidget {
                 children: [
                   16.ph,
                   StaggeredGrid.count(
-                    crossAxisCount: isGrid ? 1 : 3,
+                    crossAxisCount: 3,
                     children: [
                       StaggeredGridTile.count(
-                        crossAxisCellCount: 1,
-                        mainAxisCellCount: isGrid ? 0.7 : 1,
+                        crossAxisCellCount: widget.isGrid ? 3 : 1,
+                        mainAxisCellCount: widget.isGrid ? 2.1 : 1,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
@@ -92,7 +142,7 @@ class ReceivedFeedbackCard extends StatelessWidget {
                             ),
                             8.ph,
                             Text(
-                              username,
+                              "${widget.feedback.project?.owner?.firstName ?? ''} ${widget.feedback.project?.owner?.lastName ?? ''}",
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall!
@@ -105,8 +155,8 @@ class ReceivedFeedbackCard extends StatelessWidget {
                         ),
                       ),
                       StaggeredGridTile.count(
-                        crossAxisCellCount: isGrid ? 1 : 2,
-                        mainAxisCellCount: isGrid ? 0.9 : 1.1,
+                        crossAxisCellCount: widget.isGrid ? 3 : 2,
+                        mainAxisCellCount: widget.isGrid ? 3 : 1.3,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -126,7 +176,7 @@ class ReceivedFeedbackCard extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  totalFeedbackProvided.toString(),
+                                  "${widget.feedback.project?.owner?.feedbackProvided == -1 ? '0' : widget.feedback.project?.owner?.feedbackProvided}",
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyMedium!
@@ -156,7 +206,7 @@ class ReceivedFeedbackCard extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  totalFeedbackApplied.toString(),
+                                  "${widget.feedback.project?.owner?.feedbackApplied == -1 ? '0' : widget.feedback.project?.owner?.feedbackApplied}",
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyMedium!
@@ -186,7 +236,7 @@ class ReceivedFeedbackCard extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  totalProblemSolved.toString(),
+                                  '${widget.feedback.project?.owner?.problemSolved == -1 ? '0' : widget.feedback.project?.owner?.problemSolved}',
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyMedium!
@@ -216,7 +266,7 @@ class ReceivedFeedbackCard extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  totalProblemHelpSolved.toString(),
+                                  '${widget.feedback.project?.owner?.problemHelpSolved == -1 ? '0' : widget.feedback.project?.owner?.problemHelpSolved}',
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodyMedium!
@@ -235,25 +285,99 @@ class ReceivedFeedbackCard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 16),
-                      Text(
-                        description,
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                        textAlign: TextAlign.center,
+                      QuillEditor.basic(
+                        controller: projectDescriptionController,
+                        focusNode: projectDescriptionFocusNode,
                       ),
                       8.ph,
-                      AppButton(
-                        label: "Apply Feedback",
-                        bgColor: context.colors.primaryBlue,
-                        fgColor: context.colors.pureWhite,
-                        isFilled: true,
-                        verticalPadding: 8.h,
+                      if (widget.isGrid) ...[
+                        Row(
+                          children: [
+                            Expanded(
+                              child: AppButton.filled(
+                                label: "Accept",
+                                bgColor: context.colors.successGreen,
+                                fgColor: context.colors.pureWhite,
+                                onTap: () {
+                                  context.pushNamed(Routes.applyFeedback,
+                                      extra: widget.feedback);
+                                },
+                                verticalPadding: 8.h,
+                              ),
+                            ),
+                          ],
+                        ),
+                        4.ph,
+                        Row(
+                          children: [
+                            Expanded(
+                              child: AppButton.filled(
+                                label: "Decline",
+                                bgColor: context.colors.errorRed,
+                                fgColor: context.colors.pureWhite,
+                                onTap: () {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    builder: (context) =>
+                                        CorrectedCommunication(
+                                      feedback: widget.feedback,
+                                      userId: widget.currentUserId,
+                                    ),
+                                  );
+                                },
+                                verticalPadding: 8.h,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                      if (!widget.isGrid) ...[
+                        Row(
+                          children: [
+                            Expanded(
+                              child: AppButton.filled(
+                                label: "Accept",
+                                bgColor: context.colors.successGreen,
+                                fgColor: context.colors.pureWhite,
+                                onTap: () {
+                                  context.pushNamed(Routes.applyFeedback,
+                                      extra: widget.feedback);
+                                },
+                                verticalPadding: 8.h,
+                              ),
+                            ),
+                            4.pw,
+                            Expanded(
+                              child: AppButton.filled(
+                                label: "Decline",
+                                bgColor: context.colors.errorRed,
+                                fgColor: context.colors.pureWhite,
+                                onTap: () {},
+                                verticalPadding: 8.h,
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                      4.ph,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: AppButton.filled(
+                              label: "Apply",
+                              bgColor: context.colors.primaryBlue,
+                              fgColor: context.colors.pureWhite,
+                              onTap: () {
+                                context.pushNamed(Routes.applyFeedback,
+                                    extra: widget.feedback);
+                              },
+                              verticalPadding: 8.h,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),

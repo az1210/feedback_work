@@ -1,7 +1,9 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
+import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/auth_providers.dart';
+import 'package:feedback_work/providers/user_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -16,15 +18,20 @@ class MoreDrawer extends ConsumerStatefulWidget {
 
 class _MoreTabScreenState extends ConsumerState<MoreDrawer> {
   bool isLoggedIn = false;
+  UserModel? currentUser;
 
   @override
   void initState() {
+    Future.microtask(() {
+      // ref.read(userProvider.notifier).currentUser();
+    });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     isLoggedIn = ref.watch(authProvider);
+    currentUser = ref.watch(currentUserProvider);
     return Drawer(
       child: ListView(
         children: [
@@ -35,7 +42,7 @@ class _MoreTabScreenState extends ConsumerState<MoreDrawer> {
                   radius: 24.r,
                 ),
                 Text(
-                  'More Options',
+                  "${currentUser?.firstName ?? 'Hello!'} ${currentUser?.lastName ?? ''}",
                   style: Theme.of(context).textTheme.titleMedium,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
