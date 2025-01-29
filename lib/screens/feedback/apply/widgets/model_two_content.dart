@@ -50,15 +50,15 @@ class _ModelTwoContentState extends State<ModelTwoContent> {
         16.ph,
         Expanded(
           child: ListView.builder(
-            itemCount:
-                widget.feedback.provideFeedback?.principleToDeriveFrom.length ??
-                    0,
+            itemCount: widget
+                    .feedback.provideFeedback?.principleToDeriveFrom?.length ??
+                0,
             itemBuilder: (context, index) => GestureDetector(
               onTap: () {
                 setState(() {
                   // widget.onSelectModel(widget.feedback.provideFeedback?.principleToDeriveFrom?[index]);
                   selectedOption = widget
-                      .feedback.provideFeedback?.principleToDeriveFrom[index];
+                      .feedback.provideFeedback?.principleToDeriveFrom?[index];
                 });
               },
               child: Container(
@@ -69,18 +69,18 @@ class _ModelTwoContentState extends State<ModelTwoContent> {
                 decoration: BoxDecoration(
                     color: selectedOption ==
                             widget.feedback.provideFeedback
-                                ?.principleToDeriveFrom[index]
+                                ?.principleToDeriveFrom?[index]
                         ? context.colors.primaryBlue.withValues(alpha: 0.1)
                         : context.colors.pureWhite),
                 child: Row(
                   children: [
                     Expanded(
                         child: Text(
-                      "${index + 1}. ${widget.feedback.provideFeedback?.principleToDeriveFrom[index]}",
+                      "${index + 1}. ${widget.feedback.provideFeedback?.principleToDeriveFrom?[index]}",
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                             color: selectedOption ==
                                     widget.feedback.provideFeedback
-                                        ?.principleToDeriveFrom[index]
+                                        ?.principleToDeriveFrom?[index]
                                 ? context.colors.primaryBlue
                                 : context.colors.textBlack,
                           ),
@@ -119,7 +119,6 @@ class _ModelTwoContentState extends State<ModelTwoContent> {
             child: quill.QuillEditor.basic(
               controller: feedbackMessageController,
               focusNode: FocusNode(),
-
               // padding: const EdgeInsets.all(16),
               // autoFocus: true,
               // showCursor: true,

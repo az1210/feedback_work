@@ -133,47 +133,50 @@ class _SelectFeedbackProviderState
                     },
                     hasActionButton: false,
                   ),
-                  GroupFilterContent(
-                    groups: groups
-                        .map(
-                          (g) => GroupModel(
-                            id: g.id,
-                            name: g.name,
-                            description: g.description,
-                            users: g.users
-                                ?.map(
-                                  (u) => UserModel(
-                                    id: u.id,
-                                    firstName: u.firstName,
-                                    lastName: u.lastName,
-                                    avaterUrl: u.avaterUrl,
-                                    title: u.title,
-                                    expertise: u.expertise,
-                                    username: u.username,
-                                  ),
-                                )
-                                .toList(),
-                          ),
-                        )
-                        .toList(),
-                    selectedUsers: selectedGroupUsers,
-                    onUserSelection: (groupId, users) {
-                      setState(() {
-                        widget.selectedIndividualUser(
-                            groups.firstWhere((g) => g.id == groupId).ownerId);
-                        selectedIndividulaUser = {};
-                        selectedGroupUsers = {
-                          ...selectedGroupUsers,
-                          groupId: users,
-                        };
-                        widget.selectedGroupId!(groupId);
-                        widget.selectedGroupUsers!(
-                            users.map((u) => u.id).toList());
-                        Log.info(users.map((u) => u.toMap()).toString());
-                      });
-                    },
-                    onGroupExpand: (groupId) {},
-                  ),
+                  if (groups != []) ...[
+                    GroupFilterContent(
+                      groups: groups
+                          .map(
+                            (g) => GroupModel(
+                              id: g.id,
+                              name: g.name,
+                              description: g.description,
+                              users: g.users
+                                  ?.map(
+                                    (u) => UserModel(
+                                      id: u.id,
+                                      firstName: u.firstName,
+                                      lastName: u.lastName,
+                                      avaterUrl: u.avaterUrl,
+                                      title: u.title,
+                                      expertise: u.expertise,
+                                      username: u.username,
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                          )
+                          .toList(),
+                      selectedUsers: selectedGroupUsers,
+                      onUserSelection: (groupId, users) {
+                        setState(() {
+                          widget.selectedIndividualUser(groups
+                              .firstWhere((g) => g.id == groupId)
+                              .ownerId);
+                          selectedIndividulaUser = {};
+                          selectedGroupUsers = {
+                            ...selectedGroupUsers,
+                            groupId: users,
+                          };
+                          widget.selectedGroupId!(groupId);
+                          widget.selectedGroupUsers!(
+                              users.map((u) => u.id).toList());
+                          Log.info(users.map((u) => u.toMap()).toString());
+                        });
+                      },
+                      onGroupExpand: (groupId) {},
+                    ),
+                  ],
                 ],
               ),
             ),

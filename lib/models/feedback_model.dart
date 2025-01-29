@@ -168,8 +168,9 @@ class RequestModel {
   factory RequestModel.fromMap(Map<String, dynamic> map) {
     return RequestModel(
       provider: map['provider'] as String? ?? '',
-      selectedGroupMemberIds:
-          List<String?>.from((map['selectedGroupMemberIds'] as List<dynamic>)),
+      selectedGroupMemberIds: map['selectedGroupMemberIds'] != null
+          ? List<String?>.from((map['selectedGroupMemberIds'] as List<dynamic>))
+          : null,
       privacy: map['privacy'] as String? ?? '',
       message: MessageModel.fromMap(map['message'] as Map<String, dynamic>),
       cost: map['cost'] as double? ?? -1.0,
@@ -182,7 +183,7 @@ class RequestModel {
 
 class ProvideModel {
   final String principle;
-  final List<String> principleToDeriveFrom;
+  final List<String>? principleToDeriveFrom;
   final List<PeopleInfoModel>? peoples;
   final Delta? principleDetails;
   final Delta? feedbackMessage;
@@ -240,14 +241,18 @@ class ProvideModel {
         : jsonDecode(map["feedbackMessage"]);
     return ProvideModel(
       principle: map['principle'] as String? ?? '',
-      principleToDeriveFrom: (map['principleToDeriveFrom'] as List<dynamic>)
-          .map((x) => x.toString())
-          .toList(),
-      peoples: (map['peoples'] as List<dynamic>)
-          .map(
-            (x) => PeopleInfoModel.fromMap(x as Map<String, dynamic>),
-          )
-          .toList(),
+      principleToDeriveFrom: map['principleToDeriveFrom'] != null
+          ? (map['principleToDeriveFrom'] as List<dynamic>)
+              .map((x) => x.toString())
+              .toList()
+          : null,
+      peoples: map['peoples'] != null
+          ? (map['peoples'] as List<dynamic>)
+              .map(
+                (x) => PeopleInfoModel.fromMap(x as Map<String, dynamic>),
+              )
+              .toList()
+          : null,
       principleDetails: Delta.fromJson(principleDetails),
       feedbackMessage: Delta.fromJson(feedbackMessage),
       feedbackFile: map['feedbackFile'] as String? ?? '',

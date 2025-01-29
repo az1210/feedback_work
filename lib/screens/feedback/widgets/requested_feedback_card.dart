@@ -153,7 +153,7 @@ class _RequestedFeedbackCardState extends ConsumerState<RequestedFeedbackCard> {
                                 radius: 30.r,
                                 backgroundColor: context.colors.background,
                                 child: Image.network(
-                                  provider!.avaterUrl ?? '',
+                                  provider?.avaterUrl ?? '',
                                   errorBuilder: (context, error, stackTrace) =>
                                       Icon(
                                     Icons.person,

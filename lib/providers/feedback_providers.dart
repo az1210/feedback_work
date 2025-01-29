@@ -299,6 +299,31 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
       print("Error deleting collection '$collectionPath': $e");
     }
   }
+
+  Future<void> deleteSubCollection({
+    required String collectionPath,
+    required String docId,
+    required String subCollectionPath,
+  }) async {
+    final collectionRef = FirebaseFirestore.instance
+        .collection(collectionPath)
+        .doc(docId)
+        .collection(subCollectionPath);
+
+    try {
+      // Fetch the documents in the collection
+      final querySnapshot = await collectionRef.get();
+
+      // Delete each document in the collection
+      for (final document in querySnapshot.docs) {
+        await document.reference.delete();
+      }
+
+      print("Collection '$collectionPath' deleted successfully.");
+    } catch (e) {
+      print("Error deleting collection '$collectionPath': $e");
+    }
+  }
 }
 
 class FeedbackNotifierState {

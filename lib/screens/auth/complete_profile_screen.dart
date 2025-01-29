@@ -258,51 +258,45 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: DropdownMenu(
-                                focusNode: _expertiseFocusNode,
-                                controller: _expertiseController,
-                                enableFilter: true,
-                                requestFocusOnTap: true,
-                                hintText: 'Select Expertise Category',
-                                onSelected: (value) {
-                                  _expertiseFocusNode.unfocus();
-                                  setState(() {
-                                    selectedCategory = value;
-                                  });
-                                },
-                                width: double.infinity,
-                                inputDecorationTheme: InputDecorationTheme(
-                                  filled: true,
-                                  fillColor: context.colors.inputBorder,
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: context.colors.transparent),
-                                    borderRadius: BorderRadius.circular(8.r),
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: context.colors.transparent),
-                                    borderRadius: BorderRadius.circular(8.r),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: context.colors.transparent),
-                                    borderRadius: BorderRadius.circular(8.r),
-                                  ),
-                                ),
-                                dropdownMenuEntries: categories
-                                    .map(
-                                      (c) => DropdownMenuEntry(
-                                          value: c.categoryTitle,
-                                          label: c.categoryTitle),
-                                    )
-                                    .toList(),
-                              ),
+                        DropdownMenu(
+                          focusNode: _expertiseFocusNode,
+                          controller: _expertiseController,
+                          enableFilter: true,
+                          requestFocusOnTap: true,
+                          hintText: 'Select Expertise Category',
+                          onSelected: (value) {
+                            _expertiseFocusNode.unfocus();
+                            setState(() {
+                              selectedCategory = value;
+                            });
+                          },
+                          width: 1.sw - 64,
+                          inputDecorationTheme: InputDecorationTheme(
+                            filled: true,
+                            fillColor: context.colors.inputBorder,
+                            enabledBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: context.colors.transparent),
+                              borderRadius: BorderRadius.circular(8.r),
                             ),
-                          ],
+                            border: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: context.colors.transparent),
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: context.colors.transparent),
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                          ),
+                          dropdownMenuEntries: categories
+                              .map(
+                                (c) => DropdownMenuEntry(
+                                    value: c.categoryTitle,
+                                    label: c.categoryTitle),
+                              )
+                              .toList(),
                         ),
                         const SizedBox(height: 16),
                         Text(

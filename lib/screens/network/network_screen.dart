@@ -1,6 +1,11 @@
+import 'package:feedback_work/core/constants/firebase_constants.dart';
 import 'package:feedback_work/core/extensions/extensions.dart';
+import 'package:feedback_work/core/ui/widgets/filter__content.dart';
 import 'package:feedback_work/core/utils/utils.dart';
+import 'package:feedback_work/models/network_request_model.dart';
 import 'package:feedback_work/models/user_model.dart';
+import 'package:feedback_work/providers/feedback_providers.dart';
+import 'package:feedback_work/providers/network_providers.dart';
 import 'package:feedback_work/providers/user_providers.dart';
 import 'package:feedback_work/screens/network/widgets/connection_info_card.dart';
 import 'package:feedback_work/screens/network/widgets/network_search_and_filter.dart';
@@ -23,25 +28,78 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
       NetworkScreenConnectionType.myConnections;
 
   List<UserModel> users = [];
+  List<UserModel>? myConnections;
+  List<UserModel>? requests;
+  List<UserModel> suggestions = [];
+
+  final sections = [
+    FilterSection(
+      title: 'Connection Type',
+      values: [
+        'Teacher',
+        'Student',
+        'Manager',
+        'Coworker',
+        'Employee',
+        'Friend',
+        'Classmate',
+        'My Customer',
+        'My Client',
+        'Other',
+      ],
+      labels: [
+        'Teacher',
+        'Student',
+        'Manager',
+        'Coworker',
+        'Employee',
+        'Friend',
+        'Classmate',
+        'My Customer',
+        'My Client',
+        'Other',
+      ],
+      allowMultipleSelection: false,
+      showTitle: false,
+    ),
+  ];
+
+  Map<String, Set<String>> selectedFilters = {
+    'Connection Type': {},
+  };
 
   @override
   void initState() {
     Future.microtask(() {
       ref.read(userProvider.notifier).fetchAllUsers();
+      ref.read(networkProvider.notifier).fetchAllOwnNetwork();
+      ref.read(networkProvider.notifier).fetchAllRequests();
     });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = ref.watch(currentUserProvider);
     final userState = ref.watch(userProvider);
+    final networkState = ref.watch(networkProvider);
     ref.listen(userProvider, (_, newState) {
       if (newState.state == AsyncState.success) {
         Log.info(newState.data!.length.toString());
-        users = newState.data!;
+        users = newState.data!.where((u) => u.id != currentUser!.id).toList();
         Log.info(users.length.toString());
       }
     });
+
+    ref.listen(networkProvider, (_, newState) {
+      if (newState.state == AsyncState.success) {
+        myConnections = newState.data ?? [];
+        requests = newState.requests ?? [];
+        suggestions =
+            users.where((u) => !myConnections!.toSet().contains(u)).toList();
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -62,15 +120,25 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                     Icons.grid_view,
                   ),
           ),
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red),
+            onPressed: () {
+              ref.read(feedbackProvider.notifier).deleteSubCollection(
+                  collectionPath: FirebaseConstants.userCollection,
+                  docId: currentUser!.id!,
+                  subCollectionPath: FirebaseConstants.networkCollection);
+            },
+          ),
           8.pw,
         ],
       ),
       body: Builder(builder: (context) {
-        if (userState.state == AsyncState.loading) {
+        if (userState.state == AsyncState.loading &&
+            networkState.state == AsyncState.loading) {
           return const Center(
             child: CircularProgressIndicator(),
           );
-        } else if (userState.error != null) {
+        } else if (userState.error != null && networkState.error != null) {
           return Center(
             child: Text("Error: ${userState.error}"),
           );
@@ -97,26 +165,138 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                   ],
                 ),
               ),
-              Expanded(
-                child: MasonryGridView.builder(
-                  itemCount: users.length,
-                  gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: isGrid ? 2 : 1),
-                  itemBuilder: (context, index) => Padding(
-                    padding: EdgeInsets.all(8.r),
-                    child: ConnectionInfoCard(
-                      name:
-                          "${users[index].firstName ?? ''} ${users[index].lastName ?? ''}",
-                      role: users[index].accountType ?? '',
-                      specialty: users[index].expertise ?? '',
-                      feedbackCount: 20,
-                      problemsSolved: 10,
-                      isConnected: true,
-                      appearedAs: appearedAs,
+              if (appearedAs == NetworkScreenConnectionType.myConnections &&
+                  myConnections != null) ...[
+                Expanded(
+                  child: MasonryGridView.builder(
+                    itemCount: myConnections?.length ?? 0,
+                    gridDelegate:
+                        SliverSimpleGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: isGrid ? 2 : 1),
+                    itemBuilder: (context, index) => Padding(
+                      padding: EdgeInsets.all(8.r),
+                      child: ConnectionInfoCard(
+                        name:
+                            "${myConnections![index].firstName ?? ''} ${myConnections![index].lastName ?? ''}",
+                        role: myConnections![index].accountType ?? '',
+                        specialty: myConnections![index].expertise ?? '',
+                        feedbackCount:
+                            myConnections![index].feedbackProvided! == -1
+                                ? 0
+                                : myConnections![index].feedbackProvided!,
+                        problemsSolved:
+                            myConnections![index].problemHelpSolved! == -1
+                                ? 0
+                                : myConnections![index].problemHelpSolved!,
+                        isConnected: true,
+                        appearedAs: appearedAs,
+                        onConnect: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            showDragHandle: true,
+                            backgroundColor: context.colors.background,
+                            useRootNavigator: true,
+                            useSafeArea: true,
+                            builder: (context) => FilterContent(
+                              title: 'Filters',
+                              sections: sections,
+                              selectedFilters: selectedFilters,
+                              onFiltersChanged: (filters) {
+                                selectedFilters = filters;
+                                Log.info('Filters updated: $filters');
+                              },
+                            ),
+                          );
+                        },
+                        onDisconnect: () {
+                          ref.read(networkProvider.notifier).disconnect(
+                              userId: currentUser!.id!,
+                              connectionUserId: myConnections![index].id!);
+                        },
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
+              if (appearedAs == NetworkScreenConnectionType.suggestions) ...[
+                Expanded(
+                  child: MasonryGridView.builder(
+                    itemCount: suggestions.length,
+                    gridDelegate:
+                        SliverSimpleGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: isGrid ? 2 : 1),
+                    itemBuilder: (context, index) => Padding(
+                      padding: EdgeInsets.all(8.r),
+                      child: ConnectionInfoCard(
+                        name:
+                            "${suggestions[index].firstName ?? ''} ${suggestions[index].lastName ?? ''}",
+                        role: suggestions[index].accountType ?? '',
+                        specialty: suggestions[index].expertise ?? '',
+                        feedbackCount:
+                            suggestions[index].feedbackProvided! == -1
+                                ? 0
+                                : suggestions[index].feedbackProvided!,
+                        problemsSolved:
+                            suggestions[index].problemHelpSolved! == -1
+                                ? 0
+                                : suggestions[index].problemHelpSolved!,
+                        isConnected: false,
+                        appearedAs: appearedAs,
+                        onConnect: () {
+                          Log.info('ref press');
+                          ref.read(networkProvider.notifier).requestNetwork(
+                                networkRequestModel: NetworkRequestModel(
+                                  requestedFrom: currentUser!.id,
+                                  requestedTo: suggestions[index].id,
+                                ),
+                              );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+              if (appearedAs == NetworkScreenConnectionType.requests &&
+                  requests != null) ...[
+                Expanded(
+                  child: MasonryGridView.builder(
+                    itemCount: requests?.length ?? 0,
+                    gridDelegate:
+                        SliverSimpleGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: isGrid ? 2 : 1),
+                    itemBuilder: (context, index) => Padding(
+                      padding: EdgeInsets.all(8.r),
+                      child: ConnectionInfoCard(
+                        name:
+                            "${requests![index].firstName ?? ''} ${requests![index].lastName ?? ''}",
+                        role: requests![index].accountType ?? '',
+                        specialty: requests![index].expertise ?? '',
+                        feedbackCount: requests![index].feedbackProvided! == -1
+                            ? 0
+                            : requests![index].feedbackProvided!,
+                        problemsSolved:
+                            requests![index].problemHelpSolved! == -1
+                                ? 0
+                                : requests![index].problemHelpSolved!,
+                        isConnected: false,
+                        appearedAs: appearedAs,
+                        onRequestFeedback: () {
+                          ref.read(networkProvider.notifier).requestAccept(
+                                currentUserId: currentUser!.id!,
+                                connectionId: requests![index].id!,
+                              );
+                        },
+                        onDisconnect: () {
+                          ref.read(networkProvider.notifier).requestDecline(
+                              currentUserId: currentUser!.id!,
+                              connectionId: requests![index].id!);
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ],
           );
         }

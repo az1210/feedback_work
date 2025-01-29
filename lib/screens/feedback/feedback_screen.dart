@@ -55,7 +55,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
       if (newState.state == AsyncState.success) {
         ownFeedbacks = newState.data!
             .where((f) =>
-                f.ownerSideStatus!.status !=
+                f.ownerSideStatus!.status ==
                 FeedbackStatus.requested.name.toTitleCase())
             .toList();
         Log.info(ownFeedbacks
@@ -121,36 +121,36 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                           f.providerSideStatus!.status ==
                               FeedbackStatus.requested.name.toTitleCase())
                       .toList()
+                  // : feedbackScreenConnectionType ==
+                  //         FeedbackScreenConnectionType.providing
+                  //     ? anotherFeedbacks
+                  //         .where((f) =>
+                  //             f.providerSideStatus!.status ==
+                  //             FeedbackStatus.providing.name.toTitleCase())
+                  //         .toList()
                   : feedbackScreenConnectionType ==
-                          FeedbackScreenConnectionType.providing
-                      ? anotherFeedbacks
+                          FeedbackScreenConnectionType.received
+                      ? ownFeedbacks
                           .where((f) =>
-                              f.providerSideStatus!.status ==
-                              FeedbackStatus.providing.name.toTitleCase())
+                              f.ownerSideStatus!.status ==
+                              FeedbackStatus.received.name.toTitleCase())
                           .toList()
                       : feedbackScreenConnectionType ==
-                              FeedbackScreenConnectionType.received
+                              FeedbackScreenConnectionType.applied
                           ? ownFeedbacks
                               .where((f) =>
                                   f.ownerSideStatus!.status ==
-                                  FeedbackStatus.received.name.toTitleCase())
+                                  FeedbackStatus.applied.name.toTitleCase())
                               .toList()
                           : feedbackScreenConnectionType ==
-                                  FeedbackScreenConnectionType.applied
-                              ? ownFeedbacks
+                                  FeedbackScreenConnectionType.provided
+                              ? anotherFeedbacks
                                   .where((f) =>
-                                      f.ownerSideStatus!.status ==
-                                      FeedbackStatus.applied.name.toTitleCase())
+                                      f.providerSideStatus!.status ==
+                                      FeedbackStatus.provided.name
+                                          .toTitleCase())
                                   .toList()
-                              : feedbackScreenConnectionType ==
-                                      FeedbackScreenConnectionType.provided
-                                  ? anotherFeedbacks
-                                      .where((f) =>
-                                          f.providerSideStatus!.status ==
-                                          FeedbackStatus.provided.name
-                                              .toTitleCase())
-                                      .toList()
-                                  : allFeedbacks;
+                              : allFeedbacks;
           return Column(
             children: [
               FeedbackSearchAndFilter(

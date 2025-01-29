@@ -1,13 +1,14 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/stat_item_card.dart';
+import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/screens/network/widgets/network_search_and_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
-class ConnectionInfoCard extends StatelessWidget {
+class ConnectionInfoCard extends StatefulWidget {
   final String name;
   final String role;
   final String? specialty;
@@ -36,6 +37,11 @@ class ConnectionInfoCard extends StatelessWidget {
   });
 
   @override
+  State<ConnectionInfoCard> createState() => _ConnectionInfoCardState();
+}
+
+class _ConnectionInfoCardState extends State<ConnectionInfoCard> {
+  @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 12.h),
@@ -55,9 +61,9 @@ class ConnectionInfoCard extends StatelessWidget {
         children: [
           _buildProfileImage(
             context: context,
-            name: name,
-            title: role,
-            specialty: specialty,
+            name: widget.name,
+            title: widget.role,
+            specialty: widget.specialty,
           ),
           12.ph,
           _buildNameAndRole(context: context),
@@ -92,14 +98,14 @@ class ConnectionInfoCard extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: context.colors.inputBorder,
-          image: imageUrl != null
+          image: widget.imageUrl != null
               ? DecorationImage(
-                  image: NetworkImage(imageUrl!),
+                  image: NetworkImage(widget.imageUrl!),
                   fit: BoxFit.cover,
                 )
               : null,
         ),
-        child: imageUrl == null
+        child: widget.imageUrl == null
             ? Icon(
                 Icons.person,
                 size: 40,
@@ -114,7 +120,7 @@ class ConnectionInfoCard extends StatelessWidget {
     return Column(
       children: [
         Text(
-          name,
+          widget.name,
           style: Theme.of(context).textTheme.titleMedium,
           textAlign: TextAlign.center,
           maxLines: 2,
@@ -122,12 +128,14 @@ class ConnectionInfoCard extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          role != '' && specialty != ''
-              ? [role, specialty].where((e) => e != null).join(' • ')
-              : role != ''
-                  ? role
-                  : specialty != ''
-                      ? specialty!
+          widget.role != '' && widget.specialty != ''
+              ? [widget.role, widget.specialty]
+                  .where((e) => e != null)
+                  .join(' • ')
+              : widget.role != ''
+                  ? widget.role
+                  : widget.specialty != ''
+                      ? widget.specialty!
                       : '',
           style: Theme.of(context).textTheme.bodyMedium,
           maxLines: 1,
@@ -144,13 +152,13 @@ class ConnectionInfoCard extends StatelessWidget {
       children: [
         StateItemCard(
             context: context,
-            value: feedbackCount.toString(),
+            value: widget.feedbackCount.toString(),
             label: 'Total Feedback Provided',
             color: context.colors.primaryBlue),
         8.pw,
         StateItemCard(
             context: context,
-            value: problemsSolved.toString(),
+            value: widget.problemsSolved.toString(),
             label: 'Total Problems Help Solved',
             color: context.colors.successGreen),
       ],
@@ -158,11 +166,12 @@ class ConnectionInfoCard extends StatelessWidget {
   }
 
   Widget _buildButtons({required BuildContext context}) {
+    String connectButton = 'Connect';
     return Column(
       children: [
-        if (appearedAs == NetworkScreenConnectionType.myConnections) ...[
+        if (widget.appearedAs == NetworkScreenConnectionType.myConnections) ...[
           InkWell(
-            onTap: onRequestFeedback,
+            onTap: widget.onRequestFeedback,
             borderRadius: BorderRadius.circular(8.r),
             child: Container(
               height: 36.h,
@@ -187,7 +196,7 @@ class ConnectionInfoCard extends StatelessWidget {
           ),
           8.ph,
           InkWell(
-            onTap: onConnect,
+            onTap: widget.onConnect,
             borderRadius: BorderRadius.circular(8.r),
             child: Container(
               height: 36.h,
@@ -219,7 +228,7 @@ class ConnectionInfoCard extends StatelessWidget {
           ),
           8.ph,
           InkWell(
-            onTap: onDisconnect,
+            onTap: widget.onDisconnect,
             borderRadius: BorderRadius.circular(8.r),
             child: Container(
               height: 36.h,
@@ -244,9 +253,11 @@ class ConnectionInfoCard extends StatelessWidget {
             ),
           ),
         ],
-        if (appearedAs == NetworkScreenConnectionType.suggestions) ...[
+        if (widget.appearedAs == NetworkScreenConnectionType.suggestions) ...[
           InkWell(
-            onTap: onConnect,
+            onTap: () {
+              widget.onConnect?.call();
+            },
             borderRadius: BorderRadius.circular(8.r),
             child: Container(
               height: 36.h,
@@ -258,7 +269,7 @@ class ConnectionInfoCard extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  "Connect",
+                  connectButton,
                   style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                         color: context.colors.primaryBlue,
                         fontSize: 14,
@@ -270,9 +281,9 @@ class ConnectionInfoCard extends StatelessWidget {
             ),
           ),
         ],
-        if (appearedAs == NetworkScreenConnectionType.requests) ...[
+        if (widget.appearedAs == NetworkScreenConnectionType.requests) ...[
           InkWell(
-            onTap: onRequestFeedback,
+            onTap: widget.onRequestFeedback,
             borderRadius: BorderRadius.circular(8.r),
             child: Container(
               height: 36.h,
@@ -297,7 +308,7 @@ class ConnectionInfoCard extends StatelessWidget {
           ),
           8.ph,
           InkWell(
-            onTap: onDisconnect,
+            onTap: widget.onDisconnect,
             borderRadius: BorderRadius.circular(8.r),
             child: Container(
               height: 36.h,
