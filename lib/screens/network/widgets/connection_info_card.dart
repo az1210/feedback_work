@@ -88,7 +88,7 @@ class _ConnectionInfoCardState extends State<ConnectionInfoCard> {
             extra: UserModel(
               firstName: name.split(" ").first,
               lastName: name.split(" ").last,
-              expertise: specialty,
+              expertise: specialty ?? '',
               title: title,
             ));
       },

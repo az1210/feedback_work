@@ -131,7 +131,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               crossAxisCellCount: 3,
                               mainAxisCellCount: 1.5,
                               child: StatItemCard(
-                                value: r"$100.5",
+                                value:
+                                    "\$${currentUser!.totalEarned == -1 ? 0 : currentUser!.totalEarned}",
                                 label: "Total Earned",
                                 valueColor: context.colors.successGreen,
                               ),
@@ -140,7 +141,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               crossAxisCellCount: 3,
                               mainAxisCellCount: 1.5,
                               child: StatItemCard(
-                                value: r"$100.5",
+                                value:
+                                    "\$${currentUser!.totalSpent == -1 ? 0 : currentUser!.totalSpent}",
                                 label: "Total Spent",
                                 valueColor: context.colors.errorRed,
                               ),
@@ -149,7 +151,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               crossAxisCellCount: 2,
                               mainAxisCellCount: 2.5,
                               child: StatItemCard(
-                                value: "20",
+                                value:
+                                    "${currentUser!.totalFeedbackProvidedForFree == -1 ? 0 : currentUser!.totalFeedbackProvidedForFree}",
                                 label: "Total Feedback Provided for free",
                                 valueColor: context.colors.successGreen,
                               ),
@@ -158,7 +161,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               crossAxisCellCount: 2,
                               mainAxisCellCount: 2.5,
                               child: StatItemCard(
-                                value: "10",
+                                value:
+                                    "${currentUser!.totalFeedbackAccepted == -1 ? 0 : currentUser!.totalFeedbackAccepted}",
                                 label: "Total Feedback Accepted",
                                 valueColor: context.colors.primaryBlue,
                               ),
@@ -167,7 +171,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               crossAxisCellCount: 2,
                               mainAxisCellCount: 2.5,
                               child: StatItemCard(
-                                value: "10",
+                                value:
+                                    "${currentUser!.totalSpent == -1 ? 0 : currentUser!.totalSpent}",
                                 label: "Total Feedback Declined",
                                 valueColor: context.colors.errorRed,
                               ),
@@ -176,7 +181,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               crossAxisCellCount: 2,
                               mainAxisCellCount: 2.5,
                               child: StatItemCard(
-                                value: "10",
+                                value:
+                                    "${currentUser!.feedbackApplied == -1 ? 0 : currentUser!.feedbackApplied}",
                                 label: "Total Feedback Applied",
                                 valueColor: context.colors.primaryBlue,
                               ),
@@ -185,7 +191,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               crossAxisCellCount: 2,
                               mainAxisCellCount: 2.5,
                               child: StatItemCard(
-                                value: "10",
+                                value:
+                                    "${currentUser!.problemSolved == -1 ? 0 : currentUser!.problemSolved}",
                                 label: "Total Problems Solved",
                                 valueColor: context.colors.successGreen,
                               ),
@@ -194,7 +201,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               crossAxisCellCount: 2,
                               mainAxisCellCount: 2.5,
                               child: StatItemCard(
-                                value: "10",
+                                value:
+                                    "${currentUser!.problemHelpSolved == -1 ? 0 : currentUser!.problemHelpSolved}",
                                 label: "Total Problems Help Solved",
                                 valueColor: context.colors.successGreen,
                               ),
@@ -203,7 +211,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               crossAxisCellCount: 6,
                               mainAxisCellCount: 1.5,
                               child: StatItemCard(
-                                value: "10",
+                                //TODO: Should be calculated
+                                value: "0",
                                 label: "Total",
                                 valueColor: context.colors.primaryBlue,
                               ),

@@ -1,27 +1,27 @@
 import 'dart:convert';
 
 class UserModel {
-  final String? id;
-  final String? firstName;
-  final String? lastName;
-  final String? email;
-  final String? username;
-  final String? avaterUrl;
-  final String? phoneNumber;
-  final String? title;
-  final String? expertise;
-  final String? accountType;
-  final String? createdAt;
-  final double? minimumRate;
-  final int? feedbackProvided;
-  final int? feedbackApplied;
-  final int? problemSolved;
-  final int? problemHelpSolved;
-  final double? totalEarned;
-  final double? totalSpent;
-  final int? totalFeedbackProvidedForFree;
-  final int? totalFeedbackAccepted;
-  final int? totalFeedbackDeclined;
+  final String id;
+  final String firstName;
+  final String lastName;
+  final String email;
+  final String username;
+  final String avaterUrl;
+  final String phoneNumber;
+  final String title;
+  final String expertise;
+  final String accountType;
+  final String createdAt;
+  final double minimumRate;
+  final int feedbackProvided;
+  final int feedbackApplied;
+  final int problemSolved;
+  final int problemHelpSolved;
+  final double totalEarned;
+  final double totalSpent;
+  final int totalFeedbackProvidedForFree;
+  final int totalFeedbackAccepted;
+  final int totalFeedbackDeclined;
 
   UserModel({
     this.id = '',
@@ -126,44 +126,28 @@ class UserModel {
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
-      id: map['id'] != null ? map['id'] as String : null,
-      firstName: map['firstName'] != null ? map['firstName'] as String : null,
-      lastName: map['lastName'] != null ? map['lastName'] as String : null,
-      email: map['email'] != null ? map['email'] as String : null,
-      username: map['username'] != null ? map['username'] as String : null,
-      avaterUrl: map['avaterUrl'] != null ? map['avaterUrl'] as String : null,
-      phoneNumber:
-          map['phoneNumber'] != null ? map['phoneNumber'] as String : null,
-      title: map['title'] != null ? map['title'] as String : null,
-      expertise: map['expertise'] != null ? map['expertise'] as String : null,
-      accountType:
-          map['accountType'] != null ? map['accountType'] as String : null,
-      createdAt: map['createdAt'] != null ? map['createdAt'] as String : null,
-      minimumRate:
-          map['minimumRate'] != null ? map['minimumRate'] as double : null,
-      feedbackProvided: map['feedbackProvided'] != null
-          ? map['feedbackProvided'] as int
-          : null,
-      feedbackApplied:
-          map['feedbackApplied'] != null ? map['feedbackApplied'] as int : null,
-      problemSolved:
-          map['problemSolved'] != null ? map['problemSolved'] as int : null,
-      problemHelpSolved: map['problemHelpSolved'] != null
-          ? map['problemHelpSolved'] as int
-          : null,
-      totalEarned:
-          map['totalEarned'] != null ? map['totalEarned'] as double : null,
-      totalSpent:
-          map['totalSpent'] != null ? map['totalSpent'] as double : null,
-      totalFeedbackProvidedForFree: map['totalFeedbackProvidedForFree'] != null
-          ? map['totalFeedbackProvidedForFree'] as int
-          : null,
-      totalFeedbackAccepted: map['totalFeedbackAccepted'] != null
-          ? map['totalFeedbackAccepted'] as int
-          : null,
-      totalFeedbackDeclined: map['totalFeedbackDeclined'] != null
-          ? map['totalFeedbackDeclined'] as int
-          : null,
+      id: map['id'] as String? ?? '',
+      firstName: map['firstName'] as String? ?? '',
+      lastName: map['lastName'] as String? ?? '',
+      email: map['email'] as String? ?? '',
+      username: map['username'] as String? ?? '',
+      avaterUrl: map['avaterUrl'] as String? ?? '',
+      phoneNumber: map['phoneNumber'] as String? ?? '',
+      title: map['title'] as String? ?? '',
+      expertise: map['expertise'] as String? ?? '',
+      accountType: map['accountType'] as String? ?? '',
+      createdAt: map['createdAt'] as String? ?? '',
+      minimumRate: map['minimumRate'] as double? ?? -1.0,
+      feedbackProvided: map['feedbackProvided'] as int? ?? -1,
+      feedbackApplied: map['feedbackApplied'] as int? ?? -1,
+      problemSolved: map['problemSolved'] as int? ?? -1,
+      problemHelpSolved: map['problemHelpSolved'] as int? ?? -1,
+      totalEarned: map['totalEarned'] as double? ?? -1,
+      totalSpent: map['totalSpent'] as double? ?? -1,
+      totalFeedbackProvidedForFree:
+          map['totalFeedbackProvidedForFree'] as int? ?? -1,
+      totalFeedbackAccepted: map['totalFeedbackAccepted'] as int? ?? -1,
+      totalFeedbackDeclined: map['totalFeedbackDeclined'] as int? ?? -1,
     );
   }
 
@@ -196,7 +180,12 @@ class UserModel {
         other.feedbackProvided == feedbackProvided &&
         other.feedbackApplied == feedbackApplied &&
         other.problemSolved == problemSolved &&
-        other.problemHelpSolved == problemHelpSolved;
+        other.problemHelpSolved == problemHelpSolved &&
+        other.totalEarned == totalEarned &&
+        other.totalSpent == totalSpent &&
+        other.totalFeedbackProvidedForFree == totalFeedbackProvidedForFree &&
+        other.totalFeedbackAccepted == totalFeedbackAccepted &&
+        other.totalFeedbackDeclined == totalFeedbackDeclined;
   }
 
   @override
@@ -216,6 +205,11 @@ class UserModel {
         feedbackProvided.hashCode ^
         feedbackApplied.hashCode ^
         problemSolved.hashCode ^
-        problemHelpSolved.hashCode;
+        problemHelpSolved.hashCode ^
+        totalEarned.hashCode ^
+        totalSpent.hashCode ^
+        totalFeedbackProvidedForFree.hashCode ^
+        totalFeedbackAccepted.hashCode ^
+        totalFeedbackDeclined.hashCode;
   }
 }

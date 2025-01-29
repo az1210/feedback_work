@@ -3,11 +3,12 @@ import 'package:feedback_work/core/constants/firebase_constants.dart';
 import 'package:feedback_work/core/extensions/string_extension.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/feedback_model.dart';
-import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
+
+//TODO: calculate functionality problemSolved problemHelpSolved totalEarned totalSpent
 
 final requestFeedbackStepProvider = StateProvider<int>((ref) => 1);
 final provideFeedbackStepProvider = StateProvider<int>((ref) => 1);
@@ -208,6 +209,13 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
               .toMap()
         });
         await firestore
+            .collection(FirebaseConstants.userCollection)
+            .doc(feedback.projectOwnerId)
+            .update({
+          "feedbackApplied": FieldValue.increment(1),
+          "totalFeedbackAccepted": FieldValue.increment(1),
+        });
+        await firestore
             .collection(FirebaseConstants.feedbackCollection)
             .doc(feedback.id)
             .update({
@@ -218,6 +226,21 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
               )
               .toMap()
         });
+
+        await firestore
+            .collection(FirebaseConstants.userCollection)
+            .doc(feedback.requestFeedback!.provider)
+            .update({
+          "feedbackProvided": FieldValue.increment(1),
+        });
+        if (feedback.requestFeedback!.cost == 0) {
+          await firestore
+              .collection(FirebaseConstants.userCollection)
+              .doc(feedback.requestFeedback!.provider)
+              .update({
+            "totalFeedbackProvidedForFree": FieldValue.increment(1),
+          });
+        }
         await firestore
             .collection(FirebaseConstants.feedbackCollection)
             .doc(feedback.id)
@@ -267,6 +290,13 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
                 modifiedAt: DateTime.now().toString(),
               )
               .toMap()
+        });
+
+        await firestore
+            .collection(FirebaseConstants.userCollection)
+            .doc(feedback.projectOwnerId)
+            .update({
+          "totalFeedbackDeclined": FieldValue.increment(1),
         });
       } else {
         state = state.copyWith(

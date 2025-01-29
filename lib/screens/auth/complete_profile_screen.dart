@@ -70,8 +70,8 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
           username: _usernameController.text.trim(),
           title: _titleController.text.trim(),
           expertise: _expertiseController.text.trim(),
-          accountType: _selectedAccountType,
-          minimumRate: double.tryParse(_minimumRateController.text.trim()),
+          accountType: _selectedAccountType ?? '',
+          minimumRate: double.tryParse(_minimumRateController.text.trim()) ?? 0,
         ),
       );
 

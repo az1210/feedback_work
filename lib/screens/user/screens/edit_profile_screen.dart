@@ -72,7 +72,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     titleController.text = widget.currentUser.title ?? "";
     selectedAccountType = widget.currentUser.accountType;
     minimumRateController.text =
-        widget.currentUser.minimumRate?.toString() ?? "0.0";
+        widget.currentUser.minimumRate.toString() ?? "0.0";
     Future.microtask(() {
       ref.read(categoryProvider.notifier).fetchAllCategories();
     });
@@ -102,7 +102,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           TextButton(
             onPressed: () {
               ref.read(userProvider.notifier).updateProfile(
-                    uid: widget.currentUser.id!,
+                    uid: widget.currentUser.id,
                     userModel: UserModel(
                       firstName: firstNameController.text.trim(),
                       lastName: lastNameController.text.trim(),
@@ -110,9 +110,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       username: usernameController.text.trim(),
                       title: titleController.text.trim(),
                       expertise: expertiseController.text.trim(),
-                      accountType: selectedAccountType,
+                      accountType: selectedAccountType ?? '',
                       minimumRate:
-                          double.tryParse(minimumRateController.text.trim()),
+                          double.tryParse(minimumRateController.text.trim()) ??
+                              -1,
                     ),
                     callback: () {
                       context.pop();
@@ -382,7 +383,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 label: "Update",
                 onTap: () {
                   ref.read(userProvider.notifier).updateProfile(
-                        uid: widget.currentUser.id!,
+                        uid: widget.currentUser.id,
                         userModel: UserModel(
                           firstName: firstNameController.text.trim(),
                           lastName: lastNameController.text.trim(),
@@ -390,9 +391,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           username: usernameController.text.trim(),
                           title: titleController.text.trim(),
                           expertise: expertiseController.text.trim(),
-                          accountType: selectedAccountType,
+                          accountType: selectedAccountType ?? '',
                           minimumRate: double.tryParse(
-                              minimumRateController.text.trim()),
+                                  minimumRateController.text.trim()) ??
+                              -1,
                         ),
                         callback: () {
                           context.pop();
