@@ -28,6 +28,7 @@ class FeedbackModel {
   final Status? ownerSideStatus;
   final Status? providerSideStatus;
   final List<EcfModel>? errors;
+  final StatusReport? statusReport;
   FeedbackModel({
     this.id = '',
     this.project,
@@ -38,6 +39,7 @@ class FeedbackModel {
     this.ownerSideStatus,
     this.providerSideStatus,
     this.errors,
+    this.statusReport,
   });
 
   FeedbackModel copyWith({
@@ -50,6 +52,7 @@ class FeedbackModel {
     Status? ownerSideStatus,
     Status? providerSideStatus,
     List<EcfModel>? errors,
+    StatusReport? statusReport,
   }) {
     return FeedbackModel(
       id: id ?? this.id,
@@ -61,6 +64,7 @@ class FeedbackModel {
       ownerSideStatus: ownerSideStatus ?? this.ownerSideStatus,
       providerSideStatus: providerSideStatus ?? this.providerSideStatus,
       errors: errors ?? this.errors,
+      statusReport: statusReport ?? this.statusReport,
     );
   }
 
@@ -75,6 +79,7 @@ class FeedbackModel {
       'ownerSideStatus': ownerSideStatus?.toMap(),
       'providerSideStatus': providerSideStatus?.toMap(),
       'errors': errors?.map((e) => e.toMap()).toList(),
+      'statusReport': statusReport?.toMap(),
     };
   }
 
@@ -104,6 +109,9 @@ class FeedbackModel {
           ? (map['errors'] as List<dynamic>)
               .map((e) => EcfModel.fromMap(e as Map<String, dynamic>))
               .toList()
+          : null,
+      statusReport: map['statusReport'] != null
+          ? StatusReport.fromMap(map['statusReport'] as Map<String, dynamic>)
           : null,
     );
   }
@@ -409,6 +417,55 @@ class Status {
     return Status(
       status: map['status'] as String? ?? '',
       modifiedAt: map['modifiedAt'] as String? ?? '',
+    );
+  }
+}
+
+class StatusReport {
+  final String? beforeFileUrl;
+  final String? beforeYtLink;
+  final String? afterFileUrl;
+  final String? afterYtLink;
+  StatusReport({
+    this.beforeFileUrl,
+    this.beforeYtLink,
+    this.afterFileUrl,
+    this.afterYtLink,
+  });
+
+  StatusReport copyWith({
+    String? beforeFileUrl,
+    String? beforeYtLink,
+    String? afterFileUrl,
+    String? afterYtLink,
+  }) {
+    return StatusReport(
+      beforeFileUrl: beforeFileUrl ?? this.beforeFileUrl,
+      beforeYtLink: beforeYtLink ?? this.beforeYtLink,
+      afterFileUrl: afterFileUrl ?? this.afterFileUrl,
+      afterYtLink: afterYtLink ?? this.afterYtLink,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'beforeFileUrl': beforeFileUrl,
+      'beforeYtLink': beforeYtLink,
+      'afterFileUrl': afterFileUrl,
+      'afterYtLink': afterYtLink,
+    };
+  }
+
+  factory StatusReport.fromMap(Map<String, dynamic> map) {
+    return StatusReport(
+      beforeFileUrl:
+          map['beforeFileUrl'] != null ? map['beforeFileUrl'] as String : null,
+      beforeYtLink:
+          map['beforeYtLink'] != null ? map['beforeYtLink'] as String : null,
+      afterFileUrl:
+          map['afterFileUrl'] != null ? map['afterFileUrl'] as String : null,
+      afterYtLink:
+          map['afterYtLink'] != null ? map['afterYtLink'] as String : null,
     );
   }
 }

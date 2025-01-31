@@ -1,17 +1,19 @@
-import 'dart:io';
-
 import 'package:dotted_border/dotted_border.dart';
+import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/utils/file_upload_helper.dart';
 import 'package:feedback_work/core/utils/toast_message.dart';
-import 'package:feedback_work/providers/firebase_providers.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class After extends ConsumerStatefulWidget {
-  const After({super.key});
+  const After({
+    super.key,
+    required this.onSelectFilePath,
+    required this.onChangeYTlink,
+  });
 
+  final void Function(String?) onSelectFilePath;
+  final void Function(String?) onChangeYTlink;
   @override
   ConsumerState<After> createState() => _BeforeState();
 }
@@ -25,6 +27,7 @@ class _BeforeState extends ConsumerState<After> {
     if (fileUrl != null) {
       setState(() {
         selectedFilePath = fileUrl;
+        widget.onSelectFilePath(fileUrl);
       });
       showToast(message: 'File uploaded successfully: $fileUrl');
     } else {
@@ -80,6 +83,33 @@ class _BeforeState extends ConsumerState<After> {
                   ],
                 ),
               ),
+            ),
+          ),
+        ),
+        16.ph,
+        Row(
+          children: [
+            Text(
+              "Youtube Link",
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        TextField(
+          onChanged: (value) {
+            setState(() {
+              widget.onChangeYTlink(value);
+            });
+          },
+          decoration: InputDecoration(
+            hintText: "Insert link here",
+            hintStyle: Theme.of(context).textTheme.bodySmall,
+            filled: true,
+            fillColor: Colors.white,
+            border: const OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              borderSide: BorderSide.none,
             ),
           ),
         ),

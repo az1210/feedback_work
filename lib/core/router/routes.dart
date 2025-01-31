@@ -8,6 +8,7 @@ import 'package:feedback_work/screens/feedback/provide/preview_set_screen.dart';
 import 'package:feedback_work/screens/feedback/provide/provide_feedback_screen.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/set_feedback_model.dart';
 import 'package:feedback_work/screens/payment/payment_screen.dart';
+import 'package:feedback_work/screens/status/edit_status_report_screen.dart';
 import 'package:feedback_work/screens/user/screens/add_child_screen.dart';
 import 'package:feedback_work/screens/user/screens/add_parent_screen.dart';
 import 'package:feedback_work/screens/user/screens/edit_profile_screen.dart';
@@ -68,6 +69,7 @@ class Routes {
   static const requestFeedback = 'request-feedback';
   static const provideFeedback = 'provide-feedback';
   static const statusReport = 'status-report';
+  static const editStatusReport = 'edit-status-report';
   static const groups = 'groups';
   static const monitorGroup = 'monitor-group';
   static const profile = 'profile';
@@ -180,7 +182,16 @@ final routerProvider = Provider<GoRouter>(
         GoRoute(
           name: Routes.statusReport,
           path: Routes.statusReport.p,
-          builder: (context, state) => const StatusReportScreen(),
+          builder: (context, state) => StatusReportScreen(
+            feedback: state.extra as FeedbackModel,
+          ),
+        ),
+        GoRoute(
+          name: Routes.editStatusReport,
+          path: Routes.editStatusReport.p,
+          builder: (context, state) => EditStatusReportScreen(
+            feedback: state.extra as FeedbackModel,
+          ),
         ),
         GoRoute(
           name: Routes.groups,
@@ -311,7 +322,7 @@ final routerProvider = Provider<GoRouter>(
                 GoRoute(
                   name: Routes.status,
                   path: Routes.status.p,
-                  builder: (context, state) => const StatusTabScreen(),
+                  builder: (context, state) => const StatusScreen(),
                 ),
               ],
             ),

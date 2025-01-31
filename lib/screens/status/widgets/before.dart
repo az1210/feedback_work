@@ -1,24 +1,26 @@
-import 'dart:io';
-
 import 'package:dotted_border/dotted_border.dart';
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/utils/file_upload_helper.dart';
 import 'package:feedback_work/core/utils/toast_message.dart';
-import 'package:feedback_work/providers/firebase_providers.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class Before extends ConsumerStatefulWidget {
-  const Before({super.key});
+  const Before({
+    super.key,
+    required this.onSelectFilePath,
+    required this.onChangeYTlink,
+  });
+
+  final void Function(String?) onSelectFilePath;
+  final void Function(String?) onChangeYTlink;
 
   @override
   ConsumerState<Before> createState() => _BeforeState();
 }
 
 class _BeforeState extends ConsumerState<Before> {
-  final TextEditingController youtubeLinkController = TextEditingController();
   String? selectedFilePath;
 
   Future<void> pickFile() async {
@@ -27,6 +29,7 @@ class _BeforeState extends ConsumerState<Before> {
     if (fileUrl != null) {
       setState(() {
         selectedFilePath = fileUrl;
+        widget.onSelectFilePath(fileUrl);
       });
       showToast(message: 'File uploaded successfully: $fileUrl');
     } else {
@@ -103,7 +106,11 @@ class _BeforeState extends ConsumerState<Before> {
           ),
           const SizedBox(height: 5),
           TextField(
-            controller: youtubeLinkController,
+            onChanged: (value) {
+              setState(() {
+                widget.onChangeYTlink(value);
+              });
+            },
             decoration: InputDecoration(
               hintText: "Insert link here",
               hintStyle: Theme.of(context).textTheme.bodySmall,

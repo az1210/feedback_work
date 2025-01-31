@@ -312,6 +312,37 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
     }
   }
 
+  Future<void> submitStatusReport(
+      {required FeedbackModel feedback, void Function()? callback}) async {
+    state = state.copyWith(state: AsyncState.loading);
+    FirebaseFirestore firestore = ref.read(firestoreProvider);
+
+    try {
+      state = state.copyWith(state: AsyncState.loading);
+
+      final doc = await firestore
+          .collection(FirebaseConstants.feedbackCollection)
+          .doc(feedback.id)
+          .get();
+      if (doc.exists) {
+        await firestore
+            .collection(FirebaseConstants.feedbackCollection)
+            .doc(feedback.id)
+            .update({'statusReport': feedback.statusReport!.toMap()});
+      } else {
+        state = state.copyWith(
+            error: "Feedback doesn't exist!", state: AsyncState.failure);
+      }
+      fetchAllFeedbacksAsProvider(userId: feedback.projectOwnerId!);
+      fetchAllOwnFeedbacks(userId: feedback.projectOwnerId!);
+      callback?.call();
+      state = state.copyWith(state: AsyncState.success);
+    } catch (e, stackTrace) {
+      Log.error(e.toString());
+      Log.error(stackTrace.toString());
+    }
+  }
+
   Future<void> deleteCollection(String collectionPath) async {
     final collectionRef = FirebaseFirestore.instance.collection(collectionPath);
 

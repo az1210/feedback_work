@@ -1,22 +1,59 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
+import 'package:feedback_work/core/extensions/string_extension.dart';
 import 'package:feedback_work/core/router/routes.dart';
+import 'package:feedback_work/core/utils/utils.dart';
+import 'package:feedback_work/models/feedback_model.dart';
+import 'package:feedback_work/models/user_model.dart';
+import 'package:feedback_work/providers/feedback_providers.dart';
+import 'package:feedback_work/providers/user_providers.dart';
 import 'package:feedback_work/screens/status/widgets/project_status_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 
-class StatusTabScreen extends StatefulWidget {
-  const StatusTabScreen({super.key});
+class StatusScreen extends ConsumerStatefulWidget {
+  const StatusScreen({super.key});
 
   @override
-  State<StatusTabScreen> createState() => _StatusTabScreenState();
+  ConsumerState<StatusScreen> createState() => _StatusScreenState();
 }
 
-class _StatusTabScreenState extends State<StatusTabScreen> {
+class _StatusScreenState extends ConsumerState<StatusScreen> {
   bool isGrid = true;
+  List<FeedbackModel> allFeedbacks = [];
+  List<FeedbackModel> ownFeedbacks = [];
+  List<FeedbackModel> anotherFeedbacks = [];
+  UserModel? currentUser;
+
+  @override
+  void initState() {
+    Future.microtask(() async {
+      currentUser = await ref.watch(userProvider.notifier).currentUser();
+      ref
+          .read(feedbackProvider.notifier)
+          .fetchAllOwnFeedbacks(userId: currentUser!.id);
+      anotherFeedbacks = await ref
+          .watch(feedbackProvider.notifier)
+          .fetchAllFeedbacksAsProvider(userId: currentUser!.id);
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final feedbackState = ref.watch(feedbackProvider);
+    ref.listen(feedbackProvider, (_, newState) {
+      if (newState.state == AsyncState.success) {
+        ownFeedbacks = newState.data!
+            .where((f) =>
+                f.ownerSideStatus!.status ==
+                FeedbackStatus.requested.name.toTitleCase())
+            .toList();
+      }
+    });
+    allFeedbacks = ownFeedbacks + anotherFeedbacks;
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -40,34 +77,46 @@ class _StatusTabScreenState extends State<StatusTabScreen> {
           8.pw,
         ],
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 16.h),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              MasonryGridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: 4,
-                gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: isGrid ? 2 : 1),
-                itemBuilder: (context, index) => GestureDetector(
-                  onTap: (){
-                    context.pushNamed(Routes.statusReport);
-                  },
-                  child: const ProjectStatusCard(
-                    title: "title",
-                    problemBefore: "Manual Workflow",
-                    solutionAfter: "Automate workflow",
-                    functionExecuted: "Flutter",
-                    projectStatus: "Completed",
+      body: Builder(builder: (context) {
+        if (feedbackState.state == AsyncState.loading) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (feedbackState.error != null) {
+          return const Center(
+            child: Text("Something went wrong"),
+          );
+        } else {
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 16.h),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  MasonryGridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: allFeedbacks.length,
+                    gridDelegate:
+                        SliverSimpleGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: isGrid ? 2 : 1),
+                    itemBuilder: (context, index) => GestureDetector(
+                      onTap: () {
+                        context.pushNamed(
+                          Routes.statusReport,
+                          extra: allFeedbacks[index],
+                        );
+                      },
+                      child: ProjectStatusCard(
+                        feedback: allFeedbacks[index],
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
+          );
+        }
+      }),
     );
   }
 }

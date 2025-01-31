@@ -1,21 +1,14 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
+import 'package:feedback_work/models/feedback_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ProjectStatusCard extends StatelessWidget {
-  final String title;
-  final String problemBefore;
-  final String solutionAfter;
-  final String functionExecuted;
-  final String projectStatus;
+  final FeedbackModel feedback;
 
   const ProjectStatusCard({
     super.key,
-    required this.title,
-    required this.problemBefore,
-    required this.solutionAfter,
-    required this.functionExecuted,
-    required this.projectStatus,
+    required this.feedback,
   });
 
   @override
@@ -36,7 +29,7 @@ class ProjectStatusCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  title,
+                  feedback.project!.projectName ?? 'Unknown project',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ],
@@ -48,22 +41,24 @@ class ProjectStatusCard extends StatelessWidget {
               children: [
                 BuildInfoRow(
                     label: 'Problem Existed Before',
-                    value: problemBefore,
+                    value: feedback.project!.problemName ?? 'Unknown problem',
                     valueColor: context.colors.errorRed),
                 const SizedBox(height: 8),
                 BuildInfoRow(
                     label: 'Solution Replaced After',
-                    value: solutionAfter,
+                    value: feedback.project!.solutionName ?? 'Unknown solution',
                     valueColor: context.colors.successGreen),
                 const SizedBox(height: 8),
                 BuildInfoRow(
                     label: 'Solution Function Executed',
-                    value: functionExecuted,
+                    value: feedback.project!.solutionFunctionName ??
+                        'Unknown solutiuon function executed',
                     valueColor: context.colors.successGreen),
                 const SizedBox(height: 8),
                 BuildInfoRow(
                     label: 'Project Status',
-                    value: projectStatus,
+                    value:
+                        "${feedback.project!.completionPercentage == -1 ? 0 : feedback.project!.completionPercentage}% Completed",
                     valueColor: context.colors.primaryBlue),
               ],
             ),
