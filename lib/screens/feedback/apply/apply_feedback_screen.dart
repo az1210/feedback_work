@@ -44,7 +44,7 @@ class _ProvidedFeedbackCardState extends ConsumerState<ApplyFeedbackScreen> {
     Future.microtask(() {
       ref
           .read(fetchUserByIdProvider.notifier)
-          .fetchUser(uid: widget.feedback.requestFeedback!.provider!);
+          .fetchUser(uid: widget.feedback.providerId!);
     });
     if (widget.feedback.provideFeedback != null) {
       if (widget.feedback.provideFeedback!.feedbackMessage != null) {

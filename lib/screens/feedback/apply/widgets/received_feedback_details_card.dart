@@ -342,7 +342,7 @@ class _ProvidedFeedbackCardState
                         context: context,
                         builder: (context) => CorrectedCommunication(
                           feedback: widget.feedback,
-                          userId: widget.feedback.projectOwnerId!,
+                          userId: widget.feedback.ownerId!,
                         ),
                       );
                     },

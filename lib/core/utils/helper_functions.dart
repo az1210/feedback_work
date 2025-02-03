@@ -3,12 +3,12 @@ import 'package:feedback_work/models/user_model.dart';
 
 bool isOwnRequestedFeedback(
     {required FeedbackModel feedback, required String userId}) {
-  return feedback.projectOwnerId == userId;
+  return feedback.ownerId == userId;
 }
 
 String feedbackStatus(
     {required FeedbackModel feedback, required String userId}) {
-  if (feedback.projectOwnerId == userId) {
+  if (feedback.ownerId == userId) {
     switch (feedback.ownerSideStatus!.status) {
       case "Requested":
         return 'Requested';

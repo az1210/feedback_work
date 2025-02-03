@@ -19,51 +19,51 @@ enum FeedbackStatus {
 }
 
 class FeedbackModel {
-  final String id;
+  final String? id;
   final ProjectModel? project;
-  final String? projectOwnerId;
+  final String? ownerId;
+  final String? providerId;
   final RequestModel? requestFeedback;
   final ProvideModel? provideFeedback;
   final AppliedModel? appliedFeedback;
   final Status? ownerSideStatus;
   final Status? providerSideStatus;
-  final List<EcfModel>? errors;
   final StatusReport? statusReport;
   FeedbackModel({
-    this.id = '',
+    this.id,
     this.project,
-    this.projectOwnerId = '',
+    this.ownerId,
+    this.providerId,
     this.requestFeedback,
     this.provideFeedback,
     this.appliedFeedback,
     this.ownerSideStatus,
     this.providerSideStatus,
-    this.errors,
     this.statusReport,
   });
 
   FeedbackModel copyWith({
     String? id,
     ProjectModel? project,
-    String? projectOwnerId,
+    String? ownerId,
+    String? providerId,
     RequestModel? requestFeedback,
     ProvideModel? provideFeedback,
     AppliedModel? appliedFeedback,
     Status? ownerSideStatus,
     Status? providerSideStatus,
-    List<EcfModel>? errors,
     StatusReport? statusReport,
   }) {
     return FeedbackModel(
       id: id ?? this.id,
       project: project ?? this.project,
-      projectOwnerId: projectOwnerId ?? this.projectOwnerId,
+      ownerId: ownerId ?? this.ownerId,
+      providerId: providerId ?? this.providerId,
       requestFeedback: requestFeedback ?? this.requestFeedback,
       provideFeedback: provideFeedback ?? this.provideFeedback,
       appliedFeedback: appliedFeedback ?? this.appliedFeedback,
       ownerSideStatus: ownerSideStatus ?? this.ownerSideStatus,
       providerSideStatus: providerSideStatus ?? this.providerSideStatus,
-      errors: errors ?? this.errors,
       statusReport: statusReport ?? this.statusReport,
     );
   }
@@ -72,24 +72,26 @@ class FeedbackModel {
     return <String, dynamic>{
       'id': id,
       'project': project?.toMap(),
-      'projectOwnerId': projectOwnerId,
+      'ownerId': ownerId,
+      'providerId': providerId,
       'requestFeedback': requestFeedback?.toMap(),
       'provideFeedback': provideFeedback?.toMap(),
       'appliedFeedback': appliedFeedback?.toMap(),
       'ownerSideStatus': ownerSideStatus?.toMap(),
       'providerSideStatus': providerSideStatus?.toMap(),
-      'errors': errors?.map((e) => e.toMap()).toList(),
       'statusReport': statusReport?.toMap(),
     };
   }
 
   factory FeedbackModel.fromMap(Map<String, dynamic> map) {
     return FeedbackModel(
-      id: map['id'] as String? ?? '',
+      id: map['id'] != null ? map['id'] as String : null,
       project: map['project'] != null
           ? ProjectModel.fromMap(map['project'] as Map<String, dynamic>)
           : null,
-      projectOwnerId: map['projectOwnerId'] as String? ?? '',
+      ownerId: map['ownerId'] != null ? map['ownerId'] as String : null,
+      providerId:
+          map['providerId'] != null ? map['providerId'] as String : null,
       requestFeedback: map['requestFeedback'] != null
           ? RequestModel.fromMap(map['requestFeedback'] as Map<String, dynamic>)
           : null,
@@ -105,11 +107,6 @@ class FeedbackModel {
       providerSideStatus: map['providerSideStatus'] != null
           ? Status.fromMap(map['providerSideStatus'] as Map<String, dynamic>)
           : null,
-      errors: map['errors'] != null
-          ? (map['errors'] as List<dynamic>)
-              .map((e) => EcfModel.fromMap(e as Map<String, dynamic>))
-              .toList()
-          : null,
       statusReport: map['statusReport'] != null
           ? StatusReport.fromMap(map['statusReport'] as Map<String, dynamic>)
           : null,
@@ -118,7 +115,6 @@ class FeedbackModel {
 }
 
 class RequestModel {
-  final String? provider;
   final List<String?>? selectedGroupMemberIds;
   final String? privacy;
   final MessageModel? message;
@@ -127,7 +123,6 @@ class RequestModel {
   final bool? isAnnonymous;
   final String? groupId;
   RequestModel({
-    this.provider,
     this.selectedGroupMemberIds = const [],
     this.privacy = '',
     this.message,
@@ -138,7 +133,6 @@ class RequestModel {
   });
 
   RequestModel copyWith({
-    String? provider,
     List<String?>? selectedGroupMemberIds,
     String? privacy,
     MessageModel? message,
@@ -148,7 +142,6 @@ class RequestModel {
     String? groupId,
   }) {
     return RequestModel(
-      provider: provider ?? this.provider,
       selectedGroupMemberIds:
           selectedGroupMemberIds ?? this.selectedGroupMemberIds,
       privacy: privacy ?? this.privacy,
@@ -162,7 +155,6 @@ class RequestModel {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'provider': provider,
       'selectedGroupMemberIds': selectedGroupMemberIds,
       'privacy': privacy,
       'message': message?.toMap(),
@@ -175,9 +167,10 @@ class RequestModel {
 
   factory RequestModel.fromMap(Map<String, dynamic> map) {
     return RequestModel(
-      provider: map['provider'] as String? ?? '',
       selectedGroupMemberIds: map['selectedGroupMemberIds'] != null
-          ? List<String?>.from((map['selectedGroupMemberIds'] as List<dynamic>))
+          ? (map['selectedGroupMemberIds'] as List<dynamic>)
+              .map((x) => x.toString())
+              .toList()
           : null,
       privacy: map['privacy'] as String? ?? '',
       message: MessageModel.fromMap(map['message'] as Map<String, dynamic>),

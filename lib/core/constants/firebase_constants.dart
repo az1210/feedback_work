@@ -11,4 +11,5 @@ class FirebaseConstants {
   static const String groupCollection = "groups";
   static const String projectCollection = "projects";
   static const String ecfCollection = "ecf";
+  static const String apiKeyCollection = "apiKeys";
 }

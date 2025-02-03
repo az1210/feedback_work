@@ -33,10 +33,10 @@ class _StatusScreenState extends ConsumerState<StatusScreen> {
       currentUser = await ref.watch(userProvider.notifier).currentUser();
       ref
           .read(feedbackProvider.notifier)
-          .fetchAllOwnFeedbacks(userId: currentUser!.id);
-      anotherFeedbacks = await ref
-          .watch(feedbackProvider.notifier)
-          .fetchAllFeedbacksAsProvider(userId: currentUser!.id);
+          .fetchAllFeedbacks(userId: currentUser!.id);
+      //   await ref
+      //       .read(feedbackProvider.notifier)
+      //       .fetchAllFeedbacksAsProvider(userId: currentUser!.id);
     });
     super.initState();
   }
@@ -46,14 +46,13 @@ class _StatusScreenState extends ConsumerState<StatusScreen> {
     final feedbackState = ref.watch(feedbackProvider);
     ref.listen(feedbackProvider, (_, newState) {
       if (newState.state == AsyncState.success) {
-        ownFeedbacks = newState.data!
-            .where((f) =>
-                f.ownerSideStatus!.status ==
-                FeedbackStatus.requested.name.toTitleCase())
-            .toList();
+        allFeedbacks = newState.allFeedback!;
+        ownFeedbacks =
+            allFeedbacks.where((f) => f.ownerId == currentUser!.id).toList();
+        anotherFeedbacks =
+            allFeedbacks.where((f) => f.providerId == currentUser!.id).toList();
       }
     });
-    allFeedbacks = ownFeedbacks + anotherFeedbacks;
     return Scaffold(
       appBar: AppBar(
         title: const Text(

@@ -317,7 +317,7 @@ class _FeedbackCardState extends ConsumerState<FeedbackCard> {
                                       FeedbackScreenConnectionType
                                           .requested.name
                                           .toTitleCase() &&
-                                  widget.feedback.projectOwnerId ==
+                                  widget.feedback.ownerId ==
                                       widget.currentUserId) ...[
                                 Row(
                                   children: [
@@ -344,7 +344,7 @@ class _FeedbackCardState extends ConsumerState<FeedbackCard> {
                                       FeedbackScreenConnectionType
                                           .requested.name
                                           .toTitleCase() &&
-                                  widget.feedback.requestFeedback!.provider ==
+                                  widget.feedback.providerId ==
                                       widget.currentUserId) ...[
                                 Row(
                                   children: [

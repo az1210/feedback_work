@@ -160,6 +160,7 @@ class FetchUserByIdNotifier extends Notifier<FetchUserByIdState> {
   }
 
   Future<void> fetchUser({required String uid}) async {
+    Log.info("uid ======> $uid");
     try {
       final firestore = ref.read(firestoreProvider);
       state = state.copyWith(state: AsyncState.loading);

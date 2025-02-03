@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
+
 import 'package:feedback_work/core/constants/firebase_constants.dart';
 import 'package:feedback_work/core/extensions/string_extension.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
 
 //TODO: calculate functionality problemSolved problemHelpSolved totalEarned totalSpent
 
@@ -16,6 +18,8 @@ final provideFeedbackStepProvider = StateProvider<int>((ref) => 1);
 final feedbackProvider =
     NotifierProvider<FeedbackNotifier, FeedbackNotifierState>(
         FeedbackNotifier.new);
+final ecfProvider =
+    NotifierProvider<ECFNotifier, ECFNotifierState>(ECFNotifier.new);
 
 class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
   @override
@@ -23,55 +27,110 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
     return FeedbackNotifierState(state: AsyncState.initial);
   }
 
-  Future<void> fetchAllOwnFeedbacks({required String userId}) async {
+  Future<void> fetchAllFeedbacks({required String userId}) async {
     Log.info("Fetch all own feedback called");
     Log.info("User ID: $userId");
 
     FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
       state = state.copyWith(state: AsyncState.loading);
+      List<FeedbackModel> allFeedbacks = [];
       final feedbacksSnapshot = await firestore
           .collection(FirebaseConstants.feedbackCollection)
-          .where('projectOwnerId', isEqualTo: userId)
+          .where('ownerId', isEqualTo: userId)
           .get();
 
-      final feedbacks = feedbacksSnapshot.docs.map((f) {
+      allFeedbacks.addAll(feedbacksSnapshot.docs.map((f) {
         return FeedbackModel.fromMap(f.data());
-      }).toList();
-      Log.info(
-          feedbacks.map((f) => f.ownerSideStatus!.status).toList().toString());
-      state = state.copyWith(data: feedbacks, state: AsyncState.success);
-    } catch (e, stackTrace) {
-      Log.error(e.toString());
-      Log.error(stackTrace.toString());
-    }
-  }
+      }).toList());
 
-  Future<List<FeedbackModel>> fetchAllFeedbacksAsProvider(
-      {required String userId}) async {
-    Log.info("Fetch all another feedback called");
-    Log.info("User ID: $userId");
-
-    state = state.copyWith(state: AsyncState.loading);
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
-    try {
-      final feedbacksSnapshot = await firestore
+      final providerFeedbacksSnapshot = await firestore
           .collection(FirebaseConstants.feedbackCollection)
-          .where('requestFeedback.provider', isEqualTo: userId)
+          .where('providerId', isEqualTo: userId)
           .get();
-
-      state = state.copyWith(state: AsyncState.success);
-      return feedbacksSnapshot.docs.map((f) {
+      allFeedbacks.addAll(providerFeedbacksSnapshot.docs.map((f) {
         Log.info(f.data().toString());
         return FeedbackModel.fromMap(f.data());
-      }).toList();
+      }).toList());
+      state =
+          state.copyWith(allFeedback: allFeedbacks, state: AsyncState.success);
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
-      state = state.copyWith(error: e.toString(), state: AsyncState.failure);
-      return [];
     }
   }
+
+  // Future<void> fetchAllOwnFeedbacks({required String userId}) async {
+  //   Log.info("Fetch all own feedback called");
+  //   Log.info("User ID: $userId");
+
+  //   FirebaseFirestore firestore = ref.read(firestoreProvider);
+  //   try {
+  //     state = state.copyWith(state: AsyncState.loading);
+  //     final feedbacksSnapshot = await firestore
+  //         .collection(FirebaseConstants.feedbackCollection)
+  //         .where('ownerId', isEqualTo: userId)
+  //         .get();
+  //     Log.info(
+  //         "Feedback owner id====> ${feedbacksSnapshot.docs.map((f) => f.data()['ownerId'])}");
+  //     Log.info(
+  //         "Feedback Snapshot====> ${feedbacksSnapshot.docs.map((f) => f.data()['requestFeedback'])}");
+
+  //     Log.info(
+  //         "Feedback Snapshot====> ${feedbacksSnapshot.docs.map((f) => f.data()['provideFeedback'])}");
+  //     Log.info(
+  //         "Feedback Snapshot====> ${feedbacksSnapshot.docs.map((f) => f.data()['ownerSideStatus'])}");
+  //     Log.info(
+  //         "Feedback Snapshot====> ${feedbacksSnapshot.docs.map((f) => f.data()['providerSideStatus'])}");
+
+  //     final feedbacks = feedbacksSnapshot.docs.map((f) {
+  //       return FeedbackModel.fromMap(f.data());
+  //     }).toList();
+  //     Log.info(
+  //         feedbacks.map((f) => f.ownerSideStatus!.status).toList().toString());
+  //     state = state.copyWith(
+  //         allFeedbackAsOwner: feedbacks, state: AsyncState.success);
+  //   } catch (e, stackTrace) {
+  //     Log.error(e.toString());
+  //     Log.error(stackTrace.toString());
+  //   }
+  // }
+
+  // Future<void> fetchAllFeedbacksAsProvider({required String userId}) async {
+  //   Log.info("Fetch all another feedback called");
+  //   Log.info("User ID: $userId");
+
+  //   state = state.copyWith(state: AsyncState.loading);
+  //   FirebaseFirestore firestore = ref.read(firestoreProvider);
+  //   try {
+  //     final feedbacksSnapshot = await firestore
+  //         .collection(FirebaseConstants.feedbackCollection)
+  //         .where('providerId', isEqualTo: userId)
+  //         .get();
+  //     Log.info(
+  //         "Feedback Provider id====> ${feedbacksSnapshot.docs.map((f) => f.data()['providerId'])}");
+  //     Log.info(
+  //         "Feedback Provider Snapshot====> ${feedbacksSnapshot.docs.map((f) => f.data()['requestFeedback'])}");
+
+  //     Log.info(
+  //         "Feedback Provider Snapshot====> ${feedbacksSnapshot.docs.map((f) => f.data()['provideFeedback'])}");
+  //     Log.info(
+  //         "Feedback Provider Snapshot====> ${feedbacksSnapshot.docs.map((f) => f.data()['ownerSideStatus'])}");
+  //     Log.info(
+  //         "Feedback Provider Snapshot====> ${feedbacksSnapshot.docs.map((f) => f.data()['providerSideStatus'])}");
+
+  //     final feedbacks = feedbacksSnapshot.docs.map((f) {
+  //       Log.info(f.data().toString());
+  //       return FeedbackModel.fromMap(f.data());
+  //     }).toList();
+  //     state = state.copyWith(
+  //         allFeedbackAsProvider: feedbacks, state: AsyncState.success);
+  //   } catch (e, stackTrace) {
+  //     Log.error(e.toString());
+  //     Log.error(stackTrace.toString());
+  //     state = state.copyWith(error: e.toString(), state: AsyncState.failure);
+  //   }
+  // }
 
   Future<void> createFeedbackRequest(
       {required FeedbackModel feedback,
@@ -104,14 +163,14 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
 
       await firestore
           .collection(FirebaseConstants.userCollection)
-          .doc(feedback.projectOwnerId)
+          .doc(feedback.ownerId)
           .collection(FirebaseConstants.feedbackCollection)
           .doc(feedbackId)
           .set({'id': feedbackId});
 
       await firestore
           .collection(FirebaseConstants.userCollection)
-          .doc(fb.requestFeedback!.provider)
+          .doc(fb.providerId)
           .collection(FirebaseConstants.feedbackCollection)
           .doc(feedbackId)
           .set({'id': feedbackId});
@@ -124,8 +183,7 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
             .doc(feedbackId)
             .set({'id': feedbackId});
       }
-      fetchAllFeedbacksAsProvider(userId: userId);
-      fetchAllOwnFeedbacks(userId: userId);
+      fetchAllFeedbacks(userId: userId);
       callback?.call();
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {
@@ -165,13 +223,12 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
         await firestore
             .collection(FirebaseConstants.feedbackCollection)
             .doc(feedback.id)
-            .update({"provideFeedback": feedback.provideFeedback!.toMap()});
+            .update({'provideFeedback': feedback.provideFeedback!.toMap()});
       } else {
         state = state.copyWith(
             error: "Feedback doesn't exist!", state: AsyncState.failure);
       }
-      fetchAllFeedbacksAsProvider(userId: userId);
-      fetchAllOwnFeedbacks(userId: userId);
+      fetchAllFeedbacks(userId: userId);
       callback?.call();
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {
@@ -210,7 +267,7 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
         });
         await firestore
             .collection(FirebaseConstants.userCollection)
-            .doc(feedback.projectOwnerId)
+            .doc(feedback.ownerId)
             .update({
           "feedbackApplied": FieldValue.increment(1),
           "totalFeedbackAccepted": FieldValue.increment(1),
@@ -229,14 +286,14 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
 
         await firestore
             .collection(FirebaseConstants.userCollection)
-            .doc(feedback.requestFeedback!.provider)
+            .doc(feedback.providerId)
             .update({
           "feedbackProvided": FieldValue.increment(1),
         });
         if (feedback.requestFeedback!.cost == 0) {
           await firestore
               .collection(FirebaseConstants.userCollection)
-              .doc(feedback.requestFeedback!.provider)
+              .doc(feedback.providerId)
               .update({
             "totalFeedbackProvidedForFree": FieldValue.increment(1),
           });
@@ -249,8 +306,7 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
         state = state.copyWith(
             error: "Feedback doesn't exist!", state: AsyncState.failure);
       }
-      fetchAllFeedbacksAsProvider(userId: userId);
-      fetchAllOwnFeedbacks(userId: userId);
+      fetchAllFeedbacks(userId: userId);
       callback?.call();
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {
@@ -294,7 +350,7 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
 
         await firestore
             .collection(FirebaseConstants.userCollection)
-            .doc(feedback.projectOwnerId)
+            .doc(feedback.ownerId)
             .update({
           "totalFeedbackDeclined": FieldValue.increment(1),
         });
@@ -302,8 +358,7 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
         state = state.copyWith(
             error: "Feedback doesn't exist!", state: AsyncState.failure);
       }
-      fetchAllFeedbacksAsProvider(userId: userId);
-      fetchAllOwnFeedbacks(userId: userId);
+      fetchAllFeedbacks(userId: userId);
       callback?.call();
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {
@@ -333,8 +388,7 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
         state = state.copyWith(
             error: "Feedback doesn't exist!", state: AsyncState.failure);
       }
-      fetchAllFeedbacksAsProvider(userId: feedback.projectOwnerId!);
-      fetchAllOwnFeedbacks(userId: feedback.projectOwnerId!);
+      fetchAllFeedbacks(userId: feedback.ownerId!);
       callback?.call();
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {
@@ -389,24 +443,102 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
 
 class FeedbackNotifierState {
   final String? error;
-  final List<FeedbackModel>? data;
+  final List<FeedbackModel>? allFeedback;
   final AsyncState state;
 
   FeedbackNotifierState({
     this.error,
-    this.data,
+    this.allFeedback,
     required this.state,
   });
 
   FeedbackNotifierState copyWith({
     String? error,
-    List<FeedbackModel>? data,
+    List<FeedbackModel>? allFeedback,
     AsyncState? state,
   }) {
     return FeedbackNotifierState(
       error: error ?? this.error,
-      data: data ?? this.data,
+      allFeedback: allFeedback ?? this.allFeedback,
       state: state ?? this.state,
+    );
+  }
+}
+
+class ECFNotifier extends Notifier<ECFNotifierState> {
+  @override
+  ECFNotifierState build() {
+    return ECFNotifierState(state: AsyncState.initial);
+  }
+
+  Future<void> postErrorMessage(
+      {required EcfModel ecf,
+      required String feedbackId,
+      void Function()? callback}) async {
+    state = state.copyWith(state: AsyncState.loading);
+    FirebaseFirestore firestore = ref.read(firestoreProvider);
+    try {
+      state = state.copyWith(state: AsyncState.loading);
+
+      await firestore
+          .collection(FirebaseConstants.feedbackCollection)
+          .doc(feedbackId)
+          .collection(FirebaseConstants.ecfCollection)
+          .add(ecf.toMap());
+      fetchErrorMessages(feedbackId: feedbackId);
+      // fetchAllFeedbacksAsProvider(userId: userId);
+      // fetchAllOwnFeedbacks(userId: userId);
+      callback?.call();
+      state = state.copyWith(state: AsyncState.success);
+    } catch (e, stackTrace) {
+      Log.error(e.toString());
+      Log.error(stackTrace.toString());
+    }
+  }
+
+  Future<void> fetchErrorMessages(
+      {required String feedbackId, void Function()? callback}) async {
+    state = state.copyWith(state: AsyncState.loading);
+    FirebaseFirestore firestore = ref.read(firestoreProvider);
+    try {
+      state = state.copyWith(state: AsyncState.loading);
+
+      final ecfSnapshots = await firestore
+          .collection(FirebaseConstants.feedbackCollection)
+          .doc(feedbackId)
+          .collection(FirebaseConstants.ecfCollection)
+          .get();
+
+      List<EcfModel> errorMessages =
+          ecfSnapshots.docs.map((e) => EcfModel.fromMap(e.data())).toList();
+      callback?.call();
+      state = state.copyWith(data: errorMessages, state: AsyncState.success);
+    } catch (e, stackTrace) {
+      Log.error(e.toString());
+      Log.error(stackTrace.toString());
+    }
+  }
+}
+
+class ECFNotifierState {
+  final AsyncState state;
+  final List<EcfModel>? data;
+  final String? error;
+  ECFNotifierState({
+    required this.state,
+    this.data,
+    this.error,
+  });
+
+  ECFNotifierState copyWith({
+    AsyncState? state,
+    List<EcfModel>? data,
+    String? error,
+  }) {
+    return ECFNotifierState(
+      state: state ?? this.state,
+      data: data ?? this.data,
+      error: error ?? this.error,
     );
   }
 }

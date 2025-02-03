@@ -183,6 +183,7 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                       setState(() {
                         selectedUser = p0;
                         selectedGroupId = '';
+                        Log.info(selectedUser ?? 'No user selected');
                       });
                     },
                     selectedGroupId: (p0) {
@@ -216,9 +217,9 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                   PreviewFeedbackRequest(
                     feedback: FeedbackModel(
                       project: widget.project,
-                      projectOwnerId: widget.project.ownerId,
+                      ownerId: widget.project.ownerId,
+                      providerId: selectedUser,
                       requestFeedback: RequestModel(
-                        provider: selectedUser,
                         selectedGroupMemberIds: selectedGrpupUserIds ?? [],
                         privacy: selectedPrivacy,
                         message: MessageModel(
@@ -280,7 +281,6 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                           ? () {
                               final feedback = FeedbackModel(
                                 requestFeedback: RequestModel(
-                                  provider: selectedUser,
                                   isAnnonymous: isAnnonymous,
                                   message: MessageModel(
                                     message:
@@ -297,7 +297,8 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                                   selectedGroupMemberIds: selectedGrpupUserIds,
                                 ),
                                 project: widget.project,
-                                projectOwnerId: widget.project.ownerId!,
+                                ownerId: widget.project.ownerId!,
+                                providerId: selectedUser,
                               );
 
                               Log.info(feedback.toMap().toString());
@@ -305,7 +306,7 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                                   .read(feedbackProvider.notifier)
                                   .createFeedbackRequest(
                                     feedback: feedback,
-                                    userId: currentUser!.id!,
+                                    userId: currentUser!.id,
                                     callback: () {
                                       context.pop();
                                     },

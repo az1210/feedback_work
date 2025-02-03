@@ -1,4 +1,5 @@
 import 'package:feedback_work/core/extensions/string_extension.dart';
+import 'package:feedback_work/core/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -306,6 +307,7 @@ class _FilterContentState<T> extends State<FilterContent<T>> {
     required String sectionTitle,
     required FilterItem<T> item,
   }) {
+    Log.info(item.imageUrl.toString());
     final isSelected =
         widget.selectedFilters[sectionTitle]?.contains(item.value) ?? false;
 
@@ -318,11 +320,11 @@ class _FilterContentState<T> extends State<FilterContent<T>> {
         ),
         child: Row(
           children: [
-            if (item.imageUrl != null) ...[
+            if (item.imageUrl != null && item.imageUrl!.isNotEmpty) ...[
               Image.network(
                 item.imageUrl!,
-                errorBuilder: (context, error, stackTrace) =>
-                    const Icon(Icons.image),
+                // errorBuilder: (context, error, stackTrace) =>
+                //     const SizedBox.shrink(),
               ),
               8.pw,
             ],
@@ -365,7 +367,6 @@ class _FilterContentState<T> extends State<FilterContent<T>> {
   }) {
     final isSelected =
         widget.selectedFilters[sectionTitle]?.contains(item.value) ?? false;
-
     return InkWell(
       onTap: () => _updateFilters(sectionTitle, item.value),
       child: Container(
@@ -384,14 +385,15 @@ class _FilterContentState<T> extends State<FilterContent<T>> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (item.imageUrl != null)
+              if (item.imageUrl != null && item.imageUrl!.isNotEmpty) ...[
                 Image.network(
                   item.imageUrl!,
                   width: 32.w,
                   height: 32.h,
                   errorBuilder: (context, error, stackTrace) =>
-                      const Icon(Icons.image),
+                      const SizedBox.shrink(),
                 ),
+              ],
               8.ph,
               Text(
                 item.label,

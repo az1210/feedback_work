@@ -36,7 +36,7 @@ class _StatusReportScreenState extends ConsumerState<StatusReportScreen> {
         actions: [
           IconButton(
             onPressed: () {
-              if (widget.feedback.projectOwnerId != currentUser!.id) {
+              if (widget.feedback.ownerId != currentUser!.id) {
                 context.pushNamed(Routes.editStatusReport,
                     extra: widget.feedback);
               } else {

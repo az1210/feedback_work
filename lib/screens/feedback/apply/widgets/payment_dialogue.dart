@@ -1,14 +1,20 @@
+import 'dart:convert';
+
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
+import 'package:feedback_work/core/utils/network/rest_client/rest_client.dart';
+import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/providers/feedback_providers.dart';
+import 'package:feedback_work/providers/payment_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:go_router/go_router.dart';
 
-class PaymentDialogue extends ConsumerWidget {
+class PaymentDialogue extends ConsumerStatefulWidget {
   final FeedbackModel feedback;
 
   const PaymentDialogue({
@@ -17,7 +23,89 @@ class PaymentDialogue extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PaymentDialogue> createState() => _PaymentDialogueState();
+}
+
+class _PaymentDialogueState extends ConsumerState<PaymentDialogue> {
+  // String stripeSecretKey = '';
+
+  // Map<String, dynamic>? intentPaymentData;
+
+  // showPaymentSheet() async {
+  //   try {
+  //     await Stripe.instance.presentPaymentSheet().then((val) {
+  //       intentPaymentData = null;
+  //     }).onError((e, stackTrace) {
+  //       Log.error(e.toString());
+  //       Log.error(stackTrace.toString());
+  //     });
+  //   } on StripeException catch (error) {
+  //     Log.error(error.toString());
+  //   } catch (e, stackTrace) {
+  //     Log.error(e.toString());
+  //     Log.error(stackTrace.toString());
+  //   }
+  // }
+
+  // makeIntentForPayment(
+  //     {required String amount, String currency = 'USD'}) async {
+  //   try {
+  //     Map<String, dynamic>? paymentInfo = {
+  //       'amount': (int.parse(amount) * 100).toString(),
+  //       'currency': currency,
+  //       'payment_method_types[]': 'card'
+  //     };
+
+  //     var responseFromStripeAPI = await http.post(
+  //         Uri.parse('https://api.stripe.com/v1/payment_intents'),
+  //         body: paymentInfo,
+  //         headers: {
+  //           'AUthorization': "Bearer $stripeSecretKey",
+  //           'Content-Type': 'application/x-www-Form-Urlencoded'
+  //         });
+
+  //     return jsonDecode(responseFromStripeAPI.body);
+  //   } catch (e, stackTrace) {
+  //     Log.error(e.toString());
+  //     Log.error(stackTrace.toString());
+  //   }
+  // }
+
+  // paymentSheetInitialization(
+  //     {required String amount, String currency = 'USD'}) async {
+  //   try {
+  //     intentPaymentData =
+  //         await makeIntentForPayment(amount: amount, currency: currency);
+  //     await Stripe.instance
+  //         .initPaymentSheet(
+  //             paymentSheetParameters: SetupPaymentSheetParameters(
+  //       allowsDelayedPaymentMethods: true,
+  //       paymentIntentClientSecret: intentPaymentData!['client_secret'],
+  //       style: ThemeMode.system,
+  //       merchantDisplayName: 'Feedback Work',
+  //     ))
+  //         .then((val) {
+  //       Log.info(val.toString());
+  //     });
+  //     showPaymentSheet();
+  //   } catch (e, stackTrace) {
+  //     Log.error(e.toString());
+  //     Log.error(stackTrace.toString());
+  //   }
+  // }
+
+  @override
+  void initState() {
+    Future.microtask(() async {
+      ref.read(stripeSecretKeyProvider.notifier).state =
+          await ref.read(paymentProvider.notifier).stripeSecretKey() ?? '';
+    });
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final paymentNotifier = ref.read(paymentProvider.notifier);
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.r),
@@ -51,7 +139,7 @@ class PaymentDialogue extends ConsumerWidget {
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   TextSpan(
-                    text: "\$${feedback.requestFeedback!.cost} ",
+                    text: "\$${widget.feedback.requestFeedback!.cost} ",
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -62,7 +150,7 @@ class PaymentDialogue extends ConsumerWidget {
                   ),
                   TextSpan(
                     text:
-                        "${feedback.project!.owner!.firstName} ${feedback.project!.owner!.lastName} ",
+                        "${widget.feedback.project!.owner!.firstName} ${widget.feedback.project!.owner!.lastName} ",
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -74,7 +162,7 @@ class PaymentDialogue extends ConsumerWidget {
                   ),
                   TextSpan(
                     text:
-                        "${feedback.project!.owner!.firstName} ${feedback.project!.owner!.lastName} ",
+                        "${widget.feedback.project!.owner!.firstName} ${widget.feedback.project!.owner!.lastName} ",
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -103,14 +191,25 @@ class PaymentDialogue extends ConsumerWidget {
                 Expanded(
                   child: AppButton.filled(
                     label: "Confirm Payment",
-                    onTap: () {
-                      ref.read(feedbackProvider.notifier).appliedFeedback(
-                            feedback: feedback,
-                            userId: feedback.projectOwnerId!,
-                            callback: () {
-                              context.goNamed(Routes.feedback);
-                            },
-                          );
+                    onTap: () async {
+                      await paymentNotifier.initializePaymentSheet(
+                        amount: widget.feedback.requestFeedback!.cost!
+                            .round()
+                            .toString(),
+                      );
+                      await paymentNotifier.presentPaymentSheet();
+                      // paymentSheetInitialization(
+                      //     amount: widget.feedback.requestFeedback!.cost!
+                      //         .round()
+                      //         .toString(),
+                      //     currency: 'USD');
+                      // ref.read(feedbackProvider.notifier).appliedFeedback(
+                      //       feedback: feedback,
+                      //       userId: feedback.projectOwnerId!,
+                      //       callback: () {
+                      //         context.goNamed(Routes.feedback);
+                      //       },
+                      //     );
                     },
                   ),
                 ),

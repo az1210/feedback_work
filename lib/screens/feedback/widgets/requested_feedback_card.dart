@@ -6,6 +6,7 @@ import 'package:feedback_work/core/utils/helper_functions.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/models/user_model.dart';
+import 'package:feedback_work/providers/feedback_providers.dart';
 import 'package:feedback_work/providers/user_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,26 +37,22 @@ class _RequestedFeedbackCardState extends ConsumerState<RequestedFeedbackCard> {
       quill.QuillController.basic();
   final FocusNode requestFeedbackMessageFocusNode = FocusNode();
   UserModel? provider;
+  List<EcfModel>? errors;
 
   @override
   void initState() {
     Future.microtask(() {
       ref
           .read(fetchUserByIdProvider.notifier)
-          .fetchUser(uid: widget.feedback.requestFeedback!.provider!);
+          .fetchUser(uid: widget.feedback.providerId!);
+      ref
+          .read(ecfProvider.notifier)
+          .fetchErrorMessages(feedbackId: widget.feedback.id!);
     });
-    if (widget.feedback.errors != null) {
-      if (widget.feedback.errors!.isNotEmpty) {
-        requestFeedbackMessageController.document = quill.Document.fromDelta(
-            widget.feedback.errors!.last.correctionMessage!);
-      } else {
-        requestFeedbackMessageController.document = quill.Document.fromDelta(
-            widget.feedback.requestFeedback!.message!.message!);
-      }
-    } else {
-      requestFeedbackMessageController.document = quill.Document.fromDelta(
-          widget.feedback.requestFeedback!.message!.message!);
-    }
+
+    requestFeedbackMessageController.document = quill.Document.fromDelta(
+        widget.feedback.requestFeedback!.message!.message!);
+
     super.initState();
   }
 
@@ -74,12 +71,21 @@ class _RequestedFeedbackCardState extends ConsumerState<RequestedFeedbackCard> {
         provider = newState.data;
       }
     });
+    final ecfState = ref.watch(ecfProvider);
+    ref.listen(ecfProvider, (_, newState) {
+      if (newState.state == AsyncState.success) {
+        errors = newState.data;
+        requestFeedbackMessageController.document =
+            quill.Document.fromDelta(errors!.last.correctionMessage!);
+      }
+    });
     return Builder(builder: (context) {
-      if (userState.state == AsyncState.loading) {
+      if (userState.state == AsyncState.loading &&
+          ecfState.state == AsyncState.loading) {
         return const Center(
           child: CircularProgressIndicator(),
         );
-      } else if (userState.error != null) {
+      } else if (userState.error != null && ecfState.error != null) {
         return const Center(
           child: Text('Something went wrong'),
         );

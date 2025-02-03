@@ -6,6 +6,7 @@ import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/feedback_providers.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
+import 'package:feedback_work/providers/payment_providers.dart';
 import 'package:feedback_work/providers/user_providers.dart';
 import 'package:feedback_work/screens/feedback/widgets/feedback_card.dart';
 import 'package:feedback_work/screens/feedback/widgets/feedback_search_and_filter.dart';
@@ -13,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 
 class FeedbackScreen extends ConsumerStatefulWidget {
   const FeedbackScreen({super.key});
@@ -29,6 +31,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
   FeedbackScreenConnectionType feedbackScreenConnectionType =
       FeedbackScreenConnectionType.all;
 
+  List<FeedbackModel> allFeedbacks = [];
   List<FeedbackModel> ownFeedbacks = [];
   List<FeedbackModel> anotherFeedbacks = [];
   List<FeedbackModel> filteredFeedbacks = [];
@@ -36,14 +39,17 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
   @override
   void initState() {
     Future.microtask(() async {
+      Stripe.publishableKey =
+          await ref.watch(paymentProvider.notifier).stripePublishableKey() ??
+              '';
       final auth = ref.read(firebaseAuthProvider);
       currentUser = await ref.watch(userProvider.notifier).currentUser();
       ref
           .read(feedbackProvider.notifier)
-          .fetchAllOwnFeedbacks(userId: auth.currentUser!.uid);
-      anotherFeedbacks = await ref
-          .watch(feedbackProvider.notifier)
-          .fetchAllFeedbacksAsProvider(userId: currentUser!.id!);
+          .fetchAllFeedbacks(userId: auth.currentUser!.uid);
+      // await ref
+      //     .read(feedbackProvider.notifier)
+      //     .fetchAllFeedbacksAsProvider(userId: currentUser!.id);
     });
     super.initState();
   }
@@ -53,20 +59,20 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
     final feedbackState = ref.watch(feedbackProvider);
     ref.listen(feedbackProvider, (_, newState) {
       if (newState.state == AsyncState.success) {
-        ownFeedbacks = newState.data!
-            .where((f) =>
-                f.ownerSideStatus!.status ==
-                FeedbackStatus.requested.name.toTitleCase())
-            .toList();
+        allFeedbacks = newState.allFeedback ?? [];
         Log.info(ownFeedbacks
             .map(
                 (f) => f.requestFeedback!.selectedGroupMemberIds!.map((p) => p))
             .toList()
             .toString());
+        ownFeedbacks =
+            allFeedbacks.where((f) => f.ownerId == currentUser!.id).toList();
+        anotherFeedbacks =
+            allFeedbacks.where((f) => f.providerId == currentUser!.id).toList();
       }
     });
     Log.info(anotherFeedbacks.length.toString());
-    final List<FeedbackModel> allFeedbacks = ownFeedbacks + anotherFeedbacks;
+    Log.info(ownFeedbacks.length.toString());
 
     return Scaffold(
       appBar: AppBar(
@@ -92,9 +98,16 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
           IconButton(
             icon: const Icon(Icons.delete, color: Colors.red),
             onPressed: () {
-              ref
-                  .read(feedbackProvider.notifier)
-                  .deleteCollection(FirebaseConstants.feedbackCollection);
+              // ref
+              //     .read(feedbackProvider.notifier)
+              //     .deleteCollection(FirebaseConstants.apiKeyCollection);
+              // ref.read(paymentProvider.notifier).stripePublishableKey();
+              // ref.read(paymentProvider.notifier).stripeSecretKey();
+
+              // ref.read(feedbackProvider.notifier).deleteSubCollection(
+              //     collectionPath: FirebaseConstants.userCollection,
+              //     docId: currentUser!.id,
+              //     subCollectionPath: FirebaseConstants.feedbackCollection);
             },
           ),
         ],
@@ -177,7 +190,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                           child: FeedbackCard(
                             isGrid: isGrid,
                             feedback: filteredFeedbacks[index],
-                            currentUserId: currentUser!.id!,
+                            currentUserId: currentUser?.id ?? '',
                           ),
                         ),
                       ),

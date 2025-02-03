@@ -82,6 +82,10 @@
 	</array>
 	<key>FacebookClientToken</key>
 	<string>5dd6de7172e10ab61d6db332553b1fef</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Scan your card to add it automatically</string>
+	<key>NSCameraUsageDescription</key>
+	<string>To scan cards</string>
 </dict>
 </plist>
 
