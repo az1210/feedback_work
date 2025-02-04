@@ -2,6 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feedback_work/core/constants/firebase_constants.dart';
 import 'package:feedback_work/core/utils/network/rest_client/api_options.dart';
+import 'package:feedback_work/core/utils/toast_message.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,6 +34,7 @@ class PaymentNotifier extends Notifier<PaymentState> {
         ApiEndpoints.stripePaymentIntent,
         {
           'amount': (int.parse(amount) * 100).toString(),
+          // 'amount': "100",
           'currency': currency,
           'payment_method_types[]': 'card'
         },
@@ -78,6 +80,9 @@ class PaymentNotifier extends Notifier<PaymentState> {
       await Stripe.instance.presentPaymentSheet();
     } on StripeException catch (error) {
       Log.error(error.toString());
+      if (error.error.code == FailureCode.Canceled) {
+        showToast(message: "Payment Canceled");
+      }
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());

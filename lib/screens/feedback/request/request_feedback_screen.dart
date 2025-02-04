@@ -288,8 +288,12 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                                     subject: subject,
                                     ytUrl: youtubeLink,
                                   ),
-                                  cost:
-                                      double.tryParse(feedbackCost ?? "0") ?? 0,
+                                  cost: feedbackCost!.isNotEmpty ||
+                                          feedbackCost != null
+                                      ? double.tryParse(feedbackCost ?? "0")
+                                      : double.tryParse(currentUser!.minimumRate
+                                              .toString()) ??
+                                          0,
                                   feedbackLimit:
                                       int.tryParse(feedbackLimit ?? "0") ?? 0,
                                   privacy: selectedPrivacy,

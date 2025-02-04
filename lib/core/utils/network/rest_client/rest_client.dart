@@ -66,7 +66,7 @@ class ApiClient {
   Map<String, String> get _headers => {
         if (_idToken != '') 'Authorization': "Bearer $_idToken",
         'Accept': 'application/json',
-        'Content-type': 'application/json',
+        // 'Content-type': 'application/x-www-form-urlencoded',
       };
 
   void _cancelIfUnauthorized(ApiAccessType accessType) {
@@ -97,7 +97,8 @@ class ApiClient {
     // ignore: strict_raw_type, inference_failure_on_function_invocation
     final response = await _client.post(
       path,
-      data: FormData.fromMap({...(body ?? {}), 'returnJson': 1}),
+      data: body,
+      // data: FormData.fromMap({...(body ?? {})}),
       options: Options(headers: {..._headers, ...?headers}),
       queryParameters: queryParams,
     );
