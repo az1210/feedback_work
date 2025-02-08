@@ -33,8 +33,8 @@ class PaymentNotifier extends Notifier<PaymentState> {
         ApiAccessType.protected,
         ApiEndpoints.stripePaymentIntent,
         {
-          'amount': (int.parse(amount) * 100).toString(),
-          // 'amount': "100",
+          // 'amount': (int.parse(amount) * 100).toString(),
+          'amount': "100",
           'currency': currency,
           'payment_method_types[]': 'card'
         },
