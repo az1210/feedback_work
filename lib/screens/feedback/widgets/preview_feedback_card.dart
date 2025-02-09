@@ -31,8 +31,12 @@ class _PreviewFeedbackCardState extends State<PreviewFeedbackCard> {
   @override
   void initState() {
     Log.info(widget.feedbackModel.project?.toMap().toString() ?? 'No Project');
-    projectDescriptionController.document = quill.Document.fromDelta(
-        widget.feedbackModel.project!.projectDescription!);
+    projectDescriptionController.document =
+        widget.feedbackModel.requestFeedback!.message?.message != null
+            ? quill.Document.fromDelta(
+                widget.feedbackModel.requestFeedback!.message!.message!)
+            : quill.Document.fromDelta(
+                widget.feedbackModel.project!.projectDescription!);
     projectDescriptionController.readOnly = true;
     projectDescriptionFocusNode.canRequestFocus = false;
     super.initState();
@@ -248,14 +252,24 @@ class _PreviewFeedbackCardState extends State<PreviewFeedbackCard> {
                     ),
                   ],
                 ),
-                16.ph,
-                if (widget.feedbackModel.project?.projectDescription !=
+                if (widget.feedbackModel.requestFeedback!.message?.subject !=
                     null) ...[
-                  quill.QuillEditor.basic(
-                    controller: projectDescriptionController,
-                    focusNode: projectDescriptionFocusNode,
+                  16.ph,
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      widget.feedbackModel.requestFeedback!.message!.subject!,
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
                   ),
                 ],
+                16.ph,
+                quill.QuillEditor.basic(
+                  controller: projectDescriptionController,
+                  focusNode: projectDescriptionFocusNode,
+                ),
               ],
             ),
           ),
