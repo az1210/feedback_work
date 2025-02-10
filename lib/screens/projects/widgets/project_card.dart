@@ -11,11 +11,13 @@ import 'package:intl/intl.dart';
 class ProjectCard extends StatefulWidget {
   final String projectId;
   final ProjectModel project;
+  final bool isGrid;
 
   const ProjectCard({
     super.key,
     required this.projectId,
     required this.project,
+    required this.isGrid,
   });
 
   @override
@@ -191,11 +193,21 @@ class _ProjectCardState extends State<ProjectCard> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: Text(
-                      'Request Feedback',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Colors.white,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Request Feedback',
+                            style:
+                                Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      color: Colors.white,
+                                    ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
                           ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -211,58 +223,126 @@ class _ProjectCardState extends State<ProjectCard> {
                         child: Padding(
                           padding: const EdgeInsets.only(
                               right: 16, bottom: 4, top: 4),
-                          child: Row(
-                            children: [
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.edit_outlined,
-                                  color: Colors.black,
+                          child: widget.isGrid
+                              ? Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.edit_outlined,
+                                            color: Colors.black,
+                                          ),
+                                          onPressed: () {
+                                            final projectId = widget.projectId;
+                                            context.push(
+                                                '/solution-function-settings/$projectId');
+                                          },
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.delete_outline,
+                                              color: Colors.black),
+                                          onPressed: () {
+                                            // Handle delete
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(Icons.share_outlined,
+                                              color: Colors.black),
+                                          onPressed: () {
+                                            // Handle share
+                                          },
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            // Handle Start action
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                const Color(0xFF0866FF),
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 8, horizontal: 21),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(29),
+                                            ),
+                                            minimumSize: const Size(0, 0),
+                                          ),
+                                          child: const Text(
+                                            'Start',
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                )
+                              : Row(
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.edit_outlined,
+                                        color: Colors.black,
+                                      ),
+                                      onPressed: () {
+                                        final projectId = widget.projectId;
+                                        context.push(
+                                            '/solution-function-settings/$projectId');
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete_outline,
+                                          color: Colors.black),
+                                      onPressed: () {
+                                        // Handle delete
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.share_outlined,
+                                          color: Colors.black),
+                                      onPressed: () {
+                                        // Handle share
+                                      },
+                                    ),
+                                    const Spacer(),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        // Handle Start action
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            const Color(0xFF0866FF),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 8, horizontal: 21),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(29),
+                                        ),
+                                        minimumSize: const Size(0, 0),
+                                      ),
+                                      child: const Text(
+                                        'Start',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                onPressed: () {
-                                  final projectId = widget.projectId;
-                                  context.push(
-                                      '/solution-function-settings/$projectId');
-                                },
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete_outline,
-                                    color: Colors.black),
-                                onPressed: () {
-                                  // Handle delete
-                                },
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.share_outlined,
-                                    color: Colors.black),
-                                onPressed: () {
-                                  // Handle share
-                                },
-                              ),
-                              const Spacer(),
-                              ElevatedButton(
-                                onPressed: () {
-                                  // Handle Start action
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF0866FF),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 8, horizontal: 21),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(29),
-                                  ),
-                                  minimumSize: const Size(0, 0),
-                                ),
-                                child: const Text(
-                                  'Start',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
                         ),
                       ),
                       const Divider(
@@ -274,15 +354,17 @@ class _ProjectCardState extends State<ProjectCard> {
                             left: 16, top: 8, right: 16, bottom: 16),
                         child: Row(
                           children: [
-                            const Text(
-                              "Check Progress",
-                              style: TextStyle(
-                                fontFamily: "Inter",
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                            const Expanded(
+                              child: Text(
+                                "Check Progress",
+                                style: TextStyle(
+                                  fontFamily: "Inter",
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            const Spacer(),
                             GestureDetector(
                               onTap: () {
                                 setState(() {
@@ -443,7 +525,7 @@ class _ProjectCardState extends State<ProjectCard> {
                       ),
                     ),
                     child: Text(
-                      'Request Feedback',
+                      widget.isGrid ? 'Request' : 'Request Feedback',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             color: Colors.white,
                           ),
