@@ -22,6 +22,7 @@ class ProjectsScreen extends ConsumerStatefulWidget {
 
 class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
   List<ProjectModel> projects = [];
+  bool isGrid = false;
 
   @override
   void initState() {
@@ -58,8 +59,13 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.grid_view, color: Colors.black),
-            onPressed: () {},
+            icon: Icon(isGrid ? Icons.list : Icons.grid_view,
+                color: Colors.black),
+            onPressed: () {
+              setState(() {
+                isGrid = !isGrid;
+              });
+            },
           ),
           IconButton(
             icon: const Icon(Icons.delete, color: Colors.red),
@@ -134,49 +140,65 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
               );
             }
 
-            return ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                ...projects.map((doc) {
-                  final project = doc;
-                  final projectId = doc.id;
+            return isGrid
+                ? GridView.builder(
+                    itemCount: projects.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.5,
+                    ),
+                    itemBuilder: (context, index) {
+                      return ProjectCard(
+                        projectId: projects[index].id ?? '',
+                        project: projects[index],
+                      );
+                    })
+                : ListView(
+                    padding: const EdgeInsets.all(16),
+                    children: [
+                      ...projects.map((doc) {
+                        final project = doc;
+                        final projectId = doc.id;
 
-                  return ProjectCard(
-                    projectId: projectId ?? '',
-                    project: project,
-                  );
-                }),
-                const SizedBox(height: 4),
-                InkWell(
-                  onTap: () {
-                    context.pushNamed(Routes.createProject);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 24),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.add_circle,
-                            size: 35, color: Color(0xFF0866ff)),
-                        const SizedBox(height: 5),
-                        Text(
-                          'Create Project',
-                          style:
-                              Theme.of(context).textTheme.titleSmall?.copyWith(
-                                    color: const Color(0xFF0866ff),
-                                  ),
+                        return ProjectCard(
+                          projectId: projectId ?? '',
+                          project: project,
+                        );
+                      }),
+                      const SizedBox(height: 4),
+                      InkWell(
+                        onTap: () {
+                          context.pushNamed(Routes.createProject);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 24),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.add_circle,
+                                  size: 35, color: Color(0xFF0866ff)),
+                              const SizedBox(height: 5),
+                              Text(
+                                'Create Project',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(
+                                      color: const Color(0xFF0866ff),
+                                    ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-              ],
-            );
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  );
           }
         },
       ),

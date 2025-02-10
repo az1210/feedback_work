@@ -25,7 +25,6 @@ void main() async {
       builder: (context) => const ProviderScope(
         child: MyApp(),
       ),
-      enabled: false,
     ),
   );
 }

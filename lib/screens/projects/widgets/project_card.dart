@@ -48,23 +48,26 @@ class _ProjectCardState extends State<ProjectCard> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          project.projectName ?? 'No Name',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          project.createdAt is Timestamp
-                              ? DateFormat('dd/MM/yyyy').format(
-                                  (project.createdAt as Timestamp).toDate())
-                              : 'N/A',
-                          style: const TextStyle(
-                              fontSize: 14, fontStyle: FontStyle.italic),
-                        ),
-                      ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            project.projectName ?? 'No Name',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            project.createdAt is Timestamp
+                                ? DateFormat('dd/MM/yyyy').format(
+                                    (project.createdAt as Timestamp).toDate())
+                                : 'N/A',
+                            style: const TextStyle(
+                                fontSize: 14, fontStyle: FontStyle.italic),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
                     ),
                     GestureDetector(
                       onTap: () {
@@ -415,6 +418,7 @@ class _ProjectCardState extends State<ProjectCard> {
                               ),
                           overflow: TextOverflow.clip,
                           softWrap: true,
+                          maxLines: 1,
                         ),
                       ),
                     ],
@@ -463,11 +467,13 @@ class _ProjectCardState extends State<ProjectCard> {
         children: [
           Row(
             children: [
-              Text(
-                '$label ',
-                style: Theme.of(context).textTheme.bodyMedium,
-                overflow: TextOverflow.clip,
-                softWrap: true,
+              Expanded(
+                child: Text(
+                  '$label ',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  overflow: TextOverflow.clip,
+                  softWrap: true,
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -486,8 +492,9 @@ class _ProjectCardState extends State<ProjectCard> {
                         .textTheme
                         .bodyMedium
                         ?.copyWith(color: valueColor),
-                    overflow: TextOverflow.clip,
+                    overflow: TextOverflow.ellipsis,
                     softWrap: true,
+                    maxLines: 1,
                   ),
                 ),
               ),
