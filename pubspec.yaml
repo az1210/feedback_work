@@ -42,6 +42,7 @@ dependencies:
   flutter_stripe: ^11.4.0
   dio: ^5.8.0+1
   hive_flutter: ^1.1.0
+  timelines_plus: ^1.0.6
 
 dev_dependencies:
   flutter_test:
@@ -60,6 +61,7 @@ flutter:
     - assets/images/icons/
     - assets/images/icons/nav-tab/
     - assets/images/solution_function/
+    - assets/svgs/
 
 
   fonts:

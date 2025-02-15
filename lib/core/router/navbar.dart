@@ -1,7 +1,9 @@
+import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/ui/assets/app_assets.dart';
 import 'package:feedback_work/core/ui/theme.dart';
 import 'package:feedback_work/screens/more/more_drawer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 class ScaffoldWithNestedNavigation extends StatelessWidget {
@@ -54,39 +56,58 @@ class ScaffoldWithNestedNavigation extends StatelessWidget {
           type: BottomNavigationBarType.fixed,
           items: [
             BottomNavigationBarItem(
-              icon: ImageIcon(
-                AssetImage(AppAssets.images.tabIcon2),
+              icon: SvgPicture.asset(
+                AppAssets.svgs.projectIcon,
+              ),
+              activeIcon: SvgPicture.asset(
+                AppAssets.svgs.projectActiveIcon,
               ),
               label: 'Projects',
             ),
             BottomNavigationBarItem(
-              icon: ImageIcon(
-                AssetImage(
-                  AppAssets.images.feedbackTab,
-                ),
+              icon: SvgPicture.asset(
+                AppAssets.svgs.feedbackIcon,
+              ),
+              activeIcon: SvgPicture.asset(
+                AppAssets.svgs.feedbackActiveIcon,
               ),
               label: 'Feedback',
             ),
             BottomNavigationBarItem(
-              icon: ImageIcon(
-                AssetImage(
-                  AppAssets.images.networkTab,
+              icon: SvgPicture.asset(
+                AppAssets.svgs.networkIcon,
+              ),
+              activeIcon: SvgPicture.asset(
+                AppAssets.svgs.networkIcon,
+                colorFilter: ColorFilter.mode(
+                  context.colors.primaryBlue,
+                  BlendMode.srcIn,
                 ),
               ),
               label: 'Network',
             ),
             BottomNavigationBarItem(
-              icon: ImageIcon(
-                AssetImage(
-                  AppAssets.images.statusTab,
+              icon: SvgPicture.asset(
+                AppAssets.svgs.statusIcon,
+              ),
+              activeIcon: SvgPicture.asset(
+                AppAssets.svgs.statusIcon,
+                colorFilter: ColorFilter.mode(
+                  context.colors.primaryBlue,
+                  BlendMode.srcIn,
                 ),
               ),
               label: 'Status',
             ),
             BottomNavigationBarItem(
-              icon: ImageIcon(
-                AssetImage(
-                  AppAssets.images.moreTab,
+              icon: SvgPicture.asset(
+                AppAssets.svgs.moreIcon,
+              ),
+              activeIcon: SvgPicture.asset(
+                AppAssets.svgs.moreIcon,
+                colorFilter: ColorFilter.mode(
+                  context.colors.primaryBlue,
+                  BlendMode.srcIn,
                 ),
               ),
               label: 'More',

@@ -1,4 +1,5 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
+import 'package:feedback_work/core/utils/network_image_helper.dart';
 import 'package:feedback_work/models/child_model.dart';
 import 'package:feedback_work/models/parent_model.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,7 @@ class ParentChildCard extends StatelessWidget {
             CircleAvatar(
               radius: 32.r,
               child: Image.network(
-                parent!.avaterUrl ?? '',
+                networkImage(parent!.avaterUrl),
                 errorBuilder: (context, error, stackTrace) =>
                     const Icon(Icons.person),
               ),
@@ -48,7 +49,7 @@ class ParentChildCard extends StatelessWidget {
             CircleAvatar(
               radius: 32.r,
               child: Image.network(
-                child!.avaterUrl ?? '',
+                networkImage(child!.avaterUrl),
                 errorBuilder: (context, error, stackTrace) =>
                     const Icon(Icons.person),
               ),

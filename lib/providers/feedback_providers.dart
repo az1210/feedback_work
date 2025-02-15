@@ -1,4 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:feedback_work/models/project_model.dart';
+import 'package:feedback_work/models/user_model.dart';
+import 'package:feedback_work/providers/new_project_providers.dart';
+import 'package:feedback_work/providers/project_progress_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -138,6 +142,7 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
       void Function()? callback}) async {
     state = state.copyWith(state: AsyncState.loading);
     FirebaseFirestore firestore = ref.read(firestoreProvider);
+    final projectNotifier = ref.read(projectProgressProvider.notifier);
     try {
       state = state.copyWith(state: AsyncState.loading);
       const uuid = Uuid();
@@ -184,6 +189,14 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
             .set({'id': feedbackId});
       }
       fetchAllFeedbacks(userId: userId);
+      projectNotifier.addProgress(
+        projectId: feedback.project!.id!,
+        projectTimeline: ProjectTimelineModel(
+          message:
+              "Feedback Requested by ${feedback.project!.owner!.firstName} ${feedback.project!.owner!.lastName}",
+          modifiedAt: DateTime.now().toString(),
+        ),
+      );
       callback?.call();
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {
@@ -194,10 +207,11 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
 
   Future<void> provideFeedback(
       {required FeedbackModel feedback,
-      required String userId,
+      required UserModel user,
       void Function()? callback}) async {
     state = state.copyWith(state: AsyncState.loading);
     FirebaseFirestore firestore = ref.read(firestoreProvider);
+    final projectNotifier = ref.read(projectProgressProvider.notifier);
 
     try {
       state = state.copyWith(state: AsyncState.loading);
@@ -228,7 +242,14 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
         state = state.copyWith(
             error: "Feedback doesn't exist!", state: AsyncState.failure);
       }
-      fetchAllFeedbacks(userId: userId);
+      fetchAllFeedbacks(userId: user.id);
+      projectNotifier.addProgress(
+        projectId: feedback.project!.id!,
+        projectTimeline: ProjectTimelineModel(
+          message: "Feedback Received from ${user.firstName} ${user.lastName}",
+          modifiedAt: DateTime.now().toString(),
+        ),
+      );
       callback?.call();
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {
@@ -243,6 +264,7 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
       void Function()? callback}) async {
     state = state.copyWith(state: AsyncState.loading);
     FirebaseFirestore firestore = ref.read(firestoreProvider);
+    final projectNotifier = ref.read(projectProgressProvider.notifier);
 
     try {
       state = state.copyWith(state: AsyncState.loading);
@@ -307,6 +329,14 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
             error: "Feedback doesn't exist!", state: AsyncState.failure);
       }
       fetchAllFeedbacks(userId: userId);
+      projectNotifier.addProgress(
+        projectId: feedback.project!.id!,
+        projectTimeline: ProjectTimelineModel(
+          message:
+              "Feedback Applied by ${feedback.project!.owner!.firstName} ${feedback.project!.owner!.lastName}",
+          modifiedAt: DateTime.now().toString(),
+        ),
+      );
       callback?.call();
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {

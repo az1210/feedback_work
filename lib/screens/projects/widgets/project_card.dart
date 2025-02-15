@@ -2,13 +2,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/project_model.dart';
+import 'package:feedback_work/providers/project_progress_provider.dart';
 import 'package:feedback_work/providers/project_providers.dart';
 import 'package:feedback_work/screens/projects/widgets/check_progress_status.dart';
+import 'package:feedback_work/screens/projects/widgets/project_progress_timeline.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-class ProjectCard extends StatefulWidget {
+class ProjectCard extends ConsumerStatefulWidget {
   final String projectId;
   final ProjectModel project;
   final bool isGrid;
@@ -21,16 +24,23 @@ class ProjectCard extends StatefulWidget {
   });
 
   @override
-  State<ProjectCard> createState() => _ProjectCardState();
+  ConsumerState<ProjectCard> createState() => _ProjectCardState();
 }
 
-class _ProjectCardState extends State<ProjectCard> {
+class _ProjectCardState extends ConsumerState<ProjectCard> {
   bool _isExpanded = false;
   bool _isProgressExpanded = false;
+  List<ProjectTimelineModel>? projectProgress;
 
   @override
   Widget build(BuildContext context) {
     final project = widget.project;
+    final projectProgressState = ref.watch(projectProgressProvider);
+    // ref.listen(projectProgressProvider, (_, newState) {
+    //   if (newState.state == AsyncState.success) {
+    //     projectProgress = newState.projectProgress;
+    //   }
+    // });
 
     return Column(
       children: [
@@ -132,20 +142,29 @@ class _ProjectCardState extends State<ProjectCard> {
                   () {},
                 ),
                 _buildDetailRow(
-                  'Total Feedback Requested', '0',
+                  'Total Feedback Requested',
+                  project.owner!.totalFeedbackRequested == -1
+                      ? '0'
+                      : project.owner!.totalFeedbackRequested.toString(),
                   // TODO: Implement API
                   // '${project['feedbackRequested'] ?? 0}',
                   const Color.fromARGB(255, 0, 87, 255),
                   () {},
                 ),
                 _buildDetailRow(
-                  'Total Feedback Received', '0',
+                  'Total Feedback Received',
+                  project.owner!.totalFeedbackReceived == -1
+                      ? '0'
+                      : project.owner!.totalFeedbackReceived.toString(),
                   // '${project['feedbackReceived'] ?? 0}',
                   const Color.fromARGB(255, 0, 87, 255),
                   () {},
                 ),
                 _buildDetailRow(
-                  'Total Feedback Applied', '0',
+                  'Total Feedback Applied',
+                  project.owner!.feedbackApplied == -1
+                      ? '0'
+                      : project.owner!.feedbackApplied.toString(),
                   // '${project['feedbackApplied'] ?? 0}',
                   const Color.fromARGB(255, 0, 87, 255),
                   () {},
@@ -370,6 +389,12 @@ class _ProjectCardState extends State<ProjectCard> {
                                 setState(() {
                                   _isProgressExpanded = !_isProgressExpanded;
                                 });
+                                if (_isProgressExpanded) {
+                                  ref
+                                      .read(projectProgressProvider.notifier)
+                                      .fetchProgress(
+                                          projectId: widget.projectId);
+                                }
                               },
                               behavior: HitTestBehavior.opaque,
                               child: Padding(
@@ -397,62 +422,86 @@ class _ProjectCardState extends State<ProjectCard> {
                         ),
                         Padding(
                           padding: const EdgeInsets.all(16),
-                          child: Column(
-                            children: [
-                              const CheckProgressStatus(
-                                  title: "Project Started", subtitle: "May 26"),
-                              const CheckProgressStatus(
-                                  title: "Feedback Requested John Davis",
-                                  subtitle: "May 29"),
-                              const CheckProgressStatus(
-                                  title:
-                                      "Feedback Received from Micheale David",
-                                  subtitle: "May 29"),
-                              const CheckProgressStatus(
-                                  title: "Feedback Applied by John Davis",
-                                  subtitle: "May 29"),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Image(
-                                    image: AssetImage(
-                                      "assets/images/icons/step.png",
-                                    ),
-                                    height: 20.4,
-                                  ),
-                                  const SizedBox(width: 7.93),
-                                  Transform.translate(
-                                    offset: const Offset(0, -5),
-                                    child: const Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Error Corrected by John Davis",
-                                          style: TextStyle(
-                                            fontFamily: 'Inter',
-                                            fontSize: 13.6,
-                                            fontWeight: FontWeight.w400,
-                                          ),
+                          child: Builder(builder: (context) {
+                            if (projectProgressState.state ==
+                                AsyncState.loading) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            } else if (projectProgressState.error != null ||
+                                projectProgressState.projectProgress == null) {
+                              return const Center(
+                                child: Text("Something went wrong"),
+                              );
+                            } else {
+                              return ProjectTimeline(
+                                  events: projectProgressState.projectProgress!
+                                      .map(
+                                        (p) => TimelineEvent(
+                                          title: p.message,
+                                          date: p.modifiedAt,
                                         ),
-                                        Text(
-                                          "May 29",
-                                          style: TextStyle(
-                                            fontFamily: 'Inter',
-                                            fontSize: 11.33,
-                                            fontWeight: FontWeight.w400,
-                                            color: Color.fromARGB(
-                                                255, 101, 103, 107),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              )
-                            ],
-                          ),
-                        )
+                                      )
+                                      .toList());
+                            }
+                          }),
+                        ),
+                        // Column(
+                        //   children: [
+                        //     const CheckProgressStatus(
+                        //         title: "Project Started", subtitle: "May 26"),
+                        //     const CheckProgressStatus(
+                        //         title: "Feedback Requested John Davis",
+                        //         subtitle: "May 29"),
+                        //     const CheckProgressStatus(
+                        //         title:
+                        //             "Feedback Received from Micheale David",
+                        //         subtitle: "May 29"),
+                        //     const CheckProgressStatus(
+                        //         title: "Feedback Applied by John Davis",
+                        //         subtitle: "May 29"),
+                        //     Row(
+                        //       crossAxisAlignment: CrossAxisAlignment.start,
+                        //       children: [
+                        //         const Image(
+                        //           image: AssetImage(
+                        //             "assets/images/icons/step.png",
+                        //           ),
+                        //           height: 20.4,
+                        //         ),
+                        //         const SizedBox(width: 7.93),
+                        //         Transform.translate(
+                        //           offset: const Offset(0, -5),
+                        //           child: const Column(
+                        //             crossAxisAlignment:
+                        //                 CrossAxisAlignment.start,
+                        //             children: [
+                        //               Text(
+                        //                 "Error Corrected by John Davis",
+                        //                 style: TextStyle(
+                        //                   fontFamily: 'Inter',
+                        //                   fontSize: 13.6,
+                        //                   fontWeight: FontWeight.w400,
+                        //                 ),
+                        //               ),
+                        //               Text(
+                        //                 "May 29",
+                        //                 style: TextStyle(
+                        //                   fontFamily: 'Inter',
+                        //                   fontSize: 11.33,
+                        //                   fontWeight: FontWeight.w400,
+                        //                   color: Color.fromARGB(
+                        //                       255, 101, 103, 107),
+                        //                 ),
+                        //               ),
+                        //             ],
+                        //           ),
+                        //         ),
+                        //       ],
+                        //     )
+                        //   ],
+                        // ),
+                        // )
                       ]
                     ],
                   ),

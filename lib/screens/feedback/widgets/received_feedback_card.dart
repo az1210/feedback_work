@@ -3,6 +3,7 @@ import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/core/utils/helper_functions.dart';
+import 'package:feedback_work/core/utils/network_image_helper.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/screens/feedback/apply/widgets/corrected_communication.dart';
 import 'package:feedback_work/screens/feedback/widgets/feedback_search_and_filter.dart';
@@ -131,7 +132,8 @@ class _ReceivedFeedbackCardState extends State<ReceivedFeedbackCard> {
                               radius: 30.r,
                               backgroundColor: context.colors.background,
                               child: Image.network(
-                                '',
+                                networkImage(
+                                    widget.feedback.project?.owner?.avaterUrl),
                                 errorBuilder: (context, error, stackTrace) =>
                                     Icon(
                                   Icons.person,

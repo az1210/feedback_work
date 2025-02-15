@@ -1,6 +1,7 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/stat_item_card.dart';
+import 'package:feedback_work/core/utils/network_image_helper.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/screens/network/widgets/network_search_and_filter.dart';
@@ -98,20 +99,13 @@ class _ConnectionInfoCardState extends State<ConnectionInfoCard> {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: context.colors.inputBorder,
-          image: widget.imageUrl != null
-              ? DecorationImage(
-                  image: NetworkImage(widget.imageUrl!),
-                  fit: BoxFit.cover,
-                )
-              : null,
         ),
-        child: widget.imageUrl == null
-            ? Icon(
-                Icons.person,
-                size: 40,
-                color: Colors.grey[400],
-              )
-            : null,
+        child: Image.network(
+          networkImage(widget.imageUrl),
+          errorBuilder: (context, error, stackTrace) => const Icon(
+            Icons.person,
+          ),
+        ),
       ),
     );
   }

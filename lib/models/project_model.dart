@@ -1,8 +1,10 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:feedback_work/models/user_model.dart';
 import 'package:flutter_quill/quill_delta.dart';
+
+import 'package:feedback_work/models/user_model.dart';
 
 class ProjectModel {
   final String? id;
@@ -128,4 +130,47 @@ class ProjectModel {
       completionPercentage: map['completionPercentage'] as double? ?? -1.0,
     );
   }
+}
+
+class ProjectTimelineModel {
+  final String message;
+  final String modifiedAt;
+  ProjectTimelineModel({
+    required this.message,
+    required this.modifiedAt,
+  });
+
+  ProjectTimelineModel copyWith({
+    String? message,
+    String? modifiedAt,
+  }) {
+    return ProjectTimelineModel(
+      message: message ?? this.message,
+      modifiedAt: modifiedAt ?? this.modifiedAt,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'message': message,
+      'modifiedAt': modifiedAt,
+    };
+  }
+
+  factory ProjectTimelineModel.fromMap(Map<String, dynamic> map) {
+    return ProjectTimelineModel(
+      message: map['message'] as String,
+      modifiedAt: map['modifiedAt'] as String,
+    );
+  }
+}
+
+class TimelineEvent {
+  final String title;
+  final String date;
+
+  const TimelineEvent({
+    required this.title,
+    required this.date,
+  });
 }

@@ -133,7 +133,7 @@ class _PreviewSetScreenState extends ConsumerState<PreviewSetScreen> {
                                       feedbackFile: selectedFilePath,
                                     ),
                                   ),
-                                  userId: currentUser!.id!,
+                                  user: currentUser!,
                                   callback: () {
                                     context.goNamed(Routes.feedback);
                                   },

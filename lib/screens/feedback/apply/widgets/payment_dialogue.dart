@@ -192,12 +192,13 @@ class _PaymentDialogueState extends ConsumerState<PaymentDialogue> {
                   child: AppButton.filled(
                     label: "Confirm Payment",
                     onTap: () async {
-                      await paymentNotifier.initializePaymentSheet(
-                        amount: widget.feedback.requestFeedback!.cost!
-                            .round()
-                            .toString(),
-                      );
-                      await paymentNotifier.presentPaymentSheet();
+                      context.pushNamed(Routes.payment);
+                      // await paymentNotifier.initializePaymentSheet(
+                      //   amount: widget.feedback.requestFeedback!.cost!
+                      //       .round()
+                      //       .toString(),
+                      // );
+                      // await paymentNotifier.presentPaymentSheet();
                       // paymentSheetInitialization(
                       //     amount: widget.feedback.requestFeedback!.cost!
                       //         .round()

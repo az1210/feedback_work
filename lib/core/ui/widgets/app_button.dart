@@ -65,6 +65,7 @@ class AppButton extends StatelessWidget {
     double? loadingSize,
   }) {
     return AppButton(
+      height: height,
       label: label,
       bgColor: bgColor,
       fgColor: fgColor,

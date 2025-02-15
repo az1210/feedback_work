@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:date_time_format/date_time_format.dart';
 import 'package:feedback_work/core/extensions/extensions.dart';
+import 'package:feedback_work/core/utils/network_image_helper.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/models/project_model.dart';
@@ -93,7 +94,8 @@ class _PreviewFeedbackCardState extends State<PreviewFeedbackCard> {
                             radius: 30.r,
                             backgroundColor: context.colors.background,
                             child: Image.network(
-                              '',
+                              networkImage(widget
+                                  .feedbackModel.project?.owner?.avaterUrl),
                               errorBuilder: (context, error, stackTrace) =>
                                   Icon(
                                 Icons.person,

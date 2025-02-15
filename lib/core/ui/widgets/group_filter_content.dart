@@ -1,5 +1,6 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/ui/widgets/filter__content.dart';
+import 'package:feedback_work/core/utils/network_image_helper.dart';
 import 'package:feedback_work/models/group_model.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:flutter/material.dart';
@@ -60,14 +61,12 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
           (group.description?.toLowerCase().contains(_searchQuery) ?? false);
       bool usersMatch = group.users?.any(
             (user) =>
-                (user.firstName?.toLowerCase().contains(_searchQuery) ??
+                (user.firstName.toLowerCase().contains(_searchQuery) ??
                     false) ||
-                (user.lastName?.toLowerCase().contains(_searchQuery) ??
-                    false) ||
-                (user.username?.toLowerCase().contains(_searchQuery) ??
-                    false) ||
-                (user.title?.toLowerCase().contains(_searchQuery) ?? false) ||
-                (user.expertise?.toLowerCase().contains(_searchQuery) ?? false),
+                (user.lastName.toLowerCase().contains(_searchQuery) ?? false) ||
+                (user.username.toLowerCase().contains(_searchQuery) ?? false) ||
+                (user.title.toLowerCase().contains(_searchQuery) ?? false) ||
+                (user.expertise.toLowerCase().contains(_searchQuery) ?? false),
           ) ??
           false;
       return groupMatches || usersMatch;
@@ -260,17 +259,23 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
                           children: [
                             user.avaterUrl != null
                                 ? CircleAvatar(
-                                    backgroundImage:
-                                        NetworkImage(user.avaterUrl!),
                                     onBackgroundImageError: (_, __) => Text(
-                                      (user.firstName?[0] ?? '').toUpperCase(),
+                                      (user.firstName[0]).toUpperCase(),
+                                    ),
+                                    child: Image.network(
+                                      networkImage(user.avaterUrl),
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              const Icon(
+                                        Icons.person,
+                                      ),
                                     ),
                                   )
                                 : CircleAvatar(
                                     backgroundColor: context.colors.primaryBlue
                                         .withValues(alpha: 0.1),
                                     child: Text(
-                                      (user.firstName?[0] ?? '').toUpperCase(),
+                                      (user.firstName[0] ?? '').toUpperCase(),
                                       style: TextStyle(
                                           color: context.colors.primaryBlue),
                                     ),
@@ -402,16 +407,20 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
                 ),
                 leading: user.avaterUrl != null
                     ? CircleAvatar(
-                        backgroundImage: NetworkImage(user.avaterUrl!),
                         onBackgroundImageError: (_, __) => Text(
-                          (user.firstName?[0] ?? '').toUpperCase(),
+                          (user.firstName[0] ?? '').toUpperCase(),
+                        ),
+                        child: Image.network(
+                          networkImage(user.avaterUrl),
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(Icons.person),
                         ),
                       )
                     : CircleAvatar(
                         backgroundColor:
                             context.colors.primaryBlue.withValues(alpha: 0.1),
                         child: Text(
-                          (user.firstName?[0] ?? '').toUpperCase(),
+                          (user.firstName[0] ?? '').toUpperCase(),
                           style: TextStyle(color: context.colors.primaryBlue),
                         ),
                       ),
@@ -423,8 +432,8 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
                         (user.title != null || user.expertise != null)
                     ? Text(
                         [
-                          if (user.title != null) user.title,
-                          if (user.expertise != null) user.expertise,
+                          user.title,
+                          user.expertise,
                         ].where((e) => e != null).join(' • '),
                         style: Theme.of(context).textTheme.bodySmall,
                         maxLines: 1,

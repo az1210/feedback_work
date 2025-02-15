@@ -1,5 +1,6 @@
 class AppAssets {
   static Images images = Images();
+  static Svgs svgs = Svgs();
 }
 
 class Images {
@@ -42,4 +43,18 @@ class Images {
   String serveBurger1 = 'assets/images/solution_function/serve-burger-1.png';
   String serveBurger = 'assets/images/solution_function/serve-burger.png';
   String ecf = 'assets/images/solution_function/ECF.png';
+}
+
+class Svgs {
+  String projectIcon = 'assets/svgs/project_icon.svg';
+  String projectActiveIcon = 'assets/svgs/project_active_icon.svg';
+  String feedbackIcon = 'assets/svgs/feedback_icon.svg';
+  String feedbackActiveIcon = 'assets/svgs/feedback_active_icon.svg';
+  String networkIcon = 'assets/svgs/network_icon.svg';
+  String statusIcon = 'assets/svgs/status_icon.svg';
+  String moreIcon = 'assets/svgs/more_icon.svg';
+  String paypal = 'assets/svgs/paypal.svg';
+  String eps = 'assets/svgs/eps.svg';
+  String giropay = 'assets/svgs/giropay.svg';
+  String cards = 'assets/svgs/cards.svg';
 }

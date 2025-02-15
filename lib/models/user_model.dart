@@ -19,6 +19,8 @@ class UserModel {
   final int problemHelpSolved;
   final double totalEarned;
   final double totalSpent;
+  final int totalFeedbackRequested;
+  final int totalFeedbackReceived;
   final int totalFeedbackProvidedForFree;
   final int totalFeedbackAccepted;
   final int totalFeedbackDeclined;
@@ -42,6 +44,8 @@ class UserModel {
     this.problemHelpSolved = -1,
     this.totalEarned = -1,
     this.totalSpent = -1,
+    this.totalFeedbackRequested = -1,
+    this.totalFeedbackReceived = -1,
     this.totalFeedbackProvidedForFree = -1,
     this.totalFeedbackAccepted = -1,
     this.totalFeedbackDeclined = -1,
@@ -66,6 +70,8 @@ class UserModel {
     int? problemHelpSolved,
     double? totalEarned,
     double? totalSpent,
+    int? totalFeedbackRequested,
+    int? totalFeedbackReceived,
     int? totalFeedbackProvidedForFree,
     int? totalFeedbackAccepted,
     int? totalFeedbackDeclined,
@@ -89,6 +95,10 @@ class UserModel {
       problemHelpSolved: problemHelpSolved ?? this.problemHelpSolved,
       totalEarned: totalEarned ?? this.totalEarned,
       totalSpent: totalSpent ?? this.totalSpent,
+      totalFeedbackRequested:
+          totalFeedbackRequested ?? this.totalFeedbackRequested,
+      totalFeedbackReceived:
+          totalFeedbackReceived ?? this.totalFeedbackReceived,
       totalFeedbackProvidedForFree:
           totalFeedbackProvidedForFree ?? this.totalFeedbackProvidedForFree,
       totalFeedbackAccepted:
@@ -118,6 +128,8 @@ class UserModel {
       'problemHelpSolved': problemHelpSolved,
       'totalEarned': totalEarned,
       'totalSpent': totalSpent,
+      'totalFeedbackRequested': totalFeedbackRequested,
+      'totalFeedbackReceived': totalFeedbackReceived,
       'totalFeedbackProvidedForFree': totalFeedbackProvidedForFree,
       'totalFeedbackAccepted': totalFeedbackAccepted,
       'totalFeedbackDeclined': totalFeedbackDeclined,
@@ -144,21 +156,13 @@ class UserModel {
       problemHelpSolved: map['problemHelpSolved'] as int? ?? -1,
       totalEarned: map['totalEarned'] as double? ?? -1,
       totalSpent: map['totalSpent'] as double? ?? -1,
+      totalFeedbackRequested: map['totalFeedbackRequested'] as int? ?? -1,
+      totalFeedbackReceived: map['totalFeedbackReceived'] as int? ?? -1,
       totalFeedbackProvidedForFree:
           map['totalFeedbackProvidedForFree'] as int? ?? -1,
       totalFeedbackAccepted: map['totalFeedbackAccepted'] as int? ?? -1,
       totalFeedbackDeclined: map['totalFeedbackDeclined'] as int? ?? -1,
     );
-  }
-
-  String toJson() => json.encode(toMap());
-
-  factory UserModel.fromJson(String source) =>
-      UserModel.fromMap(json.decode(source) as Map<String, dynamic>);
-
-  @override
-  String toString() {
-    return 'UserModel(id: $id, firstName: $firstName, lastName: $lastName, email: $email, username: $username, avaterUrl: $avaterUrl, phoneNumber: $phoneNumber, title: $title, expertise: $expertise, accountType: $accountType, createdAt: $createdAt, minimumRate: $minimumRate, feedbackProvided: $feedbackProvided, feedbackApplied: $feedbackApplied, problemSolved: $problemSolved, problemHelpSolved: $problemHelpSolved)';
   }
 
   @override
@@ -183,6 +187,8 @@ class UserModel {
         other.problemHelpSolved == problemHelpSolved &&
         other.totalEarned == totalEarned &&
         other.totalSpent == totalSpent &&
+        other.totalFeedbackRequested == totalFeedbackRequested &&
+        other.totalFeedbackReceived == totalFeedbackReceived &&
         other.totalFeedbackProvidedForFree == totalFeedbackProvidedForFree &&
         other.totalFeedbackAccepted == totalFeedbackAccepted &&
         other.totalFeedbackDeclined == totalFeedbackDeclined;
@@ -208,6 +214,8 @@ class UserModel {
         problemHelpSolved.hashCode ^
         totalEarned.hashCode ^
         totalSpent.hashCode ^
+        totalFeedbackRequested.hashCode ^
+        totalFeedbackReceived.hashCode ^
         totalFeedbackProvidedForFree.hashCode ^
         totalFeedbackAccepted.hashCode ^
         totalFeedbackDeclined.hashCode;

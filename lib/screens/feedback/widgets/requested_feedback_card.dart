@@ -3,6 +3,7 @@ import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/core/utils/helper_functions.dart';
+import 'package:feedback_work/core/utils/network_image_helper.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/models/user_model.dart';
@@ -159,7 +160,7 @@ class _RequestedFeedbackCardState extends ConsumerState<RequestedFeedbackCard> {
                                 radius: 30.r,
                                 backgroundColor: context.colors.background,
                                 child: Image.network(
-                                  provider?.avaterUrl ?? '',
+                                  networkImage(provider?.avaterUrl),
                                   errorBuilder: (context, error, stackTrace) =>
                                       Icon(
                                     Icons.person,

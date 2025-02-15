@@ -1,4 +1,5 @@
 import 'package:feedback_work/core/extensions/string_extension.dart';
+import 'package:feedback_work/core/utils/network_image_helper.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -322,9 +323,9 @@ class _FilterContentState<T> extends State<FilterContent<T>> {
           children: [
             if (item.imageUrl != null && item.imageUrl!.isNotEmpty) ...[
               Image.network(
-                item.imageUrl!,
-                // errorBuilder: (context, error, stackTrace) =>
-                //     const SizedBox.shrink(),
+                networkImage(item.imageUrl),
+                errorBuilder: (context, error, stackTrace) =>
+                    const SizedBox.shrink(),
               ),
               8.pw,
             ],
@@ -387,7 +388,7 @@ class _FilterContentState<T> extends State<FilterContent<T>> {
             children: [
               if (item.imageUrl != null && item.imageUrl!.isNotEmpty) ...[
                 Image.network(
-                  item.imageUrl!,
+                  networkImage(item.imageUrl),
                   width: 32.w,
                   height: 32.h,
                   errorBuilder: (context, error, stackTrace) =>

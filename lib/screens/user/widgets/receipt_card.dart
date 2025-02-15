@@ -1,4 +1,5 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
+import 'package:feedback_work/core/utils/network_image_helper.dart';
 import 'package:feedback_work/screens/user/widgets/details_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,7 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class ReceiptCard extends StatelessWidget {
   final String name;
   final String date;
-  final String profileImageUrl;
+  final String? profileImageUrl;
   final String project;
   final String problem;
   final String solution;
@@ -19,7 +20,7 @@ class ReceiptCard extends StatelessWidget {
     super.key,
     required this.name,
     required this.date,
-    required this.profileImageUrl,
+    this.profileImageUrl,
     required this.project,
     required this.problem,
     required this.solution,
@@ -48,8 +49,13 @@ class ReceiptCard extends StatelessWidget {
               Row(
                 children: [
                   CircleAvatar(
-                    backgroundImage: NetworkImage(profileImageUrl),
                     radius: 20,
+                    child: Image.network(
+                      networkImage(profileImageUrl),
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.person,
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Text(

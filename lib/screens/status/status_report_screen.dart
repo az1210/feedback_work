@@ -1,6 +1,7 @@
 import 'package:date_time_format/date_time_format.dart';
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/router/routes.dart';
+import 'package:feedback_work/core/utils/network_image_helper.dart';
 import 'package:feedback_work/core/utils/toast_message.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/models/user_model.dart';
@@ -65,54 +66,67 @@ class _StatusReportScreenState extends ConsumerState<StatusReportScreen> {
                     color: context.colors.errorRed,
                   ),
                   borderRadius: BorderRadius.circular(12.r),
-                  image: DecorationImage(
-                    image: NetworkImage(
-                        widget.feedback.statusReport?.beforeFileUrl ?? ''),
-                    fit: BoxFit.cover,
-                    onError: (exception, stackTrace) => const SizedBox.shrink(),
-                  ),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: Stack(
                   children: [
-                    Text(
-                      "Problem",
-                      style:
-                          Theme.of(context).textTheme.headlineLarge!.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                    ),
-                    16.ph,
-                    Row(
+                    if (widget.feedback.statusReport?.beforeFileUrl !=
+                        null) ...[
+                      Image.network(
+                        networkImage(
+                            widget.feedback.statusReport?.beforeFileUrl),
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(
+                          Icons.image,
+                        ),
+                        height: 200.h,
+                        fit: BoxFit.cover,
+                      ),
+                    ],
+                    Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16.w,
-                            vertical: 4.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color:
-                                context.colors.pureWhite.withValues(alpha: 0.8),
-                            border: Border.all(
-                              color: context.colors.errorRed,
-                            ),
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                          child: Text(
-                            widget.feedback.project!.problemName ??
-                                'Unknown problem',
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineLarge!
-                                .copyWith(
-                                  color: context.colors.errorRed,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
+                        Text(
+                          "Problem",
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineLarge!
+                              .copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
+                        16.ph,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 16.w,
+                                vertical: 4.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: context.colors.pureWhite
+                                    .withValues(alpha: 0.8),
+                                border: Border.all(
+                                  color: context.colors.errorRed,
+                                ),
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              child: Text(
+                                widget.feedback.project!.problemName ??
+                                    'Unknown problem',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineLarge!
+                                    .copyWith(
+                                      color: context.colors.errorRed,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                            ),
+                          ],
+                        )
                       ],
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -129,54 +143,62 @@ class _StatusReportScreenState extends ConsumerState<StatusReportScreen> {
                     color: context.colors.successGreen,
                   ),
                   borderRadius: BorderRadius.circular(12.r),
-                  image: DecorationImage(
-                    image: NetworkImage(
-                        widget.feedback.statusReport?.afterFileUrl ?? ''),
-                    fit: BoxFit.cover,
-                    onError: (exception, stackTrace) => const SizedBox.shrink(),
-                  ),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: Stack(
                   children: [
-                    Text(
-                      "Solution",
-                      style:
-                          Theme.of(context).textTheme.headlineLarge!.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                    ),
-                    16.ph,
-                    Row(
+                    if (widget.feedback.statusReport?.afterFileUrl != null) ...[
+                      Image.network(
+                        networkImage(
+                            widget.feedback.statusReport?.afterFileUrl),
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(Icons.image),
+                      ),
+                    ],
+                    Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16.w,
-                            vertical: 4.h,
-                          ),
-                          decoration: BoxDecoration(
-                            color:
-                                context.colors.pureWhite.withValues(alpha: 0.8),
-                            border: Border.all(
-                              color: context.colors.successGreen,
-                            ),
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                          child: Text(
-                            widget.feedback.project!.solutionName ??
-                                'Unknown problem',
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineLarge!
-                                .copyWith(
-                                  color: context.colors.successGreen,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
+                        Text(
+                          "Solution",
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineLarge!
+                              .copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
+                        16.ph,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 16.w,
+                                vertical: 4.h,
+                              ),
+                              decoration: BoxDecoration(
+                                color: context.colors.pureWhite
+                                    .withValues(alpha: 0.8),
+                                border: Border.all(
+                                  color: context.colors.successGreen,
+                                ),
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              child: Text(
+                                widget.feedback.project!.solutionName ??
+                                    'Unknown problem',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineLarge!
+                                    .copyWith(
+                                      color: context.colors.successGreen,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                            ),
+                          ],
+                        )
                       ],
-                    )
+                    ),
                   ],
                 ),
               ),

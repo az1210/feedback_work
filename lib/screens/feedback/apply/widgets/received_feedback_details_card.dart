@@ -6,6 +6,7 @@ import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/assets/app_assets.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
+import 'package:feedback_work/core/utils/network_image_helper.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:feedback_work/screens/feedback/apply/widgets/corrected_communication.dart';
@@ -120,7 +121,8 @@ class _ProvidedFeedbackCardState
                             radius: 30.r,
                             backgroundColor: context.colors.background,
                             child: Image.network(
-                              '',
+                              networkImage(
+                                  widget.feedback.project?.owner?.avaterUrl),
                               errorBuilder: (context, error, stackTrace) =>
                                   Icon(
                                 Icons.person,
