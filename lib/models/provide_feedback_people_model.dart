@@ -1,16 +1,16 @@
-class PeopleInfoModel {
+class ProvideInfoModel {
   String? name;
   String? avaterUrl;
-  PeopleInfoModel({
+  ProvideInfoModel({
     this.name = '',
     this.avaterUrl = '',
   });
 
-  PeopleInfoModel copyWith({
+  ProvideInfoModel copyWith({
     String? name,
     String? avaterUrl,
   }) {
-    return PeopleInfoModel(
+    return ProvideInfoModel(
       name: name ?? this.name,
       avaterUrl: avaterUrl ?? this.avaterUrl,
     );
@@ -23,8 +23,8 @@ class PeopleInfoModel {
     };
   }
 
-  factory PeopleInfoModel.fromMap(Map<String, dynamic> map) {
-    return PeopleInfoModel(
+  factory ProvideInfoModel.fromMap(Map<String, dynamic> map) {
+    return ProvideInfoModel(
       name: map['name'] as String? ?? '',
       avaterUrl: map['avaterUrl'] as String? ?? '',
     );

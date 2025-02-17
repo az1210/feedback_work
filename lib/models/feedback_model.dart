@@ -185,7 +185,7 @@ class RequestModel {
 class ProvideModel {
   final String principle;
   final List<String>? principleToDeriveFrom;
-  final List<PeopleInfoModel>? peoples;
+  final ProvideInfoModel? provideInfo;
   final Delta? principleDetails;
   final Delta? feedbackMessage;
   final String feedbackFile;
@@ -193,7 +193,7 @@ class ProvideModel {
   ProvideModel({
     this.principle = '',
     this.principleToDeriveFrom = const [],
-    this.peoples = const [],
+    this.provideInfo,
     this.principleDetails,
     this.feedbackMessage,
     this.feedbackFile = '',
@@ -203,7 +203,7 @@ class ProvideModel {
   ProvideModel copyWith({
     String? principle,
     List<String>? principleToDeriveFrom,
-    List<PeopleInfoModel>? peoples,
+    ProvideInfoModel? people,
     Delta? principleDetails,
     Delta? feedbackMessage,
     String? feedbackFile,
@@ -213,7 +213,7 @@ class ProvideModel {
       principle: principle ?? this.principle,
       principleToDeriveFrom:
           principleToDeriveFrom ?? this.principleToDeriveFrom,
-      peoples: peoples ?? this.peoples,
+      provideInfo: people ?? provideInfo,
       principleDetails: principleDetails ?? this.principleDetails,
       feedbackMessage: feedbackMessage ?? this.feedbackMessage,
       feedbackFile: feedbackFile ?? this.feedbackFile,
@@ -225,7 +225,7 @@ class ProvideModel {
     return <String, dynamic>{
       'principle': principle,
       'principleToDeriveFrom': principleToDeriveFrom,
-      'peoples': peoples?.map((x) => x.toMap()).toList(),
+      'provideInfo': provideInfo?.toMap(),
       'principleDetails': jsonEncode(principleDetails?.toJson()),
       'feedbackMessage': jsonEncode(feedbackMessage?.toJson()),
       'feedbackFile': feedbackFile,
@@ -247,12 +247,8 @@ class ProvideModel {
               .map((x) => x.toString())
               .toList()
           : null,
-      peoples: map['peoples'] != null
-          ? (map['peoples'] as List<dynamic>)
-              .map(
-                (x) => PeopleInfoModel.fromMap(x as Map<String, dynamic>),
-              )
-              .toList()
+      provideInfo: map['provideInfo'] != null
+          ? ProvideInfoModel.fromMap(map['provideInfo'] as Map<String, dynamic>)
           : null,
       principleDetails: Delta.fromJson(principleDetails),
       feedbackMessage: Delta.fromJson(feedbackMessage),

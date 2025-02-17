@@ -6,7 +6,7 @@ import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/models/provide_feedback_people_model.dart';
 import 'package:feedback_work/providers/category_providers.dart';
 import 'package:feedback_work/providers/feedback_providers.dart';
-import 'package:feedback_work/screens/feedback/provide/widgets/add_people_details.dart';
+import 'package:feedback_work/screens/feedback/provide/widgets/add_provide_details.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/set_feedback_model.dart';
 import 'package:feedback_work/screens/feedback/provide/preview_set_screen.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/select_principle.dart';
@@ -38,7 +38,7 @@ class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
   final List<String> pageTitles = [
     "Select Principle",
     "Select Principle to Derive From",
-    "Add People details",
+    "Add Provide details",
     "Type Principle",
     "Feedback Model",
   ];
@@ -46,7 +46,7 @@ class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
   String selectedPrinciple = '';
   String selectedModel = '';
   List<String> selectedPrinciplesToDeriveForm = [];
-  List<PeopleInfoModel> peopleInfo = [];
+  ProvideInfoModel? peopleInfo;
 
   @override
   void initState() {
@@ -137,11 +137,10 @@ class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
                       });
                     },
                   ),
-                  AddPeopleDetails(
+                  AddProvideDetails(
                     onUpdatePeople: (p0) {
                       setState(() {
                         peopleInfo = p0;
-                        Log.info(p0.map((p) => p.name).toList().toString());
                       });
                     },
                   ),
@@ -200,14 +199,10 @@ class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
                           : 'Next',
                       onTap: ref.watch(provideFeedbackStepProvider) == 5
                           ? () {
-                              Log.info(peopleInfo
-                                  .map((p) => p.name)
-                                  .toList()
-                                  .toString());
                               final providedFeedback =
                                   widget.feedbackModel.copyWith(
                                       provideFeedback: ProvideModel(
-                                peoples: peopleInfo,
+                                provideInfo: peopleInfo,
                                 principle: selectedPrinciple,
                                 principleDetails: principleDetailsController
                                     .document
