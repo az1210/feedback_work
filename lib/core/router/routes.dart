@@ -275,7 +275,9 @@ final routerProvider = Provider<GoRouter>(
         GoRoute(
           name: Routes.payment,
           path: Routes.payment.p,
-          builder: (context, state) => const PaymentScreen(),
+          builder: (context, state) => PaymentScreen(
+            feedback: state.extra as FeedbackModel,
+          ),
         ),
 
         // NavBar Routes

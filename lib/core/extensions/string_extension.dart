@@ -1,9 +1,16 @@
 extension StringExtensions on String {
   String toTitleCase() {
-    return replaceAllMapped(RegExp(r'([a-z])([A-Z])'), (match) {
-      return '${match.group(1)} ${match.group(2)}';
-    }).replaceFirstMapped(RegExp(r'^[a-z]'), (match) {
-      return match.group(0)!.toUpperCase();
-    });
+    String cleanedString = replaceAll(RegExp(r'[^a-zA-Z0-9]'), ' ');
+
+    List<String> words = cleanedString.split(' ');
+
+    for (int i = 0; i < words.length; i++) {
+      if (words[i].isNotEmpty) {
+        words[i] =
+            words[i][0].toUpperCase() + words[i].substring(1).toLowerCase();
+      }
+    }
+
+    return words.join(' ');
   }
 }

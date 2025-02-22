@@ -1,0 +1,2 @@
+/Users/sifat/Developer/unknown/feedback_work/android/app/.cxx/Debug/1k56622d/x86/CMakeFiles/edit_cache.dir
+/Users/sifat/Developer/unknown/feedback_work/android/app/.cxx/Debug/1k56622d/x86/CMakeFiles/rebuild_cache.dir

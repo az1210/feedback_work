@@ -1,17 +1,12 @@
-import 'dart:convert';
-
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/core/utils/network/rest_client/rest_client.dart';
-import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/feedback_model.dart';
-import 'package:feedback_work/providers/feedback_providers.dart';
 import 'package:feedback_work/providers/payment_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:go_router/go_router.dart';
 
 class PaymentDialogue extends ConsumerStatefulWidget {
@@ -192,7 +187,7 @@ class _PaymentDialogueState extends ConsumerState<PaymentDialogue> {
                   child: AppButton.filled(
                     label: "Confirm Payment",
                     onTap: () async {
-                      context.pushNamed(Routes.payment);
+                      context.pushNamed(Routes.payment, extra: widget.feedback);
                       // await paymentNotifier.initializePaymentSheet(
                       //   amount: widget.feedback.requestFeedback!.cost!
                       //       .round()

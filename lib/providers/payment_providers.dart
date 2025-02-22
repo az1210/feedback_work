@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feedback_work/core/constants/firebase_constants.dart';
 import 'package:feedback_work/core/utils/network/rest_client/api_options.dart';
 import 'package:feedback_work/core/utils/toast_message.dart';
+import 'package:feedback_work/models/post_payment_intent_response_model.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,15 +20,16 @@ final paymentProvider = NotifierProvider<PaymentNotifier, PaymentState>(
 class PaymentNotifier extends Notifier<PaymentState> {
   @override
   PaymentState build() {
-    return PaymentState(state: AsyncState.initial);
+    return PaymentState(createPaymentState: AsyncState.initial);
   }
 
-  Future<Map<String, dynamic>?> createPaymentIntent({
+  Future<void> getAvailablePaymentMethods({
     required String amount,
     String currency = 'USD',
     // required String stripeSecretKey,
   }) async {
     try {
+      state = state.copyWith(paymentMethodState: AsyncState.loading);
       final restClient = ref.read(stripePaymentAPIProvider);
       final response = await restClient.post(
         ApiAccessType.protected,
@@ -36,16 +38,52 @@ class PaymentNotifier extends Notifier<PaymentState> {
           // 'amount': (int.parse(amount) * 100).toString(),
           'amount': "100",
           'currency': currency,
-          'payment_method_types[]': 'card'
+          // 'payment_method_types[]': 'card'
+        },
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      );
+      state = state.copyWith(
+          paymentMethodState: AsyncState.success,
+          paymentMethods:
+              (response.data['payment_method_types'] as List<dynamic>)
+                  .map((p) => p.toString())
+                  .toList());
+    } catch (e, stackTrace) {
+      Log.error(e.toString());
+      Log.error(stackTrace.toString());
+      state = state.copyWith(paymentMethodState: AsyncState.failure);
+    }
+  }
+
+  Future<void> createPaymentIntent({
+    required String amount,
+    String currency = 'USD',
+    String paymentMethod = 'card',
+    // required String stripeSecretKey,
+  }) async {
+    try {
+      state = state.copyWith(createPaymentState: AsyncState.loading);
+      final restClient = ref.read(stripePaymentAPIProvider);
+      final response = await restClient.post(
+        ApiAccessType.protected,
+        ApiEndpoints.stripePaymentIntent,
+        {
+          // 'amount': (int.parse(amount) * 100).toString(),
+          'amount': "100",
+          'currency': currency,
+          'payment_method_types[]': paymentMethod
         },
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       );
 
-      return response.data;
+      state = state.copyWith(
+          createPaymentState: AsyncState.success,
+          paymentIntentResponseModel:
+              PostPaymentIntentResponseModel.fromJson(response.data));
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
-      return null;
+      state = state.copyWith(createPaymentState: AsyncState.failure);
     }
   }
 
@@ -54,16 +92,18 @@ class PaymentNotifier extends Notifier<PaymentState> {
     String currency = 'USD',
   }) async {
     try {
-      final paymentIntent = await createPaymentIntent(
-        amount: amount,
+      createPaymentIntent(
+        // amount: amount,
+        amount: '100',
         currency: currency,
       );
 
-      if (paymentIntent != null) {
+      if (state.paymentIntentResponseModel != null) {
         await Stripe.instance.initPaymentSheet(
           paymentSheetParameters: SetupPaymentSheetParameters(
             allowsDelayedPaymentMethods: true,
-            paymentIntentClientSecret: paymentIntent['client_secret'],
+            paymentIntentClientSecret:
+                state.paymentIntentResponseModel!.clientSecret,
             style: ThemeMode.system,
             merchantDisplayName: 'Feedback Work',
           ),
@@ -90,12 +130,10 @@ class PaymentNotifier extends Notifier<PaymentState> {
   }
 
   Future<String?> stripePublishableKey({void Function()? callback}) async {
-    state = state.copyWith(state: AsyncState.loading);
     FirebaseFirestore firestore = ref.read(firestoreProvider);
 
     try {
       String key = '';
-      state = state.copyWith(state: AsyncState.loading);
       final docRef = await firestore
           .collection(FirebaseConstants.apiKeyCollection)
           .doc('stripePublishableKey')
@@ -113,7 +151,6 @@ class PaymentNotifier extends Notifier<PaymentState> {
       // });
 
       callback?.call();
-      state = state.copyWith(state: AsyncState.success);
       return key;
     } catch (e, stackTrace) {
       Log.error(e.toString());
@@ -123,12 +160,10 @@ class PaymentNotifier extends Notifier<PaymentState> {
   }
 
   Future<String?> stripeSecretKey({void Function()? callback}) async {
-    state = state.copyWith(state: AsyncState.loading);
     FirebaseFirestore firestore = ref.read(firestoreProvider);
 
     try {
       String key = '';
-      state = state.copyWith(state: AsyncState.loading);
       final docRef = await firestore
           .collection(FirebaseConstants.apiKeyCollection)
           .doc('stripeSecretKey')
@@ -145,7 +180,6 @@ class PaymentNotifier extends Notifier<PaymentState> {
       // });
 
       callback?.call();
-      state = state.copyWith(state: AsyncState.success);
       return key;
     } catch (e, stackTrace) {
       Log.error(e.toString());
@@ -156,15 +190,30 @@ class PaymentNotifier extends Notifier<PaymentState> {
 }
 
 class PaymentState {
-  final AsyncState? state;
+  final AsyncState? createPaymentState;
+  final AsyncState? paymentMethodState;
+  final PostPaymentIntentResponseModel? paymentIntentResponseModel;
+  final List<String>? paymentMethods;
 
-  PaymentState({this.state});
+  PaymentState({
+    this.createPaymentState,
+    this.paymentMethodState,
+    this.paymentIntentResponseModel,
+    this.paymentMethods,
+  });
 
   PaymentState copyWith({
-    AsyncState? state,
+    AsyncState? createPaymentState,
+    AsyncState? paymentMethodState,
+    PostPaymentIntentResponseModel? paymentIntentResponseModel,
+    List<String>? paymentMethods,
   }) {
     return PaymentState(
-      state: state ?? this.state,
+      createPaymentState: createPaymentState ?? this.createPaymentState,
+      paymentMethodState: paymentMethodState ?? this.paymentMethodState,
+      paymentIntentResponseModel:
+          paymentIntentResponseModel ?? this.paymentIntentResponseModel,
+      paymentMethods: paymentMethods ?? this.paymentMethods,
     );
   }
 }
