@@ -1,5 +1,6 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/utils/utils.dart';
+import 'package:feedback_work/core/utils/validator.dart';
 import 'package:feedback_work/models/category_model.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/category_providers.dart';
@@ -62,40 +63,43 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
   // Submit user profile
   Future<void> _submitProfile() async {
     final authService = ref.read(authServiceProvider.notifier);
-
-    try {
-      await authService.completeUserProfile(
-        uid: widget.userId,
-        userModel: UserModel(
-          username: _usernameController.text.trim(),
-          title: _titleController.text.trim(),
-          expertise: _expertiseController.text.trim(),
-          accountType: _selectedAccountType ?? '',
-          minimumRate: double.tryParse(_minimumRateController.text.trim()) ?? 0,
-        ),
-      );
-
-      final snackBar = CustomSnackbar.build(
-        title: 'Congratulations!',
-        message: 'You have successfully created a Feedback Work account',
-        contentType: ContentType.success,
-      );
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(snackBar);
-
-      context.replace('/sign-in'); // Navigate to home screen
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-          "Error: $e",
-          style: const TextStyle(
-            color: Colors.white,
-            backgroundColor: Colors.redAccent,
+    formKey.currentState!.save();
+    if (formKey.currentState!.validate()) {
+      try {
+        await authService.completeUserProfile(
+          uid: widget.userId,
+          userModel: UserModel(
+            username: _usernameController.text.trim(),
+            title: _titleController.text.trim(),
+            expertise: _expertiseController.text.trim(),
+            accountType: _selectedAccountType ?? '',
+            minimumRate:
+                double.tryParse(_minimumRateController.text.trim()) ?? 0,
           ),
-        )),
-      );
+        );
+
+        final snackBar = CustomSnackbar.build(
+          title: 'Congratulations!',
+          message: 'You have successfully created a Feedback Work account',
+          contentType: ContentType.success,
+        );
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(snackBar);
+
+        context.replace('/sign-in'); // Navigate to home screen
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+            "Error: $e",
+            style: const TextStyle(
+              color: Colors.white,
+              backgroundColor: Colors.redAccent,
+            ),
+          )),
+        );
+      }
     }
   }
 
@@ -109,6 +113,8 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
 
   List<CategoryModel> categories = [];
   String? selectedCategory;
+
+  final formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -133,234 +139,241 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
             child: CircularProgressIndicator(),
           );
         } else {
-          return Stack(
-            children: [
-              const Align(
-                alignment: Alignment.topCenter,
-                child: Image(
-                  image: AssetImage("assets/images/onboard/top1.jpeg"),
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  height: 230,
+          return Form(
+            key: formKey,
+            child: Stack(
+              children: [
+                const Align(
+                  alignment: Alignment.topCenter,
+                  child: Image(
+                    image: AssetImage("assets/images/onboard/top1.jpeg"),
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: 230,
+                  ),
                 ),
-              ),
-              // Positioned(
-              //   top: 40,
-              //   left: 20,
-              //   child: GestureDetector(
-              //     onTap: () {
-              //       Navigator.pop(context);
-              //     },
-              //     child: Container(
-              //       decoration: BoxDecoration(
-              //         color: Colors.white.withOpacity(0.7),
-              //         shape: BoxShape.circle,
-              //         boxShadow: const [
-              //           BoxShadow(
-              //             color: Colors.black12,
-              //             blurRadius: 4,
-              //             offset: Offset(2, 2),
-              //           ),
-              //         ],
-              //       ),
-              //       padding: const EdgeInsets.all(8),
-              //       child: Icon(
-              //         Theme.of(context).platform == TargetPlatform.iOS
-              //             ? Icons.arrow_back_ios
-              //             : Icons.arrow_back,
-              //         color: Colors.black,
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              Positioned(
-                top: 200,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: SingleChildScrollView(
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
+                // Positioned(
+                //   top: 40,
+                //   left: 20,
+                //   child: GestureDetector(
+                //     onTap: () {
+                //       Navigator.pop(context);
+                //     },
+                //     child: Container(
+                //       decoration: BoxDecoration(
+                //         color: Colors.white.withOpacity(0.7),
+                //         shape: BoxShape.circle,
+                //         boxShadow: const [
+                //           BoxShadow(
+                //             color: Colors.black12,
+                //             blurRadius: 4,
+                //             offset: Offset(2, 2),
+                //           ),
+                //         ],
+                //       ),
+                //       padding: const EdgeInsets.all(8),
+                //       child: Icon(
+                //         Theme.of(context).platform == TargetPlatform.iOS
+                //             ? Icons.arrow_back_ios
+                //             : Icons.arrow_back,
+                //         color: Colors.black,
+                //       ),
+                //     ),
+                //   ),
+                // ),
+                Positioned(
+                  top: 200,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: SingleChildScrollView(
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
                       ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const SizedBox(height: 12),
-                        Text(
-                          "Complete Your Profile",
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.displayMedium,
-                        ),
-                        const SizedBox(height: 24),
-                        GestureDetector(
-                          onTap: () {},
-                          child: Image.asset(
-                            "assets/images/icons/profile-frame.png",
-                            height: 78,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SizedBox(height: 12),
+                          Text(
+                            "Complete Your Profile",
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.displayMedium,
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          "Username (Optional)",
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 10),
-                        TextField(
-                          controller: _usernameController,
-                          onChanged: (value) => _validateUsername(),
-                          decoration: InputDecoration(
-                            suffixIcon: _isCheckingUsername
-                                ? const CircularProgressIndicator()
-                                : Icon(
-                                    _isUsernameValid
-                                        ? Icons.check_circle
-                                        : Icons.error_outline,
-                                    color: _isUsernameValid
-                                        ? Colors.green
-                                        : Colors.redAccent,
-                                  ),
-                            filled: true,
-                            fillColor: context.colors.inputBorder,
-                            border: const OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(8)),
-                              borderSide: BorderSide.none,
+                          const SizedBox(height: 24),
+                          GestureDetector(
+                            onTap: () {},
+                            child: Image.asset(
+                              "assets/images/icons/profile-frame.png",
+                              height: 78,
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          "Title",
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 10),
-                        TextField(
-                          controller: _titleController,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: context.colors.inputBorder,
-                            border: const OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(8)),
-                              borderSide: BorderSide.none,
+                          const SizedBox(height: 16),
+                          Text(
+                            "Username (Optional)",
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 10),
+                          TextFormField(
+                            controller: _usernameController,
+                            onChanged: (value) => _validateUsername(),
+                            decoration: InputDecoration(
+                              suffixIcon: _isCheckingUsername
+                                  ? const CircularProgressIndicator()
+                                  : Icon(
+                                      _isUsernameValid
+                                          ? Icons.check_circle
+                                          : Icons.error_outline,
+                                      color: _isUsernameValid
+                                          ? Colors.green
+                                          : Colors.redAccent,
+                                    ),
+                              filled: true,
+                              fillColor: context.colors.inputBorder,
+                              border: const OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(8)),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                            validator: (value) =>
+                                validateInput(value, fieldName: 'Username'),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            "Title",
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 10),
+                          TextFormField(
+                            controller: _titleController,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: context.colors.inputBorder,
+                              border: const OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(8)),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                            validator: (value) =>
+                                validateInput(value, fieldName: 'Title'),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            "Expertise",
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 10),
+                          DropdownMenu(
+                            focusNode: _expertiseFocusNode,
+                            controller: _expertiseController,
+                            enableFilter: true,
+                            requestFocusOnTap: true,
+                            hintText: 'Select Expertise Category',
+                            onSelected: (value) {
+                              _expertiseFocusNode.unfocus();
+                              setState(() {
+                                selectedCategory = value;
+                              });
+                            },
+                            width: 1.sw - 64,
+                            inputDecorationTheme: InputDecorationTheme(
+                              filled: true,
+                              fillColor: context.colors.inputBorder,
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: context.colors.transparent),
+                                borderRadius: BorderRadius.circular(8.r),
+                              ),
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: context.colors.transparent),
+                                borderRadius: BorderRadius.circular(8.r),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: context.colors.transparent),
+                                borderRadius: BorderRadius.circular(8.r),
+                              ),
+                            ),
+                            dropdownMenuEntries: categories
+                                .map(
+                                  (c) => DropdownMenuEntry(
+                                      value: c.categoryTitle,
+                                      label: c.categoryTitle),
+                                )
+                                .toList(),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            "Minimum Rate",
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 10),
+                          TextFormField(
+                            controller: _minimumRateController,
+                            decoration: const InputDecoration(
+                              filled: true,
+                              fillColor: Color(0xFFF5F5F5),
+                              border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(8)),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            "Account Type",
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 10),
+                          DropdownButtonFormField<String>(
+                            value: _selectedAccountType,
+                            hint: const Text("Select account type"),
+                            items: _accountTypes.map((type) {
+                              return DropdownMenuItem(
+                                value: type,
+                                child: Text(type),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedAccountType = value;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: context.colors.inputBorder,
+                              border: const OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(8)),
+                                borderSide: BorderSide.none,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          "Expertise",
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 10),
-                        DropdownMenu(
-                          focusNode: _expertiseFocusNode,
-                          controller: _expertiseController,
-                          enableFilter: true,
-                          requestFocusOnTap: true,
-                          hintText: 'Select Expertise Category',
-                          onSelected: (value) {
-                            _expertiseFocusNode.unfocus();
-                            setState(() {
-                              selectedCategory = value;
-                            });
-                          },
-                          width: 1.sw - 64,
-                          inputDecorationTheme: InputDecorationTheme(
-                            filled: true,
-                            fillColor: context.colors.inputBorder,
-                            enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: context.colors.transparent),
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            border: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: context.colors.transparent),
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: context.colors.transparent),
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
+                          const SizedBox(height: 16),
+                          BlockButton(
+                            onPressed: _submitProfile,
+                            text: 'Submit',
                           ),
-                          dropdownMenuEntries: categories
-                              .map(
-                                (c) => DropdownMenuEntry(
-                                    value: c.categoryTitle,
-                                    label: c.categoryTitle),
-                              )
-                              .toList(),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          "Minimum Rate",
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 10),
-                        TextField(
-                          controller: _minimumRateController,
-                          decoration: const InputDecoration(
-                            filled: true,
-                            fillColor: Color(0xFFF5F5F5),
-                            border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(8)),
-                              borderSide: BorderSide.none,
-                            ),
+                          const SizedBox(
+                            height: 32,
                           ),
-                          keyboardType: TextInputType.number,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          "Account Type",
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 10),
-                        DropdownButtonFormField<String>(
-                          value: _selectedAccountType,
-                          hint: const Text("Select account type"),
-                          items: _accountTypes.map((type) {
-                            return DropdownMenuItem(
-                              value: type,
-                              child: Text(type),
-                            );
-                          }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedAccountType = value;
-                            });
-                          },
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: context.colors.inputBorder,
-                            border: const OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(8)),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        BlockButton(
-                          onPressed: _submitProfile,
-                          text: 'Submit',
-                        ),
-                        const SizedBox(
-                          height: 32,
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         }
       }),

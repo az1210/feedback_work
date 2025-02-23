@@ -5,6 +5,7 @@ import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/utils/file_upload_helper.dart';
 import 'package:feedback_work/core/utils/toast_message.dart';
 import 'package:feedback_work/core/utils/utils.dart';
+import 'package:feedback_work/core/utils/validator.dart';
 import 'package:feedback_work/models/provide_feedback_people_model.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:file_picker/file_picker.dart';
@@ -13,15 +14,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AddProvideDetails extends ConsumerStatefulWidget {
-  AddProvideDetails({required this.onUpdatePeople, super.key});
+  AddProvideDetails(
+      {required this.formKey, required this.onUpdatePeople, super.key});
 
   Function(ProvideInfoModel) onUpdatePeople;
+  final GlobalKey<FormState> formKey;
   @override
   ConsumerState<AddProvideDetails> createState() => _BeforeState();
 }
 
 class _BeforeState extends ConsumerState<AddProvideDetails> {
-  final _formKey = GlobalKey<FormState>();
   final ProvideInfoModel peoples = ProvideInfoModel();
   final TextEditingController nameController = TextEditingController();
   String? selectedFilePath;
@@ -34,7 +36,8 @@ class _BeforeState extends ConsumerState<AddProvideDetails> {
   // }
 
   void update() {
-    if (_formKey.currentState!.validate()) {
+    widget.formKey.currentState!.save();
+    if (widget.formKey.currentState!.validate()) {
       // Update people list with current values
       // for (var i = 0; i < peoples.length; i++) {
       //   Log.info(nameControllers[i].text);
@@ -72,7 +75,7 @@ class _BeforeState extends ConsumerState<AddProvideDetails> {
       padding: EdgeInsets.all(16.w),
       child: SingleChildScrollView(
         child: Form(
-          key: _formKey,
+          key: widget.formKey,
           child: Column(
             children: [
               Row(
@@ -86,12 +89,8 @@ class _BeforeState extends ConsumerState<AddProvideDetails> {
               const SizedBox(height: 5),
               TextFormField(
                 controller: nameController,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please enter a headline';
-                  }
-                  return null;
-                },
+                validator: (value) =>
+                    validateInput(value, fieldName: 'Headline'),
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 onChanged: (value) {
                   update();

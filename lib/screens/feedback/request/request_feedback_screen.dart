@@ -31,6 +31,7 @@ class RequestFeedbackScreen extends ConsumerStatefulWidget {
 }
 
 class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
+  final formKey = GlobalKey<FormState>();
   late PageController requestFeedbackController;
 
   final TextEditingController projectNameController = TextEditingController();
@@ -178,6 +179,7 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                     },
                   ),
                   SelectFeedbackProvider(
+                    formKey: formKey,
                     category: selectedCategory ?? "",
                     selectedIndividualUser: (p0) {
                       setState(() {
@@ -199,6 +201,7 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                     currentUserId: currentUser?.id ?? '',
                   ),
                   TypeMessage(
+                    formKey: formKey,
                     message: messageController,
                     subject: (p0) {
                       setState(() {
@@ -279,51 +282,59 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                           : 'Next',
                       onTap: ref.watch(requestFeedbackStepProvider) == 6
                           ? () {
-                              final feedback = FeedbackModel(
-                                requestFeedback: RequestModel(
-                                  isAnnonymous: isAnnonymous,
-                                  message: MessageModel(
-                                    message:
-                                        messageController.document.toDelta(),
-                                    subject: subject,
-                                    ytUrl: youtubeLink,
+                              formKey.currentState!.save();
+                              if (formKey.currentState!.validate()) {
+                                final feedback = FeedbackModel(
+                                  requestFeedback: RequestModel(
+                                    isAnnonymous: isAnnonymous,
+                                    message: MessageModel(
+                                      message:
+                                          messageController.document.toDelta(),
+                                      subject: subject,
+                                      ytUrl: youtubeLink,
+                                    ),
+                                    cost: feedbackCost!.isNotEmpty ||
+                                            feedbackCost != null
+                                        ? double.tryParse(feedbackCost ?? "0")
+                                        : double.tryParse(currentUser!
+                                                .minimumRate
+                                                .toString()) ??
+                                            0,
+                                    feedbackLimit:
+                                        int.tryParse(feedbackLimit ?? "0") ?? 0,
+                                    privacy: selectedPrivacy,
+                                    groupId: selectedGroupId ?? '',
+                                    selectedGroupMemberIds:
+                                        selectedGrpupUserIds,
                                   ),
-                                  cost: feedbackCost!.isNotEmpty ||
-                                          feedbackCost != null
-                                      ? double.tryParse(feedbackCost ?? "0")
-                                      : double.tryParse(currentUser!.minimumRate
-                                              .toString()) ??
-                                          0,
-                                  feedbackLimit:
-                                      int.tryParse(feedbackLimit ?? "0") ?? 0,
-                                  privacy: selectedPrivacy,
-                                  groupId: selectedGroupId ?? '',
-                                  selectedGroupMemberIds: selectedGrpupUserIds,
-                                ),
-                                project: widget.project,
-                                ownerId: widget.project.ownerId!,
-                                providerId: selectedUser,
-                              );
+                                  project: widget.project,
+                                  ownerId: widget.project.ownerId!,
+                                  providerId: selectedUser,
+                                );
 
-                              Log.info(feedback.toMap().toString());
-                              ref
-                                  .read(feedbackProvider.notifier)
-                                  .createFeedbackRequest(
-                                    feedback: feedback,
-                                    userId: currentUser!.id,
-                                    callback: () {
-                                      context.pop();
-                                    },
-                                  );
+                                Log.info(feedback.toMap().toString());
+                                ref
+                                    .read(feedbackProvider.notifier)
+                                    .createFeedbackRequest(
+                                      feedback: feedback,
+                                      userId: currentUser!.id,
+                                      callback: () {
+                                        context.pop();
+                                      },
+                                    );
+                              }
                             }
                           : () {
-                              requestFeedbackController.nextPage(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
-                              ref
-                                  .read(requestFeedbackStepProvider.notifier)
-                                  .state++;
+                              formKey.currentState!.save();
+                              if (formKey.currentState!.validate()) {
+                                requestFeedbackController.nextPage(
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                                ref
+                                    .read(requestFeedbackStepProvider.notifier)
+                                    .state++;
+                              }
                             },
                     ),
                   ),

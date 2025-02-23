@@ -2,6 +2,7 @@ import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/core/utils/utils.dart';
+import 'package:feedback_work/core/utils/validator.dart';
 import 'package:feedback_work/models/category_model.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/auth_providers.dart';
@@ -21,6 +22,7 @@ class EditProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
+  final formKey = GlobalKey<FormState>();
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -130,107 +132,117 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           ),
         ],
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Stack(
-                    alignment: Alignment.bottomRight,
-                    children: [
-                      const CircleAvatar(
-                        radius: 40,
-                      ),
-                      Container(
-                        height: 30,
-                        width: 30,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: context.colors.pureWhite,
-                          border: Border.all(
-                            color: context.colors.darkGrey,
+      body: Form(
+        key: formKey,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Stack(
+                      alignment: Alignment.bottomRight,
+                      children: [
+                        const CircleAvatar(
+                          radius: 40,
+                        ),
+                        Container(
+                          height: 30,
+                          width: 30,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: context.colors.pureWhite,
+                            border: Border.all(
+                              color: context.colors.darkGrey,
+                            ),
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.edit_outlined,
+                              color: context.colors.primaryBlue,
+                              size: 24,
+                            ),
                           ),
                         ),
-                        child: Center(
-                          child: Icon(
-                            Icons.edit_outlined,
-                            color: context.colors.primaryBlue,
-                            size: 24,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Text(
-                "First Name",
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 18,
+                      ],
                     ),
-              ),
-              TextFormField(
-                controller: firstNameController,
-                decoration: context.inputDecor.outlinedInputDecor(
-                    fillColor: context.colors.inputBorder,
-                    borderRadius: BorderRadius.circular(8.r)),
-              ),
-              16.ph,
-              Text(
-                "Last Name",
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 18,
-                    ),
-              ),
-              TextFormField(
-                controller: lastNameController,
-                decoration: context.inputDecor.outlinedInputDecor(
-                    fillColor: context.colors.inputBorder,
-                    borderRadius: BorderRadius.circular(8.r)),
-              ),
-              16.ph,
-              Text(
-                "Email",
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 18,
-                    ),
-              ),
-              TextFormField(
-                controller: emailController,
-                decoration: context.inputDecor.outlinedInputDecor(
-                  fillColor: context.colors.inputBorder,
-                  borderRadius: BorderRadius.circular(8.r),
+                  ],
                 ),
-                readOnly: true,
-              ),
-              16.ph,
-              Text(
-                "Phone Number",
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 18,
-                    ),
-              ),
-              TextFormField(
-                controller: phoneNumberController,
-                decoration: context.inputDecor.outlinedInputDecor(
+                Text(
+                  "First Name",
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 18,
+                      ),
+                ),
+                TextFormField(
+                  controller: firstNameController,
+                  decoration: context.inputDecor.outlinedInputDecor(
                     fillColor: context.colors.inputBorder,
-                    borderRadius: BorderRadius.circular(8.r)),
-              ),
-              16.ph,
-              Text(
-                "Username(Optional)",
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 18,
-                    ),
-              ),
-              TextFormField(
-                controller: usernameController,
-                onChanged: (value) => _validateUsername(),
-                decoration: context.inputDecor.outlinedInputDecor(
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  validator: (value) =>
+                      validateInput(value, fieldName: 'First Name'),
+                ),
+                16.ph,
+                Text(
+                  "Last Name",
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 18,
+                      ),
+                ),
+                TextFormField(
+                  controller: lastNameController,
+                  decoration: context.inputDecor.outlinedInputDecor(
+                    fillColor: context.colors.inputBorder,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  validator: (value) =>
+                      validateInput(value, fieldName: 'Last Name'),
+                ),
+                16.ph,
+                Text(
+                  "Email",
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 18,
+                      ),
+                ),
+                TextFormField(
+                  controller: emailController,
+                  decoration: context.inputDecor.outlinedInputDecor(
+                    fillColor: context.colors.inputBorder,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  readOnly: true,
+                  validator: (value) => validateEmail(value),
+                ),
+                16.ph,
+                Text(
+                  "Phone Number",
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 18,
+                      ),
+                ),
+                TextFormField(
+                  controller: phoneNumberController,
+                  decoration: context.inputDecor.outlinedInputDecor(
+                    fillColor: context.colors.inputBorder,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                ),
+                16.ph,
+                Text(
+                  "Username(Optional)",
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 18,
+                      ),
+                ),
+                TextFormField(
+                  controller: usernameController,
+                  onChanged: (value) => _validateUsername(),
+                  decoration: context.inputDecor.outlinedInputDecor(
                     suffix: _isCheckingUsername
                         ? const CircularProgressIndicator()
                         : Icon(
@@ -242,170 +254,181 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 : Colors.redAccent,
                           ),
                     fillColor: context.colors.inputBorder,
-                    borderRadius: BorderRadius.circular(8.r)),
-              ),
-              16.ph,
-              Text(
-                "Title",
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 18,
-                    ),
-              ),
-              TextFormField(
-                controller: titleController,
-                decoration: context.inputDecor.outlinedInputDecor(
-                    fillColor: context.colors.inputBorder,
-                    borderRadius: BorderRadius.circular(8.r)),
-              ),
-              16.ph,
-              Text(
-                "Expertise",
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 18,
-                    ),
-              ),
-              Builder(builder: (context) {
-                if (categoryState.state == AsyncState.loading) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                } else if (categoryState.state == AsyncState.failure) {
-                  return const Center(
-                    child: Text("Can't fetch category"),
-                  );
-                } else {
-                  return Row(
-                    children: [
-                      Expanded(
-                        child: DropdownMenu(
-                          focusNode: expertiseFocusNode,
-                          controller: expertiseController,
-                          enableFilter: true,
-                          requestFocusOnTap: true,
-                          initialSelection: widget.currentUser.expertise,
-                          hintText: 'Select Expertise Category',
-                          onSelected: (value) {
-                            expertiseFocusNode.unfocus();
-                            setState(() {
-                              selectedCategory = value;
-                            });
-                          },
-                          width: double.infinity,
-                          inputDecorationTheme: InputDecorationTheme(
-                            filled: true,
-                            fillColor: context.colors.inputBorder,
-                            enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: context.colors.transparent),
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            border: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: context.colors.transparent),
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: context.colors.transparent),
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                          ),
-                          dropdownMenuEntries: categories
-                              .map(
-                                (c) => DropdownMenuEntry(
-                                    value: c.categoryTitle,
-                                    label: c.categoryTitle),
-                              )
-                              .toList(),
-                        ),
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  validator: (value) =>
+                      validateInput(value, fieldName: 'Username'),
+                ),
+                16.ph,
+                Text(
+                  "Title",
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 18,
                       ),
-                    ],
-                  );
-                }
-              }),
-              16.ph,
-              Text(
-                "Account Type",
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 10),
-              DropdownButtonFormField<String>(
-                value: selectedAccountType,
-                hint: const Text("Select account type"),
-                items: _accountTypes.map((type) {
-                  return DropdownMenuItem(
-                    value: type,
-                    child: Text(type),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedAccountType = value;
-                  });
-                },
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: context.colors.inputBorder,
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(8)),
-                    borderSide: BorderSide.none,
+                ),
+                TextFormField(
+                  controller: titleController,
+                  decoration: context.inputDecor.outlinedInputDecor(
+                    fillColor: context.colors.inputBorder,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  validator: (value) =>
+                      validateInput(value, fieldName: 'Title'),
+                ),
+                16.ph,
+                Text(
+                  "Expertise",
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 18,
+                      ),
+                ),
+                Builder(builder: (context) {
+                  if (categoryState.state == AsyncState.loading) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (categoryState.state == AsyncState.failure) {
+                    return const Center(
+                      child: Text("Can't fetch category"),
+                    );
+                  } else {
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: DropdownMenu(
+                            focusNode: expertiseFocusNode,
+                            controller: expertiseController,
+                            enableFilter: true,
+                            requestFocusOnTap: true,
+                            initialSelection: widget.currentUser.expertise,
+                            hintText: 'Select Expertise Category',
+                            onSelected: (value) {
+                              expertiseFocusNode.unfocus();
+                              setState(() {
+                                selectedCategory = value;
+                              });
+                            },
+                            width: double.infinity,
+                            inputDecorationTheme: InputDecorationTheme(
+                              filled: true,
+                              fillColor: context.colors.inputBorder,
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: context.colors.transparent),
+                                borderRadius: BorderRadius.circular(8.r),
+                              ),
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: context.colors.transparent),
+                                borderRadius: BorderRadius.circular(8.r),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: context.colors.transparent),
+                                borderRadius: BorderRadius.circular(8.r),
+                              ),
+                            ),
+                            dropdownMenuEntries: categories
+                                .map(
+                                  (c) => DropdownMenuEntry(
+                                      value: c.categoryTitle,
+                                      label: c.categoryTitle),
+                                )
+                                .toList(),
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                }),
+                16.ph,
+                Text(
+                  "Account Type",
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 10),
+                DropdownButtonFormField<String>(
+                  value: selectedAccountType,
+                  hint: const Text("Select account type"),
+                  items: _accountTypes.map((type) {
+                    return DropdownMenuItem(
+                      value: type,
+                      child: Text(type),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedAccountType = value;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: context.colors.inputBorder,
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                 ),
-              ),
-              16.ph,
-              Text(
-                "Minimum Rate",
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 18,
-                    ),
-              ),
-              TextFormField(
-                controller: minimumRateController,
-                decoration: context.inputDecor.outlinedInputDecor(
-                    fillColor: context.colors.inputBorder,
-                    borderRadius: BorderRadius.circular(8.r)),
-              ),
-              16.ph,
-              AppButton.filled(
-                label: "Manage Children",
-                onTap: () {
-                  context.pushNamed(Routes.parentAndChildren,
-                      extra: widget.currentUser.id);
-                },
-                bgColor: context.colors.primaryBlue.withValues(
-                  alpha: 0.2,
+                16.ph,
+                Text(
+                  "Minimum Rate",
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 18,
+                      ),
                 ),
-                fgColor: context.colors.primaryBlue,
-                verticalPadding: 10,
-              ),
-              16.ph,
-              AppButton.filled(
-                label: "Update",
-                onTap: () {
-                  ref.read(userProvider.notifier).updateProfile(
-                        uid: widget.currentUser.id,
-                        userModel: UserModel(
-                          firstName: firstNameController.text.trim(),
-                          lastName: lastNameController.text.trim(),
-                          phoneNumber: phoneNumberController.text.trim(),
-                          username: usernameController.text.trim(),
-                          title: titleController.text.trim(),
-                          expertise: expertiseController.text.trim(),
-                          accountType: selectedAccountType ?? '',
-                          minimumRate: double.tryParse(
-                                  minimumRateController.text.trim()) ??
-                              -1,
-                        ),
-                        callback: () {
-                          context.pop();
-                        },
-                      );
-                },
-                bgColor: context.colors.primaryBlue,
-                verticalPadding: 10,
-              ),
-              16.ph,
-            ],
+                TextFormField(
+                  controller: minimumRateController,
+                  decoration: context.inputDecor.outlinedInputDecor(
+                    fillColor: context.colors.inputBorder,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                ),
+                16.ph,
+                AppButton.filled(
+                  label: "Manage Children",
+                  onTap: () {
+                    context.pushNamed(Routes.parentAndChildren,
+                        extra: widget.currentUser.id);
+                  },
+                  bgColor: context.colors.primaryBlue.withValues(
+                    alpha: 0.2,
+                  ),
+                  fgColor: context.colors.primaryBlue,
+                  verticalPadding: 10,
+                ),
+                16.ph,
+                AppButton.filled(
+                  label: "Update",
+                  onTap: () {
+                    formKey.currentState!.save();
+                    if (formKey.currentState!.validate()) {
+                      ref.read(userProvider.notifier).updateProfile(
+                            uid: widget.currentUser.id,
+                            userModel: UserModel(
+                              firstName: firstNameController.text.trim(),
+                              lastName: lastNameController.text.trim(),
+                              phoneNumber: phoneNumberController.text.trim(),
+                              username: usernameController.text.trim(),
+                              title: titleController.text.trim(),
+                              expertise: expertiseController.text.trim(),
+                              accountType: selectedAccountType ?? '',
+                              minimumRate: double.tryParse(
+                                      minimumRateController.text.trim()) ??
+                                  -1,
+                            ),
+                            callback: () {
+                              context.pop();
+                            },
+                          );
+                    }
+                  },
+                  bgColor: context.colors.primaryBlue,
+                  verticalPadding: 10,
+                ),
+                16.ph,
+              ],
+            ),
           ),
         ),
       ),

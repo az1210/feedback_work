@@ -1,5 +1,6 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/utils/utils.dart';
+import 'package:feedback_work/core/utils/validator.dart';
 import 'package:feedback_work/screens/groups/widgets/add_member_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -96,12 +97,8 @@ class _CreateGroupContentState extends State<CreateGroupContent> {
                           borderRadius: BorderRadius.circular(10.r),
                           hint: "Group Name")
                       .copyWith(filled: true),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter some text';
-                    }
-                    return null;
-                  },
+                  validator: (value) =>
+                      validateInput(value, fieldName: 'Group Name'),
                 ),
                 8.ph,
                 Row(
@@ -125,12 +122,8 @@ class _CreateGroupContentState extends State<CreateGroupContent> {
                       .copyWith(filled: true),
                   minLines: 2,
                   maxLines: 5,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter some text';
-                    }
-                    return null;
-                  },
+                  validator: (value) =>
+                      validateInput(value, fieldName: 'Group Description'),
                 ),
                 8.ph,
                 Row(

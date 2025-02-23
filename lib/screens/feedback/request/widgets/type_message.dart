@@ -1,6 +1,7 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/utils/file_upload_helper.dart';
 import 'package:feedback_work/core/utils/toast_message.dart';
+import 'package:feedback_work/core/utils/validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dotted_border/dotted_border.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_quill/flutter_quill.dart' as quill;
 class TypeMessage extends ConsumerStatefulWidget {
   const TypeMessage(
       {this.subject,
+      required this.formKey,
       this.youtubeLink,
       required this.message,
       required this.imageUrl,
@@ -18,6 +20,7 @@ class TypeMessage extends ConsumerStatefulWidget {
   final void Function(String?)? youtubeLink;
   final void Function(String?) imageUrl;
   final quill.QuillController message;
+  final GlobalKey<FormState> formKey;
 
   @override
   ConsumerState<TypeMessage> createState() => _CreateProjectScreenState();
@@ -62,133 +65,140 @@ class _CreateProjectScreenState extends ConsumerState<TypeMessage> {
       showLink: true,
     );
 
-    return ListView(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Feedback Subject",
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 5),
-              TextFormField(
-                onChanged: widget.subject,
-                decoration: InputDecoration(
-                  hintText: "Type here",
-                  hintStyle: Theme.of(context).textTheme.bodySmall,
-                  filled: true,
-                  fillColor: context.colors.pureWhite,
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide.none,
+    return Form(
+      key: widget.formKey,
+      child: ListView(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Feedback Subject",
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 5),
+                TextFormField(
+                  onChanged: widget.subject,
+                  decoration: InputDecoration(
+                    hintText: "Type here",
+                    hintStyle: Theme.of(context).textTheme.bodySmall,
+                    filled: true,
+                    fillColor: context.colors.pureWhite,
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  validator: (value) =>
+                      validateInput(value, fieldName: 'Feedback Subject'),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  "Feedback Message",
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 5),
+                if (!keyboardVisible)
+                  quill.QuillToolbar.simple(
+                    controller: widget.message,
+                    configurations: config,
+                  ),
+                const SizedBox(height: 8),
+                // Quill Editor
+                Container(
+                  height: 200,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white,
+                  ),
+                  child: quill.QuillEditor.basic(
+                    controller: widget.message,
+                    focusNode: FocusNode(),
+
+                    // padding: const EdgeInsets.all(16),
+                    // autoFocus: true,
+                    // showCursor: true,
+                    // enableInteractiveSelection: true,
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                "Feedback Message",
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 5),
-              if (!keyboardVisible)
-                quill.QuillToolbar.simple(
-                  controller: widget.message,
-                  configurations: config,
+                const SizedBox(height: 16),
+                Text(
+                  'Attach File',
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
-              const SizedBox(height: 8),
-              // Quill Editor
-              Container(
-                height: 200,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.white,
-                ),
-                child: quill.QuillEditor.basic(
-                  controller: widget.message,
-                  focusNode: FocusNode(),
-
-                  // padding: const EdgeInsets.all(16),
-                  // autoFocus: true,
-                  // showCursor: true,
-                  // enableInteractiveSelection: true,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Attach File',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 8),
-              InkWell(
-                onTap: pickFile,
-                child: Container(
-                  color: Colors.white,
-                  width: double.infinity,
-                  child: DottedBorder(
-                    borderType: BorderType.RRect,
-                    radius: const Radius.circular(8),
-                    // padding: const EdgeInsets.all(16),
-                    color: Colors.grey,
-                    strokeWidth: 1,
-                    dashPattern: const [8, 8],
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(left: 12, top: 12, bottom: 12),
-                      child: Column(
-                        children: [
-                          Image.asset(
-                            "assets/images/icons/cloud.png",
-                            height: 32,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            selectedFilePath ?? 'Upload the file here',
-                            style: const TextStyle(
-                                color: Color.fromARGB(255, 8, 102, 255)),
-                          ),
-                          const SizedBox(height: 4),
-                          const Center(
-                            child: Text(
-                              '(Only .jpg, .png, & .pdf files will be accepted)',
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontStyle: FontStyle.italic,
+                const SizedBox(height: 8),
+                InkWell(
+                  onTap: pickFile,
+                  child: Container(
+                    color: Colors.white,
+                    width: double.infinity,
+                    child: DottedBorder(
+                      borderType: BorderType.RRect,
+                      radius: const Radius.circular(8),
+                      // padding: const EdgeInsets.all(16),
+                      color: Colors.grey,
+                      strokeWidth: 1,
+                      dashPattern: const [8, 8],
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            left: 12, top: 12, bottom: 12),
+                        child: Column(
+                          children: [
+                            Image.asset(
+                              "assets/images/icons/cloud.png",
+                              height: 32,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              selectedFilePath ?? 'Upload the file here',
+                              style: const TextStyle(
+                                  color: Color.fromARGB(255, 8, 102, 255)),
+                            ),
+                            const SizedBox(height: 4),
+                            const Center(
+                              child: Text(
+                                '(Only .jpg, .png, & .pdf files will be accepted)',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontStyle: FontStyle.italic,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                "Youtube Link",
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 5),
-              TextFormField(
-                onChanged: widget.youtubeLink,
-                decoration: InputDecoration(
-                  hintText: "Insert link",
-                  hintStyle: Theme.of(context).textTheme.bodySmall,
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide.none,
-                  ),
+                const SizedBox(height: 16),
+                Text(
+                  "Youtube Link",
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
-              ),
-              const SizedBox(height: 12),
-            ],
+                const SizedBox(height: 5),
+                TextFormField(
+                  onChanged: widget.youtubeLink,
+                  decoration: InputDecoration(
+                    hintText: "Insert link",
+                    hintStyle: Theme.of(context).textTheme.bodySmall,
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  validator: (value) =>
+                      validateInput(value, fieldName: 'YouTube Link'),
+                ),
+                const SizedBox(height: 12),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

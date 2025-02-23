@@ -3,6 +3,7 @@ import 'package:feedback_work/core/ui/widgets/dotted_border_big_button.dart';
 import 'package:feedback_work/core/utils/file_upload_helper.dart';
 import 'package:feedback_work/core/utils/toast_message.dart';
 import 'package:feedback_work/core/utils/utils.dart';
+import 'package:feedback_work/core/utils/validator.dart';
 import 'package:feedback_work/models/project_model.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
@@ -23,6 +24,7 @@ class CreateProjectScreen extends ConsumerStatefulWidget {
 }
 
 class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
+  final formKey = GlobalKey<FormState>();
   final TextEditingController projectNameController = TextEditingController();
   final TextEditingController problemNameController = TextEditingController();
   final TextEditingController solutionNameController = TextEditingController();
@@ -57,29 +59,33 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
 
   Future<void> createProject() async {
     try {
+      formKey.currentState!.save();
+
       final projectService = ref.read(projectProvider.notifier);
 
       Log.info(currentUser!.toMap().toString());
-      await projectService.createProject(
-        project: ProjectModel(
-          projectName: projectNameController.text.trim(),
-          problemName: problemNameController.text.trim(),
-          solutionName: solutionNameController.text.trim(),
-          solutionFunctionName:
-              solutionFunctionController.text.trim().isNotEmpty
-                  ? solutionFunctionController.text.trim()
-                  : null,
-          projectDescription: projectDescriptionController.document.toDelta(),
-          youtubeLink: youtubeLinkController.text.trim().isNotEmpty
-              ? youtubeLinkController.text.trim()
-              : null,
-          imageUrl: selectedFilePath,
-          owner: currentUser,
-          ownerId: currentUserId,
-        ),
-      );
-      showToast(message: 'Project Created Successfully!');
-      context.pop();
+      if (formKey.currentState!.validate()) {
+        await projectService.createProject(
+          project: ProjectModel(
+            projectName: projectNameController.text.trim(),
+            problemName: problemNameController.text.trim(),
+            solutionName: solutionNameController.text.trim(),
+            solutionFunctionName:
+                solutionFunctionController.text.trim().isNotEmpty
+                    ? solutionFunctionController.text.trim()
+                    : null,
+            projectDescription: projectDescriptionController.document.toDelta(),
+            youtubeLink: youtubeLinkController.text.trim().isNotEmpty
+                ? youtubeLinkController.text.trim()
+                : null,
+            imageUrl: selectedFilePath,
+            owner: currentUser,
+            ownerId: currentUserId,
+          ),
+        );
+        showToast(message: 'Project Created Successfully!');
+        context.pop();
+      }
     } catch (e) {
       showToast(message: 'Error: ${e.toString()}');
     }
@@ -133,203 +139,216 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
         title: const Text('Create Project'),
         centerTitle: false,
       ),
-      body: ListView(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 19),
-                Text(
-                  "Project Name*",
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 5),
-                TextField(
-                  controller: projectNameController,
-                  decoration: InputDecoration(
-                    hintText: "Type here",
-                    hintStyle: Theme.of(context).textTheme.bodySmall,
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      borderSide: BorderSide.none,
+      body: Form(
+        child: ListView(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 19),
+                  Text(
+                    "Project Name*",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 5),
+                  TextFormField(
+                    controller: projectNameController,
+                    decoration: InputDecoration(
+                      hintText: "Type here",
+                      hintStyle: Theme.of(context).textTheme.bodySmall,
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
+                    validator: (value) =>
+                        validateInput(value, fieldName: 'Project Name'),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  "Problem Name*",
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 5),
-                TextField(
-                  controller: problemNameController,
-                  decoration: InputDecoration(
-                    hintText: "Type here",
-                    hintStyle: Theme.of(context).textTheme.bodySmall,
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      borderSide: BorderSide.none,
+                  const SizedBox(height: 16),
+                  Text(
+                    "Problem Name*",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 5),
+                  TextFormField(
+                    controller: problemNameController,
+                    decoration: InputDecoration(
+                      hintText: "Type here",
+                      hintStyle: Theme.of(context).textTheme.bodySmall,
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
+                    validator: (value) =>
+                        validateInput(value, fieldName: 'Problem Name'),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  "Solution Name*",
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 5),
-                TextField(
-                  controller: solutionNameController,
-                  decoration: InputDecoration(
-                    hintText: "Type here",
-                    hintStyle: Theme.of(context).textTheme.bodySmall,
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      borderSide: BorderSide.none,
+                  const SizedBox(height: 16),
+                  Text(
+                    "Solution Name*",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 5),
+                  TextFormField(
+                    controller: solutionNameController,
+                    decoration: InputDecoration(
+                      hintText: "Type here",
+                      hintStyle: Theme.of(context).textTheme.bodySmall,
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
+                    validator: (value) =>
+                        validateInput(value, fieldName: 'Solution Name'),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  "Solution Function Name",
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 5),
-                TextField(
-                  controller: solutionFunctionController,
-                  decoration: InputDecoration(
-                    hintText: "Type here",
-                    hintStyle: Theme.of(context).textTheme.bodySmall,
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      borderSide: BorderSide.none,
+                  const SizedBox(height: 16),
+                  Text(
+                    "Solution Function Name",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 5),
+                  TextFormField(
+                    controller: solutionFunctionController,
+                    decoration: InputDecoration(
+                      hintText: "Type here",
+                      hintStyle: Theme.of(context).textTheme.bodySmall,
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
+                    validator: (value) => validateInput(value,
+                        fieldName: 'Solution Function Name'),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  "Project Description",
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 5),
-                if (!keyboardVisible)
-                  quill.QuillToolbar.simple(
-                    controller: projectDescriptionController,
-                    configurations: config,
+                  const SizedBox(height: 16),
+                  Text(
+                    "Project Description",
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
-                const SizedBox(height: 8),
-                // Quill Editor
-                Container(
-                  height: 200,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.white,
-                  ),
-                  child: quill.QuillEditor.basic(
-                    controller: projectDescriptionController,
-                    focusNode: FocusNode(),
+                  const SizedBox(height: 5),
+                  if (!keyboardVisible)
+                    quill.QuillToolbar.simple(
+                      controller: projectDescriptionController,
+                      configurations: config,
+                    ),
+                  const SizedBox(height: 8),
+                  // Quill Editor
+                  Container(
+                    height: 200,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.white,
+                    ),
+                    child: quill.QuillEditor.basic(
+                      controller: projectDescriptionController,
+                      focusNode: FocusNode(),
 
-                    // padding: const EdgeInsets.all(16),
-                    // autoFocus: true,
-                    // showCursor: true,
-                    // enableInteractiveSelection: true,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Add Image',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                DottedBorderBigButton(
-                  title: selectedFilePath,
-                  onTap: pickFile,
-                  icon: Icon(
-                    Icons.cloud_upload_outlined,
-                    size: 32.r,
-                    color: context.colors.primaryBlue,
-                  ),
-                  subtitle: "(Only .jpg, .png, & .pdf files will be accepted)",
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  "Youtube Link",
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 5),
-                TextField(
-                  controller: youtubeLinkController,
-                  decoration: InputDecoration(
-                    hintText: "Insert link here",
-                    hintStyle: Theme.of(context).textTheme.bodySmall,
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      borderSide: BorderSide.none,
+                      // padding: const EdgeInsets.all(16),
+                      // autoFocus: true,
+                      // showCursor: true,
+                      // enableInteractiveSelection: true,
                     ),
                   ),
-                ),
-                const SizedBox(height: 12),
-              ],
+                  const SizedBox(height: 16),
+                  Text(
+                    'Add Image',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  DottedBorderBigButton(
+                    title: selectedFilePath,
+                    onTap: pickFile,
+                    icon: Icon(
+                      Icons.cloud_upload_outlined,
+                      size: 32.r,
+                      color: context.colors.primaryBlue,
+                    ),
+                    subtitle:
+                        "(Only .jpg, .png, & .pdf files will be accepted)",
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    "Youtube Link",
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 5),
+                  TextFormField(
+                    controller: youtubeLinkController,
+                    decoration: InputDecoration(
+                      hintText: "Insert link here",
+                      hintStyle: Theme.of(context).textTheme.bodySmall,
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    validator: (value) =>
+                        validateInput(value, fieldName: 'YouTube Link'),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+              ),
             ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(24),
-            color: Colors.white,
-            height: 84,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                OutlinedButton(
-                  onPressed: () {
-                    context.pop();
-                  },
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(
-                      color: Color.fromARGB(255, 8, 102, 255),
+            Container(
+              padding: const EdgeInsets.all(24),
+              color: Colors.white,
+              height: 84,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  OutlinedButton(
+                    onPressed: () {
+                      context.pop();
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(
+                        color: Color.fromARGB(255, 8, 102, 255),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                    child: Text(
+                      'Cancel',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: const Color.fromARGB(255, 8, 102, 255),
+                          ),
                     ),
                   ),
-                  child: Text(
-                    'Cancel',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: const Color.fromARGB(255, 8, 102, 255),
-                        ),
+                  ElevatedButton(
+                    onPressed: createProject,
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.only(right: 16, left: 16),
+                      backgroundColor: const Color.fromARGB(255, 8, 102, 255),
+                    ),
+                    child: Text(
+                      'Create Project',
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyLarge
+                          ?.copyWith(color: Colors.white),
+                    ),
                   ),
-                ),
-                ElevatedButton(
-                  onPressed: createProject,
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                    padding: const EdgeInsets.only(right: 16, left: 16),
-                    backgroundColor: const Color.fromARGB(255, 8, 102, 255),
-                  ),
-                  child: Text(
-                    'Create Project',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyLarge
-                        ?.copyWith(color: Colors.white),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

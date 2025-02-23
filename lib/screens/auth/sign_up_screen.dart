@@ -1,3 +1,4 @@
+import 'package:feedback_work/core/utils/validator.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,6 +20,7 @@ class SignUpScreen extends ConsumerStatefulWidget {
 }
 
 class _SignUpScreenState extends ConsumerState<SignUpScreen> {
+  final formKey = GlobalKey<FormState>();
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -32,45 +34,48 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final Map<String, String?> _errorMessages = {};
 
   void handleSignUp() async {
-    if (!_validateInputs()) return;
-    if (passwordController.text != confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Passwords do not match")),
-      );
-      return;
-    }
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      await ref.read(authServiceProvider.notifier).signUp(
-            userModel: UserModel(
-                firstName: firstNameController.text.trim(),
-                lastName: lastNameController.text.trim(),
-                email: emailController.text.trim(),
-                phoneNumber: phoneNumberController.text.trim()),
-            password: passwordController.text,
-          );
-
-      final userId = FirebaseAuth.instance.currentUser?.uid;
-
-      if (userId != null) {
-        context.push('/complete-profile', extra: userId);
+    formKey.currentState!.save();
+    if (formKey.currentState!.validate()) {
+      if (!_validateInputs()) return;
+      if (passwordController.text != confirmPasswordController.text) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Passwords do not match")),
+        );
+        return;
       }
-    } catch (e) {
-      final snackBar = CustomSnackbar.build(
-        title: 'Oh Snap!',
-        message: 'Something went wrong!',
-        contentType: ContentType.failure,
-      );
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(snackBar);
-    } finally {
       setState(() {
-        _isLoading = false;
+        _isLoading = true;
       });
+
+      try {
+        await ref.read(authServiceProvider.notifier).signUp(
+              userModel: UserModel(
+                  firstName: firstNameController.text.trim(),
+                  lastName: lastNameController.text.trim(),
+                  email: emailController.text.trim(),
+                  phoneNumber: phoneNumberController.text.trim()),
+              password: passwordController.text,
+            );
+
+        final userId = FirebaseAuth.instance.currentUser?.uid;
+
+        if (userId != null) {
+          context.push('/complete-profile', extra: userId);
+        }
+      } catch (e) {
+        final snackBar = CustomSnackbar.build(
+          title: 'Oh Snap!',
+          message: 'Something went wrong!',
+          contentType: ContentType.failure,
+        );
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(snackBar);
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -107,248 +112,258 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(children: [
-        // LayoutBuilder(
-        //   builder: (context, constraints) {
-        //     bool isWideScreen = constraints.maxWidth > 800;
-        const Align(
-          alignment: Alignment.topCenter,
-          child: Image(
-            image: AssetImage("assets/images/onboard/top1.jpeg"),
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: 230,
-          ),
-        ),
-        Positioned(
-          top: 200,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: SingleChildScrollView(
-            child: Container(
-              // width: isWideScreen ? 700 : double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 10),
-                  Text(
-                    "Create Your Account",
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context)
-                        .textTheme
-                        .displayMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    "Create Account for Feedback Work",
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    "First Name",
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: firstNameController,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: const Color.fromARGB(255, 240, 242, 245),
-                      errorText: _errorMessages['firstName'],
-                      border: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    "Last Name",
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: lastNameController,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: const Color.fromARGB(255, 240, 242, 245),
-                      errorText: _errorMessages['lastName'],
-                      border: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    "Email",
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: emailController,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: const Color.fromARGB(255, 240, 242, 245),
-                      errorText: _errorMessages['email'],
-                      border: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    "Phone Number",
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: phoneNumberController,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: const Color.fromARGB(255, 240, 242, 245),
-                      errorText: _errorMessages['phoneNumber'],
-                      border: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    "Password",
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: passwordController,
-                    obscureText: _isObscured,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: const Color.fromARGB(255, 240, 242, 245),
-                      errorText: _errorMessages['password'],
-                      border: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        borderSide: BorderSide.none,
-                      ),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _isObscured ? Icons.visibility_off : Icons.visibility,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _isObscured = !_isObscured;
-                          });
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    "Re-enter Password",
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: confirmPasswordController,
-                    obscureText: _isObscured,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: const Color.fromARGB(255, 240, 242, 245),
-                      errorText: _errorMessages['confirmPassword'],
-                      border: const OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        borderSide: BorderSide.none,
-                      ),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _isObscured ? Icons.visibility_off : Icons.visibility,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _isObscured = !_isObscured;
-                          });
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _isLoading
-                      ? const Center(
-                          child: SizedBox(
-                            height: 40,
-                            width: 40,
-                            child: CircularProgressIndicator(
-                              color: Color.fromARGB(255, 8, 102, 255),
-                            ),
-                          ),
-                        )
-                      : BlockButton(
-                          onPressed: handleSignUp, text: "Create Account"),
-                  const SizedBox(height: 16),
-                  OrDivider(
-                    topText: 'Have an Account?',
-                    onTap: () {
-                      context.go('/sign-in');
-                    },
-                    bottomText: 'Sign In Here',
-                  ),
-                  const SizedBox(height: 16),
-                  SignInButton(
-                    onPressed: () async {
-                      try {
-                        await authService.signInWithGoogle();
-                        context.push('/projects');
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(e.toString())),
-                        );
-                      }
-                    },
-                    icon: Image.asset(
-                      "assets/images/icons/g-logo.png",
-                      height: 24,
-                      width: 24,
-                    ),
-                    label: const Text("Continue with Google"),
-                  ),
-                  const SizedBox(height: 12),
-                  SignInButton(
-                    onPressed: () async {
-                      try {
-                        await authService.signInWithFacebook();
-                        context.push('/projects');
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(e.toString())),
-                        );
-                      }
-                    },
-                    icon: const Icon(
-                      Icons.facebook,
-                      color: Color.fromARGB(255, 8, 102, 255),
-                    ),
-                    label: const Text("Continue with Facebook"),
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              ),
+      body: Form(
+        key: formKey,
+        child: Stack(children: [
+          // LayoutBuilder(
+          //   builder: (context, constraints) {
+          //     bool isWideScreen = constraints.maxWidth > 800;
+          const Align(
+            alignment: Alignment.topCenter,
+            child: Image(
+              image: AssetImage("assets/images/onboard/top1.jpeg"),
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: 230,
             ),
           ),
-        )
-      ]),
+          Positioned(
+            top: 200,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: SingleChildScrollView(
+              child: Container(
+                // width: isWideScreen ? 700 : double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 10),
+                    Text(
+                      "Create Your Account",
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context)
+                          .textTheme
+                          .displayMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "Create Account for Feedback Work",
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      "First Name",
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 5),
+                    TextFormField(
+                      controller: firstNameController,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: const Color.fromARGB(255, 240, 242, 245),
+                        errorText: _errorMessages['firstName'],
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      "Last Name",
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 5),
+                    TextFormField(
+                      controller: lastNameController,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: const Color.fromARGB(255, 240, 242, 245),
+                        errorText: _errorMessages['lastName'],
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      validator: (value) =>
+                          validateInput(value, fieldName: 'Last Name'),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      "Email",
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 5),
+                    TextFormField(
+                      controller: emailController,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: const Color.fromARGB(255, 240, 242, 245),
+                        errorText: _errorMessages['email'],
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      validator: (value) => validateEmail(value),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      "Phone Number",
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 5),
+                    TextFormField(
+                      controller: phoneNumberController,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: const Color.fromARGB(255, 240, 242, 245),
+                        errorText: _errorMessages['phoneNumber'],
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      "Password",
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 5),
+                    TextFormField(
+                      controller: passwordController,
+                      obscureText: _isObscured,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: const Color.fromARGB(255, 240, 242, 245),
+                        errorText: _errorMessages['password'],
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide.none,
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isObscured
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isObscured = !_isObscured;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      "Re-enter Password",
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 5),
+                    TextFormField(
+                      controller: confirmPasswordController,
+                      obscureText: _isObscured,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: const Color.fromARGB(255, 240, 242, 245),
+                        errorText: _errorMessages['confirmPassword'],
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide.none,
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isObscured
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isObscured = !_isObscured;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _isLoading
+                        ? const Center(
+                            child: SizedBox(
+                              height: 40,
+                              width: 40,
+                              child: CircularProgressIndicator(
+                                color: Color.fromARGB(255, 8, 102, 255),
+                              ),
+                            ),
+                          )
+                        : BlockButton(
+                            onPressed: handleSignUp, text: "Create Account"),
+                    const SizedBox(height: 16),
+                    OrDivider(
+                      topText: 'Have an Account?',
+                      onTap: () {
+                        context.go('/sign-in');
+                      },
+                      bottomText: 'Sign In Here',
+                    ),
+                    const SizedBox(height: 16),
+                    SignInButton(
+                      onPressed: () async {
+                        try {
+                          await authService.signInWithGoogle();
+                          context.push('/projects');
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(e.toString())),
+                          );
+                        }
+                      },
+                      icon: Image.asset(
+                        "assets/images/icons/g-logo.png",
+                        height: 24,
+                        width: 24,
+                      ),
+                      label: const Text("Continue with Google"),
+                    ),
+                    const SizedBox(height: 12),
+                    SignInButton(
+                      onPressed: () async {
+                        try {
+                          await authService.signInWithFacebook();
+                          context.push('/projects');
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(e.toString())),
+                          );
+                        }
+                      },
+                      icon: const Icon(
+                        Icons.facebook,
+                        color: Color.fromARGB(255, 8, 102, 255),
+                      ),
+                      label: const Text("Continue with Facebook"),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            ),
+          )
+        ]),
+      ),
     );
   }
 }

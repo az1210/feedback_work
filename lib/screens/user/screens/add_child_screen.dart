@@ -2,6 +2,7 @@ import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/core/ui/widgets/filter__content.dart';
 import 'package:feedback_work/core/utils/utils.dart';
+import 'package:feedback_work/core/utils/validator.dart';
 import 'package:feedback_work/models/child_model.dart';
 import 'package:feedback_work/providers/auth_providers.dart';
 import 'package:feedback_work/providers/child_providers.dart';
@@ -20,6 +21,7 @@ class AddChildScreen extends ConsumerStatefulWidget {
 }
 
 class _AddChildScreenState extends ConsumerState<AddChildScreen> {
+  final formKey = GlobalKey<FormState>();
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -56,176 +58,190 @@ class _AddChildScreenState extends ConsumerState<AddChildScreen> {
       appBar: AppBar(
         title: const Text("Add Child"),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              16.ph,
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Stack(
-                    alignment: Alignment.bottomRight,
-                    children: [
-                      const CircleAvatar(
-                        radius: 40,
-                      ),
-                      Container(
-                        height: 30,
-                        width: 30,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: context.colors.pureWhite,
-                          border: Border.all(
-                            color: context.colors.darkGrey,
+      body: Form(
+        key: formKey,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                16.ph,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Stack(
+                      alignment: Alignment.bottomRight,
+                      children: [
+                        const CircleAvatar(
+                          radius: 40,
+                        ),
+                        Container(
+                          height: 30,
+                          width: 30,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: context.colors.pureWhite,
+                            border: Border.all(
+                              color: context.colors.darkGrey,
+                            ),
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.edit_outlined,
+                              color: context.colors.primaryBlue,
+                              size: 24,
+                            ),
                           ),
                         ),
-                        child: Center(
-                          child: Icon(
-                            Icons.edit_outlined,
-                            color: context.colors.primaryBlue,
-                            size: 24,
-                          ),
-                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                16.ph,
+                Text(
+                  "First Name",
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 18,
                       ),
-                    ],
-                  ),
-                ],
-              ),
-              16.ph,
-              Text(
-                "First Name",
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 18,
-                    ),
-              ),
-              TextFormField(
-                controller: firstNameController,
-                decoration: context.inputDecor.outlinedInputDecor(
-                    fillColor: context.colors.pureWhite,
-                    borderRadius: BorderRadius.circular(8.r)),
-              ),
-              16.ph,
-              Text(
-                "Last Name",
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 18,
-                    ),
-              ),
-              TextFormField(
-                controller: lastNameController,
-                decoration: context.inputDecor.outlinedInputDecor(
-                    fillColor: context.colors.pureWhite,
-                    borderRadius: BorderRadius.circular(8.r)),
-              ),
-              FilterContent(
-                sections: sections,
-                hasActionButton: false,
-                hasHeader: false,
-                hasSearchOption: false,
-                selectedFilters: selectedFilters,
-                onFiltersChanged: (selectedFilters) {
-                  selectedAgeRange = selectedFilters.containsKey("ageRange")
-                      ? selectedFilters['ageRange']?.first
-                      : null;
-                  selectedGrade = selectedFilters.containsKey('grade')
-                      ? selectedFilters['grade']?.first
-                      : null;
-                  setState(() {});
-                },
-              ),
-              16.ph,
-              Text(
-                "Email",
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 18,
-                    ),
-              ),
-              TextFormField(
-                controller: emailController,
-                decoration: context.inputDecor.outlinedInputDecor(
-                    fillColor: context.colors.pureWhite,
-                    borderRadius: BorderRadius.circular(8.r)),
-              ),
-              16.ph,
-              Text(
-                "Password",
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 18,
-                    ),
-              ),
-              TextFormField(
-                controller: passwordController,
-                decoration: context.inputDecor.outlinedInputDecor(
-                  fillColor: context.colors.pureWhite,
-                  borderRadius: BorderRadius.circular(8.r),
-                  suffix: IconButton(
-                    icon: Icon(
-                      _isObscured
-                          ? Icons.visibility_off_outlined
-                          : Icons.visibility_outlined,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isObscured = !_isObscured;
-                      });
-                    },
-                  ),
                 ),
-                obscureText: _isObscured,
-              ),
-              16.ph,
-              Text(
-                "Re-enter Password",
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      fontSize: 18,
-                    ),
-              ),
-              TextFormField(
-                controller: confirmPasswordController,
-                decoration: context.inputDecor.outlinedInputDecor(
-                  fillColor: context.colors.pureWhite,
-                  borderRadius: BorderRadius.circular(8.r),
-                  suffix: IconButton(
-                    icon: Icon(
-                      _isObscured
-                          ? Icons.visibility_off_outlined
-                          : Icons.visibility_outlined,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isObscured = !_isObscured;
-                      });
-                    },
+                TextFormField(
+                  controller: firstNameController,
+                  decoration: context.inputDecor.outlinedInputDecor(
+                    fillColor: context.colors.pureWhite,
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
+                  validator: (value) =>
+                      validateInput(value, fieldName: 'First Name'),
                 ),
-                obscureText: _isObscured,
-              ),
-              16.ph,
-              AppButton.filled(
-                label: "Save",
-                onTap: () {
-                  ref.read(childProvider.notifier).createChildAccount(
-                        childModel: ChildModel(
-                          ageRange: selectedAgeRange!,
-                          email: emailController.text,
-                          firstName: firstNameController.text,
-                          lastName: lastNameController.text,
-                          grade: selectedGrade!,
-                        ),
-                        password: passwordController.text,
-                        parentId: widget.parentId,
-                        callBack: () {
-                          context.pop();
-                        },
-                      );
-                },
-                verticalPadding: 12.h,
-              ),
-              16.ph,
-            ],
+                16.ph,
+                Text(
+                  "Last Name",
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 18,
+                      ),
+                ),
+                TextFormField(
+                  controller: lastNameController,
+                  decoration: context.inputDecor.outlinedInputDecor(
+                    fillColor: context.colors.pureWhite,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  validator: (value) =>
+                      validateInput(value, fieldName: 'Last Name'),
+                ),
+                FilterContent(
+                  sections: sections,
+                  hasActionButton: false,
+                  hasHeader: false,
+                  hasSearchOption: false,
+                  selectedFilters: selectedFilters,
+                  onFiltersChanged: (selectedFilters) {
+                    selectedAgeRange = selectedFilters.containsKey("ageRange")
+                        ? selectedFilters['ageRange']?.first
+                        : null;
+                    selectedGrade = selectedFilters.containsKey('grade')
+                        ? selectedFilters['grade']?.first
+                        : null;
+                    setState(() {});
+                  },
+                ),
+                16.ph,
+                Text(
+                  "Email",
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 18,
+                      ),
+                ),
+                TextFormField(
+                  controller: emailController,
+                  decoration: context.inputDecor.outlinedInputDecor(
+                    fillColor: context.colors.pureWhite,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  validator: (value) => validateEmail(value),
+                ),
+                16.ph,
+                Text(
+                  "Password",
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 18,
+                      ),
+                ),
+                TextFormField(
+                  controller: passwordController,
+                  decoration: context.inputDecor.outlinedInputDecor(
+                    fillColor: context.colors.pureWhite,
+                    borderRadius: BorderRadius.circular(8.r),
+                    suffix: IconButton(
+                      icon: Icon(
+                        _isObscured
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isObscured = !_isObscured;
+                        });
+                      },
+                    ),
+                  ),
+                  obscureText: _isObscured,
+                ),
+                16.ph,
+                Text(
+                  "Re-enter Password",
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 18,
+                      ),
+                ),
+                TextFormField(
+                  controller: confirmPasswordController,
+                  decoration: context.inputDecor.outlinedInputDecor(
+                    fillColor: context.colors.pureWhite,
+                    borderRadius: BorderRadius.circular(8.r),
+                    suffix: IconButton(
+                      icon: Icon(
+                        _isObscured
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isObscured = !_isObscured;
+                        });
+                      },
+                    ),
+                  ),
+                  obscureText: _isObscured,
+                ),
+                16.ph,
+                AppButton.filled(
+                  label: "Save",
+                  onTap: () {
+                    formKey.currentState!.save();
+                    if (formKey.currentState!.validate()) {
+                      ref.read(childProvider.notifier).createChildAccount(
+                            childModel: ChildModel(
+                              ageRange: selectedAgeRange!,
+                              email: emailController.text,
+                              firstName: firstNameController.text,
+                              lastName: lastNameController.text,
+                              grade: selectedGrade!,
+                            ),
+                            password: passwordController.text,
+                            parentId: widget.parentId,
+                            callBack: () {
+                              context.pop();
+                            },
+                          );
+                    }
+                  },
+                  verticalPadding: 12.h,
+                ),
+                16.ph,
+              ],
+            ),
           ),
         ),
       ),

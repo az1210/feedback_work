@@ -21,6 +21,7 @@ class StatusScreen extends ConsumerStatefulWidget {
 }
 
 class _StatusScreenState extends ConsumerState<StatusScreen> {
+  final formKey = GlobalKey<FormState>();
   bool isGrid = true;
   List<FeedbackModel> allFeedbacks = [];
   List<FeedbackModel> ownFeedbacks = [];

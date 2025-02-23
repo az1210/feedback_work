@@ -1,3 +1,4 @@
+import 'package:feedback_work/core/utils/validator.dart';
 import 'package:feedback_work/providers/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,6 +18,7 @@ class SignInScreen extends ConsumerStatefulWidget {
 }
 
 class _SignInScreenState extends ConsumerState<SignInScreen> {
+  final formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
@@ -77,7 +79,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 11),
-                    TextField(
+                    TextFormField(
                       controller: emailController,
                       decoration: InputDecoration(
                         hintText: "Enter your email",
@@ -93,6 +95,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                           borderSide: BorderSide.none,
                         ),
                       ),
+                      validator: (value) => validateEmail(value),
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -100,7 +103,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 10),
-                    TextField(
+                    TextFormField(
                       controller: passwordController,
                       obscureText: _isObscured,
                       decoration: InputDecoration(
@@ -178,14 +181,17 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     const SizedBox(height: 16),
                     BlockButton(
                       onPressed: () async {
-                        final authService =
-                            ref.read(authServiceProvider.notifier);
-                        await handleSignIn(
-                          context: context,
-                          authService: authService,
-                          emailController: emailController,
-                          passwordController: passwordController,
-                        );
+                        formKey.currentState!.save();
+                        if (formKey.currentState!.validate()) {
+                          final authService =
+                              ref.read(authServiceProvider.notifier);
+                          await handleSignIn(
+                            context: context,
+                            authService: authService,
+                            emailController: emailController,
+                            passwordController: passwordController,
+                          );
+                        }
                       },
                       text: "Sign In",
                     ),

@@ -4,11 +4,9 @@ import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/models/provide_feedback_people_model.dart';
-import 'package:feedback_work/providers/category_providers.dart';
 import 'package:feedback_work/providers/feedback_providers.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/add_provide_details.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/set_feedback_model.dart';
-import 'package:feedback_work/screens/feedback/provide/preview_set_screen.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/select_principle.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/select_principle_to_derive.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/type_principle.dart';
@@ -29,6 +27,7 @@ class ProvideFeedbackScreen extends ConsumerStatefulWidget {
 }
 
 class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
+  final formKey = GlobalKey<FormState>();
   final quill.QuillController principleDetailsController =
       quill.QuillController.basic();
   final FocusNode principleDetailsFocusNode = FocusNode();
@@ -138,6 +137,7 @@ class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
                     },
                   ),
                   AddProvideDetails(
+                    formKey: formKey,
                     onUpdatePeople: (p0) {
                       setState(() {
                         peopleInfo = p0;
@@ -199,28 +199,32 @@ class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
                           : 'Next',
                       onTap: ref.watch(provideFeedbackStepProvider) == 5
                           ? () {
-                              final providedFeedback =
-                                  widget.feedbackModel.copyWith(
-                                      provideFeedback: ProvideModel(
-                                provideInfo: peopleInfo,
-                                principle: selectedPrinciple,
-                                principleDetails: principleDetailsController
-                                    .document
-                                    .toDelta(),
-                                principleToDeriveFrom:
-                                    selectedPrinciplesToDeriveForm,
-                              ));
-                              context
-                                  .pushNamed(
-                                Routes.previewSet,
-                                extra: providedFeedback,
-                              )
-                                  .then((_) {
-                                provideFeedbackController.jumpToPage(0);
-                                ref
-                                    .read(provideFeedbackStepProvider.notifier)
-                                    .state = 1;
-                              });
+                              formKey.currentState!.save();
+                              if (formKey.currentState!.validate()) {
+                                final providedFeedback =
+                                    widget.feedbackModel.copyWith(
+                                        provideFeedback: ProvideModel(
+                                  provideInfo: peopleInfo,
+                                  principle: selectedPrinciple,
+                                  principleDetails: principleDetailsController
+                                      .document
+                                      .toDelta(),
+                                  principleToDeriveFrom:
+                                      selectedPrinciplesToDeriveForm,
+                                ));
+                                context
+                                    .pushNamed(
+                                  Routes.previewSet,
+                                  extra: providedFeedback,
+                                )
+                                    .then((_) {
+                                  provideFeedbackController.jumpToPage(0);
+                                  ref
+                                      .read(
+                                          provideFeedbackStepProvider.notifier)
+                                      .state = 1;
+                                });
+                              }
                             }
                           : () {
                               Log.info(
@@ -228,13 +232,16 @@ class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
                               Log.info(ref
                                   .watch(provideFeedbackStepProvider)
                                   .toString());
-                              provideFeedbackController.nextPage(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
-                              ref
-                                  .read(provideFeedbackStepProvider.notifier)
-                                  .state++;
+                              formKey.currentState!.save();
+                              if (formKey.currentState!.validate()) {
+                                provideFeedbackController.nextPage(
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                                ref
+                                    .read(provideFeedbackStepProvider.notifier)
+                                    .state++;
+                              }
                             },
                     ),
                   ),

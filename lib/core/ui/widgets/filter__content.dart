@@ -1,6 +1,7 @@
 import 'package:feedback_work/core/extensions/string_extension.dart';
 import 'package:feedback_work/core/utils/network_image_helper.dart';
 import 'package:feedback_work/core/utils/utils.dart';
+import 'package:feedback_work/core/utils/validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -558,7 +559,7 @@ class BuildSearchBar extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              child: TextField(
+              child: TextFormField(
                 controller: _searchController,
                 decoration: InputDecoration(
                   filled: true,

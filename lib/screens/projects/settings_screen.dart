@@ -179,7 +179,7 @@
 //             uploadAudioFile,
 //           ),
 //           const SizedBox(height: 16),
-//           _buildPopupTextField(
+//           _buildPopupTextFormField(
 //             context,
 //             "Popup Text",
 //             popupTextController,
@@ -202,7 +202,7 @@
 //   //         style: Theme.of(context).textTheme.titleMedium,
 //   //       ),
 //   //       const SizedBox(height: 5),
-//   //       TextField(
+//   //       TextFormField(
 //   //         controller: controller,
 //   //         decoration: InputDecoration(
 //   //           hintText: "Select Date",
@@ -248,7 +248,7 @@
 //           style: Theme.of(context).textTheme.titleMedium,
 //         ),
 //         const SizedBox(height: 5),
-//         TextField(
+//         TextFormField(
 //           controller: controller,
 //           decoration: InputDecoration(
 //             hintText: "Select Date",
@@ -300,7 +300,7 @@
 //           style: Theme.of(context).textTheme.titleMedium,
 //         ),
 //         const SizedBox(height: 5),
-//         TextField(
+//         TextFormField(
 //           controller: controller,
 //           decoration: InputDecoration(
 //             hintText: "Attach Audio File",
@@ -321,7 +321,7 @@
 //     );
 //   }
 
-//   Widget _buildPopupTextField(
+//   Widget _buildPopupTextFormField(
 //     BuildContext context,
 //     String label,
 //     TextEditingController controller,
@@ -334,7 +334,7 @@
 //           style: Theme.of(context).textTheme.titleMedium,
 //         ),
 //         const SizedBox(height: 5),
-//         TextField(
+//         TextFormField(
 //           controller: controller,
 //           decoration: InputDecoration(
 //             hintText: "Enter Popup Text",
@@ -387,6 +387,7 @@
 // }
 
 import 'dart:io';
+import 'package:feedback_work/core/utils/validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
@@ -404,6 +405,7 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  final formKey = GlobalKey<FormState>();
   final TextEditingController startDateController = TextEditingController();
   final TextEditingController finishDateController = TextEditingController();
   final TextEditingController breakTimeController = TextEditingController();
@@ -476,52 +478,58 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   Future<void> saveSettings() async {
     try {
-      // Define the date format used for parsing
-      final DateFormat dateFormat = DateFormat('MM/dd/yyyy at hh:mm a');
+      formKey.currentState!.save();
+      if (formKey.currentState!.validate()) {
+// Define the date format used for parsing
+        final DateFormat dateFormat = DateFormat('MM/dd/yyyy at hh:mm a');
 
-      // Parse the date-time inputs
-      final startTime = dateFormat.parseStrict(startDateController.text.trim());
-      final endTime = dateFormat.parseStrict(finishDateController.text.trim());
-      final breakTime = dateFormat.parseStrict(breakTimeController.text.trim());
+        // Parse the date-time inputs
+        final startTime =
+            dateFormat.parseStrict(startDateController.text.trim());
+        final endTime =
+            dateFormat.parseStrict(finishDateController.text.trim());
+        final breakTime =
+            dateFormat.parseStrict(breakTimeController.text.trim());
 
-      // Parse numeric inputs with validation
-      final travelPerHour =
-          double.tryParse(travelHourController.text.trim()) ?? 0.0;
+        // Parse numeric inputs with validation
+        final travelPerHour =
+            double.tryParse(travelHourController.text.trim()) ?? 0.0;
 
-      // Retrieve popup text and optional audio URL
-      final popupText = popupTextController.text.trim();
-      final audioUrl = uploadedAudioUrl ?? ''; // Default to empty if not set
+        // Retrieve popup text and optional audio URL
+        final popupText = popupTextController.text.trim();
+        final audioUrl = uploadedAudioUrl ?? ''; // Default to empty if not set
 
-      // Prepare the settings data for Firestore
-      final settingsData = {
-        'startTime': Timestamp.fromDate(startTime),
-        'endTime': Timestamp.fromDate(endTime),
-        'breakTime': Timestamp.fromDate(breakTime),
-        'travelPerHour': travelPerHour,
-        'audioUrl': audioUrl,
-        'popupText': popupText,
-      };
+        // Prepare the settings data for Firestore
+        final settingsData = {
+          'startTime': Timestamp.fromDate(startTime),
+          'endTime': Timestamp.fromDate(endTime),
+          'breakTime': Timestamp.fromDate(breakTime),
+          'travelPerHour': travelPerHour,
+          'audioUrl': audioUrl,
+          'popupText': popupText,
+        };
 
-      // Reference the Firestore settings document
-      final settingsRef = FirebaseFirestore.instance
-          .collection('projects')
-          .doc(widget.projectId)
-          .collection('settings')
-          .doc('solutionFunctionSettings');
+        // Reference the Firestore settings document
+        final settingsRef = FirebaseFirestore.instance
+            .collection('projects')
+            .doc(widget.projectId)
+            .collection('settings')
+            .doc('solutionFunctionSettings');
 
-      // Save the data to Firestore with merge option
-      await settingsRef.set(settingsData, SetOptions(merge: true));
-      final projectId = widget.projectId;
-      context.push('/solution-function/$projectId');
+        // Save the data to Firestore with merge option
+        await settingsRef.set(settingsData, SetOptions(merge: true));
+        final projectId = widget.projectId;
+        context.push('/solution-function/$projectId');
 
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Settings saved successfully!")),
-      );
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Settings saved successfully!")),
+        );
+      }
     } on FormatException catch (e) {
       // Handle invalid date format
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Invalid date format. Please re-enter.")),
+        const SnackBar(content: Text("Invalid date format. Please re-enter.")),
       );
       debugPrint("FormatException: ${e.message}");
     } catch (e) {
@@ -581,29 +589,33 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          const SizedBox(height: 19),
-          _buildTimePicker(context, "Start Time/Date", startDateController),
-          const SizedBox(height: 16),
-          _buildTimePicker(context, "Finish Time/Date", finishDateController),
-          const SizedBox(height: 16),
-          _buildTimePicker(context, "Break Time/Date", breakTimeController),
-          const SizedBox(height: 16),
-          _buildSlider(
-            "Percentage Completed per Hour",
-            travelHourController,
-            min: 10.0,
-            max: 100.0,
-            divisions: 18,
-          ),
-          const SizedBox(height: 16),
-          _buildFilePicker(
-              context, "Beep Audio", audioController, uploadAudioFile),
-          const SizedBox(height: 16),
-          _buildPopupTextField(context, "Popup Text", popupTextController),
-        ],
+      body: Form(
+        key: formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(16.0),
+          children: [
+            const SizedBox(height: 19),
+            _buildTimePicker(context, "Start Time/Date", startDateController),
+            const SizedBox(height: 16),
+            _buildTimePicker(context, "Finish Time/Date", finishDateController),
+            const SizedBox(height: 16),
+            _buildTimePicker(context, "Break Time/Date", breakTimeController),
+            const SizedBox(height: 16),
+            _buildSlider(
+              "Percentage Completed per Hour",
+              travelHourController,
+              min: 10.0,
+              max: 100.0,
+              divisions: 18,
+            ),
+            const SizedBox(height: 16),
+            _buildFilePicker(
+                context, "Beep Audio", audioController, uploadAudioFile),
+            const SizedBox(height: 16),
+            _buildPopupTextFormField(
+                context, "Popup Text", popupTextController),
+          ],
+        ),
       ),
     );
   }
@@ -621,7 +633,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 5),
-        TextField(
+        TextFormField(
           controller: controller,
           decoration: InputDecoration(
             hintText: "Select Date",
@@ -676,7 +688,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 5),
-        TextField(
+        TextFormField(
           controller: controller,
           decoration: InputDecoration(
             hintText: "Attach Audio File",
@@ -697,7 +709,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  Widget _buildPopupTextField(
+  Widget _buildPopupTextFormField(
     BuildContext context,
     String label,
     TextEditingController controller,
@@ -710,7 +722,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 5),
-        TextField(
+        TextFormField(
           controller: controller,
           decoration: InputDecoration(
             hintText: "Enter Popup Text",
@@ -722,6 +734,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               borderSide: BorderSide.none,
             ),
           ),
+          validator: (value) => validateInput(value, fieldName: 'Popup Text'),
         ),
       ],
     );

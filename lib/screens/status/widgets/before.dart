@@ -2,6 +2,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/utils/file_upload_helper.dart';
 import 'package:feedback_work/core/utils/toast_message.dart';
+import 'package:feedback_work/core/utils/validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -105,7 +106,7 @@ class _BeforeState extends ConsumerState<Before> {
             ],
           ),
           const SizedBox(height: 5),
-          TextField(
+          TextFormField(
             onChanged: (value) {
               setState(() {
                 widget.onChangeYTlink(value);
@@ -121,6 +122,8 @@ class _BeforeState extends ConsumerState<Before> {
                 borderSide: BorderSide.none,
               ),
             ),
+            validator: (value) =>
+                validateInput(value, fieldName: 'YouTube Link'),
           ),
         ],
       ),

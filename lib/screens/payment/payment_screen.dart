@@ -136,7 +136,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
             //   ),
             // ),
             const SizedBox(height: 20),
-            // TextField(
+            // TextFormField(
             //   controller: cardNumberController,
             //   decoration: InputDecoration(
             //     labelText: 'Card number',
@@ -154,7 +154,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
             // Row(
             //   children: [
             //     Expanded(
-            //       child: TextField(
+            //       child: TextFormField(
             //         controller: expirationController,
             //         decoration: const InputDecoration(
             //           labelText: 'Expiration date',
@@ -165,7 +165,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
             //     ),
             //     const SizedBox(width: 16),
             //     Expanded(
-            //       child: TextField(
+            //       child: TextFormField(
             //         controller: cvcController,
             //         decoration: const InputDecoration(
             //           labelText: 'Security code',
@@ -193,7 +193,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
             //     ),
             //     const SizedBox(width: 16),
             //     Expanded(
-            //       child: TextField(
+            //       child: TextFormField(
             //         controller: postalCodeController,
             //         decoration: const InputDecoration(
             //           labelText: 'Postal code',
