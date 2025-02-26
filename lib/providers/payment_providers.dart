@@ -1,8 +1,7 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feedback_work/core/constants/firebase_constants.dart';
-import 'package:feedback_work/core/utils/network/rest_client/api_options.dart';
 import 'package:feedback_work/core/utils/toast_message.dart';
+import 'package:feedback_work/models/payment_model.dart';
 import 'package:feedback_work/models/post_payment_intent_response_model.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +23,7 @@ class PaymentNotifier extends Notifier<PaymentState> {
   }
 
   Future<void> getAvailablePaymentMethods({
-    required String amount,
+    required double amount,
     String currency = 'USD',
     // required String stripeSecretKey,
   }) async {
@@ -35,8 +34,8 @@ class PaymentNotifier extends Notifier<PaymentState> {
         ApiAccessType.protected,
         ApiEndpoints.stripePaymentIntent,
         {
-          // 'amount': (int.parse(amount) * 100).toString(),
-          'amount': "100",
+          'amount': (amount.round() * 100)
+              .toString(), // To convert into cents the amount is multiply by 100
           'currency': currency,
           // 'payment_method_types[]': 'card'
         },
@@ -59,7 +58,6 @@ class PaymentNotifier extends Notifier<PaymentState> {
     required String amount,
     String currency = 'USD',
     String paymentMethod = 'card',
-    // required String stripeSecretKey,
   }) async {
     try {
       state = state.copyWith(createPaymentState: AsyncState.loading);
@@ -68,8 +66,7 @@ class PaymentNotifier extends Notifier<PaymentState> {
         ApiAccessType.protected,
         ApiEndpoints.stripePaymentIntent,
         {
-          // 'amount': (int.parse(amount) * 100).toString(),
-          'amount': "100",
+          'amount': (int.parse(amount) * 100).toString(),
           'currency': currency,
           'payment_method_types[]': paymentMethod
         },
@@ -93,8 +90,7 @@ class PaymentNotifier extends Notifier<PaymentState> {
   }) async {
     try {
       createPaymentIntent(
-        // amount: amount,
-        amount: '100',
+        amount: amount,
         currency: currency,
       );
 
@@ -115,14 +111,58 @@ class PaymentNotifier extends Notifier<PaymentState> {
     }
   }
 
-  Future<void> presentPaymentSheet() async {
+  Future<void> presentPaymentSheet({
+    required PaymentModel paymentModel,
+  }) async {
     try {
       await Stripe.instance.presentPaymentSheet();
+      createPayment(
+          paymentModel: paymentModel.copyWith(
+        transactionId: state.paymentIntentResponseModel!.id,
+      ));
     } on StripeException catch (error) {
       Log.error(error.toString());
       if (error.error.code == FailureCode.Canceled) {
         showToast(message: "Payment Canceled");
       }
+    } catch (e, stackTrace) {
+      Log.error(e.toString());
+      Log.error(stackTrace.toString());
+    }
+  }
+
+  Future<void> fetchAllPayments() async {
+    state = state.copyWith(fetchPaymentState: AsyncState.loading);
+    FirebaseFirestore firestore = ref.read(firestoreProvider);
+    try {
+      final paymentsSnapshot =
+          await firestore.collection(FirebaseConstants.paymentCollection).get();
+
+      final payments = paymentsSnapshot.docs
+          .map((c) => PaymentModel.fromMap(c.data()))
+          .toList();
+      state = state.copyWith(
+          payments: payments, fetchPaymentState: AsyncState.success);
+    } catch (e, stackTrace) {
+      Log.error(e.toString());
+      Log.error(stackTrace.toString());
+    }
+  }
+
+  Future<void> createPayment(
+      {required PaymentModel paymentModel, void Function()? callback}) async {
+    FirebaseFirestore firestore = ref.read(firestoreProvider);
+    try {
+      state = state.copyWith(createPaymentState: AsyncState.loading);
+      await firestore
+          .collection(FirebaseConstants.paymentCollection)
+          .add(paymentModel.toMap());
+      await firestore
+          .collection(FirebaseConstants.feedbackCollection)
+          .doc(paymentModel.feedbackId)
+          .set({'payment': paymentModel.transactionId});
+      callback?.call();
+      state = state.copyWith(createPaymentState: AsyncState.success);
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
@@ -191,29 +231,37 @@ class PaymentNotifier extends Notifier<PaymentState> {
 
 class PaymentState {
   final AsyncState? createPaymentState;
+  final AsyncState? fetchPaymentState;
   final AsyncState? paymentMethodState;
   final PostPaymentIntentResponseModel? paymentIntentResponseModel;
   final List<String>? paymentMethods;
+  final List<PaymentModel>? payments;
 
   PaymentState({
     this.createPaymentState,
+    this.fetchPaymentState,
     this.paymentMethodState,
     this.paymentIntentResponseModel,
     this.paymentMethods,
+    this.payments,
   });
 
   PaymentState copyWith({
     AsyncState? createPaymentState,
+    AsyncState? fetchPaymentState,
     AsyncState? paymentMethodState,
     PostPaymentIntentResponseModel? paymentIntentResponseModel,
     List<String>? paymentMethods,
+    List<PaymentModel>? payments,
   }) {
     return PaymentState(
       createPaymentState: createPaymentState ?? this.createPaymentState,
+      fetchPaymentState: fetchPaymentState ?? this.fetchPaymentState,
       paymentMethodState: paymentMethodState ?? this.paymentMethodState,
       paymentIntentResponseModel:
           paymentIntentResponseModel ?? this.paymentIntentResponseModel,
       paymentMethods: paymentMethods ?? this.paymentMethods,
+      payments: payments ?? this.payments,
     );
   }
 }

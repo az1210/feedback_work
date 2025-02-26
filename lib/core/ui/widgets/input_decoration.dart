@@ -36,7 +36,7 @@ class AppInputDecorationStyles {
       border: OutlineInputBorder(
         borderRadius: borderRadius ?? BorderRadius.circular(40.r),
         borderSide: BorderSide(
-          color: focusColor ?? context.colors.inputBorder,
+          color: focusColor ?? context.colors.darkGrey,
         ),
       ),
       hintText: hint,

@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:feedback_work/models/payment_model.dart';
 import 'package:flutter_quill/quill_delta.dart';
 
 import 'package:feedback_work/models/project_model.dart';
@@ -25,6 +26,7 @@ class FeedbackModel {
   final Status? ownerSideStatus;
   final Status? providerSideStatus;
   final StatusReport? statusReport;
+  final String? paymentId;
   FeedbackModel({
     this.id,
     this.project,
@@ -36,6 +38,7 @@ class FeedbackModel {
     this.ownerSideStatus,
     this.providerSideStatus,
     this.statusReport,
+    this.paymentId,
   });
 
   FeedbackModel copyWith({
@@ -49,6 +52,7 @@ class FeedbackModel {
     Status? ownerSideStatus,
     Status? providerSideStatus,
     StatusReport? statusReport,
+    String? paymentModel,
   }) {
     return FeedbackModel(
       id: id ?? this.id,
@@ -61,6 +65,7 @@ class FeedbackModel {
       ownerSideStatus: ownerSideStatus ?? this.ownerSideStatus,
       providerSideStatus: providerSideStatus ?? this.providerSideStatus,
       statusReport: statusReport ?? this.statusReport,
+      paymentId: paymentModel ?? paymentId,
     );
   }
 
@@ -76,6 +81,7 @@ class FeedbackModel {
       'ownerSideStatus': ownerSideStatus?.toMap(),
       'providerSideStatus': providerSideStatus?.toMap(),
       'statusReport': statusReport?.toMap(),
+      'paymentId': paymentId,
     };
   }
 
@@ -106,6 +112,7 @@ class FeedbackModel {
       statusReport: map['statusReport'] != null
           ? StatusReport.fromMap(map['statusReport'] as Map<String, dynamic>)
           : null,
+      paymentId: map['paymentId'] != null ? map['paymentId'] as String : null,
     );
   }
 }
@@ -118,6 +125,7 @@ class RequestModel {
   final int? feedbackLimit;
   final bool? isAnnonymous;
   final String? groupId;
+  final String? requestedAt;
   RequestModel({
     this.selectedGroupMemberIds = const [],
     this.privacy = '',
@@ -126,6 +134,7 @@ class RequestModel {
     this.feedbackLimit = -1,
     this.isAnnonymous = false,
     this.groupId = '',
+    this.requestedAt = '',
   });
 
   RequestModel copyWith({
@@ -136,6 +145,7 @@ class RequestModel {
     int? feedbackLimit,
     bool? isAnnonymous,
     String? groupId,
+    String? requestedAt,
   }) {
     return RequestModel(
       selectedGroupMemberIds:
@@ -146,6 +156,7 @@ class RequestModel {
       feedbackLimit: feedbackLimit ?? this.feedbackLimit,
       isAnnonymous: isAnnonymous ?? this.isAnnonymous,
       groupId: groupId ?? this.groupId,
+      requestedAt: requestedAt ?? this.requestedAt,
     );
   }
 
@@ -158,6 +169,7 @@ class RequestModel {
       'feedbackLimit': feedbackLimit,
       'isAnnonymous': isAnnonymous,
       'groupId': groupId,
+      'requestedAt': requestedAt
     };
   }
 
@@ -174,6 +186,7 @@ class RequestModel {
       feedbackLimit: map['feedbackLimit'] as int? ?? -1,
       isAnnonymous: map['isAnnonymous'] as bool,
       groupId: map['groupId'] as String? ?? '',
+      requestedAt: map['requestedAt'] as String? ?? '',
     );
   }
 }
@@ -186,6 +199,7 @@ class ProvideModel {
   final Delta? feedbackMessage;
   final String feedbackFile;
   final bool annonymous;
+  final String? providedAt;
   ProvideModel({
     this.principle = '',
     this.principleToDeriveFrom = const [],
@@ -194,6 +208,7 @@ class ProvideModel {
     this.feedbackMessage,
     this.feedbackFile = '',
     this.annonymous = false,
+    this.providedAt = '',
   });
 
   ProvideModel copyWith({
@@ -204,6 +219,7 @@ class ProvideModel {
     Delta? feedbackMessage,
     String? feedbackFile,
     bool? annonymous,
+    String? providedAt,
   }) {
     return ProvideModel(
       principle: principle ?? this.principle,
@@ -214,6 +230,7 @@ class ProvideModel {
       feedbackMessage: feedbackMessage ?? this.feedbackMessage,
       feedbackFile: feedbackFile ?? this.feedbackFile,
       annonymous: annonymous ?? this.annonymous,
+      providedAt: providedAt ?? this.providedAt,
     );
   }
 
@@ -226,6 +243,7 @@ class ProvideModel {
       'feedbackMessage': jsonEncode(feedbackMessage?.toJson()),
       'feedbackFile': feedbackFile,
       'annonymous': annonymous,
+      'providedAt': providedAt,
     };
   }
 
@@ -250,6 +268,7 @@ class ProvideModel {
       feedbackMessage: Delta.fromJson(feedbackMessage),
       feedbackFile: map['feedbackFile'] as String? ?? '',
       annonymous: map['annonymous'] as bool,
+      providedAt: map['providedAt'] as String? ?? "",
     );
   }
 }
@@ -287,21 +306,25 @@ class AppliedModel {
   final Delta? appliedMessage;
   final String? appliedFile;
   final bool? isHelpToSolve;
+  final String? appliedAt;
   AppliedModel({
     this.appliedMessage,
     this.appliedFile,
     this.isHelpToSolve,
+    this.appliedAt,
   });
 
   AppliedModel copyWith({
     Delta? appliedMessage,
     String? appliedFile,
     bool? isHelpToSolve,
+    String? appliedAt,
   }) {
     return AppliedModel(
       appliedMessage: appliedMessage ?? this.appliedMessage,
       appliedFile: appliedFile ?? this.appliedFile,
       isHelpToSolve: isHelpToSolve ?? this.isHelpToSolve,
+      appliedAt: appliedAt ?? this.appliedAt,
     );
   }
 
@@ -310,6 +333,7 @@ class AppliedModel {
       'appliedMessage': jsonEncode(appliedMessage?.toJson()),
       'appliedFile': appliedFile,
       'isHelpToSolve': isHelpToSolve,
+      'appliedAt': appliedAt,
     };
   }
 
@@ -318,12 +342,10 @@ class AppliedModel {
         ? []
         : jsonDecode(map["appliedMessage"]);
     return AppliedModel(
-      appliedMessage: Delta.fromJson(appliedMessage),
-      appliedFile:
-          map['appliedFile'] != null ? map['appliedFile'] as String : null,
-      isHelpToSolve:
-          map['isHelpToSolve'] != null ? map['isHelpToSolve'] as bool : null,
-    );
+        appliedMessage: Delta.fromJson(appliedMessage),
+        appliedFile: map['appliedFile'] as String? ?? '',
+        isHelpToSolve: map['isHelpToSolve'] as bool? ?? false,
+        appliedAt: map['appliedAt'] as String? ?? '');
   }
 }
 

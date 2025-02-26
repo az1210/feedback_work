@@ -13,4 +13,13 @@ class FirebaseConstants {
   static const String projectTimelineCollection = "timelines";
   static const String ecfCollection = "ecf";
   static const String apiKeyCollection = "apiKeys";
+  static const String paymentCollection = "payments";
+  static const String totalFeedbackRequestTransaction =
+      "totalFeedbackRequestTransaction";
+  static const String totalFeedbackAcceptedTransaction =
+      "totalFeedbackAcceptedTransaction";
+  static const String totalFeedbackProvidedFreeTransaction =
+      "totalFeedbackProvidedFreeTransaction";
+  static const String totalFeedbackProvidedAtCostTransaction =
+      "totalFeedbackProvidedAtCostTransaction";
 }

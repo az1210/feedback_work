@@ -28,7 +28,7 @@ class _TransactionHistoryDetailsScreenState
     return Scaffold(
       backgroundColor: context.colors.pureWhite,
       appBar: AppBar(
-        title: const Text("Transaction History Details"),
+        title: const Text("Transaction History"),
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.w),
