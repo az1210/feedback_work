@@ -1,6 +1,5 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/extensions/string_extension.dart';
-import 'package:feedback_work/core/ui/assets/app_assets.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/core/utils/toast_message.dart';
 import 'package:feedback_work/core/utils/utils.dart';
@@ -10,8 +9,6 @@ import 'package:feedback_work/providers/payment_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class PaymentScreen extends ConsumerStatefulWidget {
   const PaymentScreen({
@@ -267,6 +264,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
                                     widget.feedback.requestFeedback?.cost ?? 0,
                                 bonus: double.parse(bonus ?? '0'),
                               ),
+                              feedbackModel: widget.feedback,
                             );
                             // paymentSheetInitialization(
                             //     amount: widget.feedback.requestFeedback!.cost!

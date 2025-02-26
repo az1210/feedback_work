@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feedback_work/core/constants/firebase_constants.dart';
 import 'package:feedback_work/core/utils/toast_message.dart';
+import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/models/payment_model.dart';
 import 'package:feedback_work/models/post_payment_intent_response_model.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
@@ -74,7 +75,6 @@ class PaymentNotifier extends Notifier<PaymentState> {
       );
 
       state = state.copyWith(
-          createPaymentState: AsyncState.success,
           paymentIntentResponseModel:
               PostPaymentIntentResponseModel.fromJson(response.data));
     } catch (e, stackTrace) {
@@ -113,13 +113,18 @@ class PaymentNotifier extends Notifier<PaymentState> {
 
   Future<void> presentPaymentSheet({
     required PaymentModel paymentModel,
+    required FeedbackModel feedbackModel,
+    void Function()? callBack,
   }) async {
     try {
       await Stripe.instance.presentPaymentSheet();
       createPayment(
-          paymentModel: paymentModel.copyWith(
-        transactionId: state.paymentIntentResponseModel!.id,
-      ));
+        paymentModel: paymentModel.copyWith(
+          transactionId: state.paymentIntentResponseModel!.id,
+        ),
+        feedbackModel: feedbackModel,
+        callback: callBack,
+      );
     } on StripeException catch (error) {
       Log.error(error.toString());
       if (error.error.code == FailureCode.Canceled) {
@@ -132,9 +137,9 @@ class PaymentNotifier extends Notifier<PaymentState> {
   }
 
   Future<void> fetchAllPayments() async {
-    state = state.copyWith(fetchPaymentState: AsyncState.loading);
     FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
+      state = state.copyWith(fetchPaymentState: AsyncState.loading);
       final paymentsSnapshot =
           await firestore.collection(FirebaseConstants.paymentCollection).get();
 
@@ -149,18 +154,56 @@ class PaymentNotifier extends Notifier<PaymentState> {
     }
   }
 
-  Future<void> createPayment(
-      {required PaymentModel paymentModel, void Function()? callback}) async {
+  Future<void> fetchPaymentById({required String paymentId}) async {
+    FirebaseFirestore firestore = ref.read(firestoreProvider);
+    try {
+      state = state.copyWith(fetchPaymentState: AsyncState.loading);
+      final paymentsSnapshot = await firestore
+          .collection(FirebaseConstants.paymentCollection)
+          .doc(paymentId)
+          .get();
+
+      final payments =
+          PaymentModel.fromMap(paymentsSnapshot.data() as Map<String, dynamic>);
+      state = state.copyWith(
+          payments: [payments], fetchPaymentState: AsyncState.success);
+    } catch (e, stackTrace) {
+      Log.error(e.toString());
+      Log.error(stackTrace.toString());
+    }
+  }
+
+  Future<void> createPayment({
+    required PaymentModel paymentModel,
+    required FeedbackModel feedbackModel,
+    void Function()? callback,
+  }) async {
     FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
       state = state.copyWith(createPaymentState: AsyncState.loading);
       await firestore
           .collection(FirebaseConstants.paymentCollection)
-          .add(paymentModel.toMap());
+          .doc(paymentModel.transactionId)
+          .set(paymentModel.toMap());
       await firestore
           .collection(FirebaseConstants.feedbackCollection)
           .doc(paymentModel.feedbackId)
-          .set({'payment': paymentModel.transactionId});
+          .set({'paymentId': paymentModel.transactionId});
+      await firestore
+          .collection(FirebaseConstants.userCollection)
+          .doc(feedbackModel.ownerId)
+          .collection(FirebaseConstants.totalFeedbackAcceptedTransaction)
+          .doc(paymentModel.transactionId)
+          .set({'paymentId': paymentModel.transactionId});
+      await firestore
+          .collection(FirebaseConstants.userCollection)
+          .doc(feedbackModel.providerId)
+          .collection(feedbackModel.requestFeedback!.cost != 0
+              ? FirebaseConstants.totalFeedbackProvidedAtCostTransaction
+              : FirebaseConstants.totalFeedbackProvidedFreeTransaction)
+          .doc(paymentModel.transactionId)
+          .set({'paymentId': paymentModel.transactionId});
+
       callback?.call();
       state = state.copyWith(createPaymentState: AsyncState.success);
     } catch (e, stackTrace) {
