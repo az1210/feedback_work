@@ -34,7 +34,7 @@ class _StatusScreenState extends ConsumerState<StatusScreen> {
       currentUser = await ref.watch(userProvider.notifier).currentUser();
       ref
           .read(feedbackProvider.notifier)
-          .fetchAllFeedbacks(userId: currentUser!.id);
+          .fetchAllFeedbacks(userId: currentUser!.id!);
       //   await ref
       //       .read(feedbackProvider.notifier)
       //       .fetchAllFeedbacksAsProvider(userId: currentUser!.id);

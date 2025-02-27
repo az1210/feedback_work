@@ -242,7 +242,7 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
         state = state.copyWith(
             error: "Feedback doesn't exist!", state: AsyncState.failure);
       }
-      fetchAllFeedbacks(userId: user.id);
+      fetchAllFeedbacks(userId: user.id!);
       projectNotifier.addProgress(
         projectId: feedback.project!.id!,
         projectTimeline: ProjectTimelineModel(

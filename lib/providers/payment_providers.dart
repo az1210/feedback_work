@@ -5,6 +5,7 @@ import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/models/payment_model.dart';
 import 'package:feedback_work/models/post_payment_intent_response_model.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
+import 'package:feedback_work/providers/user_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
@@ -136,18 +137,31 @@ class PaymentNotifier extends Notifier<PaymentState> {
     }
   }
 
-  Future<void> fetchAllPayments() async {
+  Future<void> fetchMyPayments() async {
     FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
       state = state.copyWith(fetchPaymentState: AsyncState.loading);
-      final paymentsSnapshot =
-          await firestore.collection(FirebaseConstants.paymentCollection).get();
+      final requestedByMePaymentsSnapshot = await firestore
+          .collection(FirebaseConstants.paymentCollection)
+          .where('requestedByUserId',
+              isEqualTo: ref.watch(currentUserProvider)!.id)
+          .get();
+      final providedByMePaymentsSnapshot = await firestore
+          .collection(FirebaseConstants.paymentCollection)
+          .where('providerId', isEqualTo: ref.watch(currentUserProvider)!.id)
+          .get();
 
-      final payments = paymentsSnapshot.docs
+      final requestedByMePayments = requestedByMePaymentsSnapshot.docs
+          .map((c) => PaymentModel.fromMap(c.data()))
+          .toList();
+
+      final providedByMePayments = providedByMePaymentsSnapshot.docs
           .map((c) => PaymentModel.fromMap(c.data()))
           .toList();
       state = state.copyWith(
-          payments: payments, fetchPaymentState: AsyncState.success);
+          requestedByMePayments: requestedByMePayments,
+          providedByMePayments: providedByMePayments,
+          fetchPaymentState: AsyncState.success);
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
@@ -163,13 +177,31 @@ class PaymentNotifier extends Notifier<PaymentState> {
           .doc(paymentId)
           .get();
 
-      final payments =
+      final payment =
           PaymentModel.fromMap(paymentsSnapshot.data() as Map<String, dynamic>);
       state = state.copyWith(
-          payments: [payments], fetchPaymentState: AsyncState.success);
+          singlePayment: payment, fetchPaymentState: AsyncState.success);
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+    }
+  }
+
+  Future<int> getDocumentCount({required String collectionName}) async {
+    FirebaseFirestore firestore = ref.read(firestoreProvider);
+    try {
+      state = state.copyWith(documentCountState: AsyncState.loading);
+      final collection = firestore
+          .collection(FirebaseConstants.userCollection)
+          .doc(ref.watch(currentUserProvider)!.id!)
+          .collection(collectionName);
+      final countQuery = await collection.count().get();
+      state = state.copyWith(documentCountState: AsyncState.success);
+      return countQuery.count ?? 0;
+    } catch (e) {
+      Log.error(e.toString());
+      state = state.copyWith(documentCountState: AsyncState.failure);
+      return 0;
     }
   }
 
@@ -197,13 +229,26 @@ class PaymentNotifier extends Notifier<PaymentState> {
           .set({'paymentId': paymentModel.transactionId});
       await firestore
           .collection(FirebaseConstants.userCollection)
+          .doc(feedbackModel.ownerId)
+          .set({
+        'totalFeedbackAcceptedAmount': FieldValue.increment(
+            paymentModel.feedbackCost ?? 0 + paymentModel.bonus!)
+      });
+      await firestore
+          .collection(FirebaseConstants.userCollection)
           .doc(feedbackModel.providerId)
           .collection(feedbackModel.requestFeedback!.cost != 0
               ? FirebaseConstants.totalFeedbackProvidedAtCostTransaction
               : FirebaseConstants.totalFeedbackProvidedFreeTransaction)
           .doc(paymentModel.transactionId)
           .set({'paymentId': paymentModel.transactionId});
-
+      await firestore
+          .collection(FirebaseConstants.userCollection)
+          .doc(feedbackModel.providerId)
+          .set({
+        'totalFeedbackProvidedAtCostAmount': FieldValue.increment(
+            paymentModel.feedbackCost ?? 0 + paymentModel.bonus!)
+      });
       callback?.call();
       state = state.copyWith(createPaymentState: AsyncState.success);
     } catch (e, stackTrace) {
@@ -276,35 +321,48 @@ class PaymentState {
   final AsyncState? createPaymentState;
   final AsyncState? fetchPaymentState;
   final AsyncState? paymentMethodState;
+  final AsyncState? documentCountState;
   final PostPaymentIntentResponseModel? paymentIntentResponseModel;
   final List<String>? paymentMethods;
-  final List<PaymentModel>? payments;
+  final List<PaymentModel>? requestedByMePayments;
+  final List<PaymentModel>? providedByMePayments;
+  final PaymentModel? singlePayment;
 
   PaymentState({
     this.createPaymentState,
     this.fetchPaymentState,
     this.paymentMethodState,
+    this.documentCountState,
     this.paymentIntentResponseModel,
     this.paymentMethods,
-    this.payments,
+    this.requestedByMePayments,
+    this.providedByMePayments,
+    this.singlePayment,
   });
 
   PaymentState copyWith({
     AsyncState? createPaymentState,
     AsyncState? fetchPaymentState,
     AsyncState? paymentMethodState,
+    AsyncState? documentCountState,
     PostPaymentIntentResponseModel? paymentIntentResponseModel,
     List<String>? paymentMethods,
-    List<PaymentModel>? payments,
+    List<PaymentModel>? requestedByMePayments,
+    List<PaymentModel>? providedByMePayments,
+    PaymentModel? singlePayment,
   }) {
     return PaymentState(
       createPaymentState: createPaymentState ?? this.createPaymentState,
       fetchPaymentState: fetchPaymentState ?? this.fetchPaymentState,
       paymentMethodState: paymentMethodState ?? this.paymentMethodState,
+      documentCountState: documentCountState ?? this.documentCountState,
       paymentIntentResponseModel:
           paymentIntentResponseModel ?? this.paymentIntentResponseModel,
       paymentMethods: paymentMethods ?? this.paymentMethods,
-      payments: payments ?? this.payments,
+      requestedByMePayments:
+          requestedByMePayments ?? this.requestedByMePayments,
+      providedByMePayments: providedByMePayments ?? this.providedByMePayments,
+      singlePayment: singlePayment ?? this.singlePayment,
     );
   }
 }

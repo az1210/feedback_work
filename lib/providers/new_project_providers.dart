@@ -48,7 +48,7 @@ class ProjectNotifier extends Notifier<ProjectNotifierState> {
         ),
       )
           .then((_) {
-        fetchAllProjects(userId: project.owner!.id);
+        fetchAllProjects(userId: project.owner!.id!);
       });
       callBack?.call();
       state = state.copyWith(state: AsyncState.success);

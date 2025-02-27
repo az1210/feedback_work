@@ -31,7 +31,7 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
     FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
       UserCredential userCredential = await auth.createUserWithEmailAndPassword(
-        email: userModel.email,
+        email: userModel.email!,
         password: password,
       );
 

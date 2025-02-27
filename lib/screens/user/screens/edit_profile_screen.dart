@@ -104,7 +104,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           TextButton(
             onPressed: () {
               ref.read(userProvider.notifier).updateProfile(
-                    uid: widget.currentUser.id,
+                    uid: widget.currentUser.id!,
                     userModel: UserModel(
                       firstName: firstNameController.text.trim(),
                       lastName: lastNameController.text.trim(),
@@ -404,7 +404,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     formKey.currentState!.save();
                     if (formKey.currentState!.validate()) {
                       ref.read(userProvider.notifier).updateProfile(
-                            uid: widget.currentUser.id,
+                            uid: widget.currentUser.id!,
                             userModel: UserModel(
                               firstName: firstNameController.text.trim(),
                               lastName: lastNameController.text.trim(),

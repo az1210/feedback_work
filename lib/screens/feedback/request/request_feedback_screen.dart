@@ -317,7 +317,7 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                                     .read(feedbackProvider.notifier)
                                     .createFeedbackRequest(
                                       feedback: feedback,
-                                      userId: currentUser!.id,
+                                      userId: currentUser!.id!,
                                       callback: () {
                                         context.pop();
                                       },
