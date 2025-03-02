@@ -84,7 +84,6 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
     } else {
       currentSelectedUsers.add(user);
     }
-
     widget.onUserSelection?.call(groupId, currentSelectedUsers);
   }
 
