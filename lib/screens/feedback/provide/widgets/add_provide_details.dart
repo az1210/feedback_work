@@ -14,11 +14,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AddProvideDetails extends ConsumerStatefulWidget {
-  AddProvideDetails(
-      {required this.formKey, required this.onUpdatePeople, super.key});
+  AddProvideDetails({required this.onUpdatePeople, super.key});
 
   Function(ProvideInfoModel) onUpdatePeople;
-  final GlobalKey<FormState> formKey;
   @override
   ConsumerState<AddProvideDetails> createState() => _BeforeState();
 }
@@ -36,17 +34,14 @@ class _BeforeState extends ConsumerState<AddProvideDetails> {
   // }
 
   void update() {
-    widget.formKey.currentState!.save();
-    if (widget.formKey.currentState!.validate()) {
-      // Update people list with current values
-      // for (var i = 0; i < peoples.length; i++) {
-      //   Log.info(nameControllers[i].text);
-      // }
-      peoples.name = nameController.text;
+    // Update people list with current values
+    // for (var i = 0; i < peoples.length; i++) {
+    //   Log.info(nameControllers[i].text);
+    // }
+    peoples.name = nameController.text;
 
-      // Send data to parent
-      widget.onUpdatePeople(peoples);
-    }
+    // Send data to parent
+    widget.onUpdatePeople(peoples);
   }
 
   Future<void> pickFile() async {
@@ -74,112 +69,108 @@ class _BeforeState extends ConsumerState<AddProvideDetails> {
     return Padding(
       padding: EdgeInsets.all(16.w),
       child: SingleChildScrollView(
-        child: Form(
-          key: widget.formKey,
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Text(
-                    "Headline",
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 5),
-              TextFormField(
-                controller: nameController,
-                validator: (value) =>
-                    validateInput(value, fieldName: 'Headline'),
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                onChanged: (value) {
-                  update();
-                },
-                decoration: InputDecoration(
-                  hintStyle: Theme.of(context).textTheme.bodySmall,
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                    borderSide: BorderSide.none,
-                  ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Text(
+                  "Headline",
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ],
+            ),
+            const SizedBox(height: 5),
+            TextFormField(
+              controller: nameController,
+              validator: (value) => validateInput(value, fieldName: 'Headline'),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              onChanged: (value) {
+                update();
+              },
+              decoration: InputDecoration(
+                hintStyle: Theme.of(context).textTheme.bodySmall,
+                filled: true,
+                fillColor: Colors.white,
+                border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide.none,
                 ),
               ),
-              16.ph,
-              Row(
-                children: [
-                  Text(
-                    'Attach File',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              InkWell(
-                onTap: pickFile,
-                child: Container(
-                  color: Colors.white,
-                  width: double.infinity,
-                  child: DottedBorder(
-                    borderType: BorderType.RRect,
-                    radius: const Radius.circular(8),
-                    color: Colors.grey,
-                    strokeWidth: 1,
-                    dashPattern: const [8, 8],
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.only(left: 12, top: 12, bottom: 12),
-                      child: Column(
-                        children: [
-                          Image.asset(
-                            "assets/images/icons/cloud.png",
-                            height: 32,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            selectedFilePath ?? 'Upload the file here',
-                            style: const TextStyle(
-                                color: Color.fromARGB(255, 8, 102, 255)),
-                          ),
-                          const SizedBox(height: 4),
-                          const Center(
-                            child: Text(
-                              '(Only .jpg, .png, & .pdf files will be accepted)',
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontStyle: FontStyle.italic,
-                              ),
-                              textAlign: TextAlign.center,
+            ),
+            16.ph,
+            Row(
+              children: [
+                Text(
+                  'Attach File',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            InkWell(
+              onTap: pickFile,
+              child: Container(
+                color: Colors.white,
+                width: double.infinity,
+                child: DottedBorder(
+                  borderType: BorderType.RRect,
+                  radius: const Radius.circular(8),
+                  color: Colors.grey,
+                  strokeWidth: 1,
+                  dashPattern: const [8, 8],
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.only(left: 12, top: 12, bottom: 12),
+                    child: Column(
+                      children: [
+                        Image.asset(
+                          "assets/images/icons/cloud.png",
+                          height: 32,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          selectedFilePath ?? 'Upload the file here',
+                          style: const TextStyle(
+                              color: Color.fromARGB(255, 8, 102, 255)),
+                        ),
+                        const SizedBox(height: 4),
+                        const Center(
+                          child: Text(
+                            '(Only .jpg, .png, & .pdf files will be accepted)',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontStyle: FontStyle.italic,
                             ),
+                            textAlign: TextAlign.center,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
-              // 16.ph,
-              // GestureDetector(
-              //   onTap: addAnotherPerson,
-              //   child: Row(
-              //     children: [
-              //       Icon(
-              //         Icons.add_circle,
-              //         color: context.colors.primaryBlue,
-              //       ),
-              //       8.pw,
-              //       Text(
-              //         "Add another person",
-              //         style: Theme.of(context)
-              //             .textTheme
-              //             .bodyMedium!
-              //             .copyWith(color: context.colors.primaryBlue),
-              //       )
-              //     ],
-              //   ),
-              // )
-            ],
-          ),
+            ),
+            // 16.ph,
+            // GestureDetector(
+            //   onTap: addAnotherPerson,
+            //   child: Row(
+            //     children: [
+            //       Icon(
+            //         Icons.add_circle,
+            //         color: context.colors.primaryBlue,
+            //       ),
+            //       8.pw,
+            //       Text(
+            //         "Add another person",
+            //         style: Theme.of(context)
+            //             .textTheme
+            //             .bodyMedium!
+            //             .copyWith(color: context.colors.primaryBlue),
+            //       )
+            //     ],
+            //   ),
+            // )
+          ],
         ),
       ),
     );

@@ -4,6 +4,7 @@ import 'package:feedback_work/core/utils/toast_message.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/models/payment_model.dart';
 import 'package:feedback_work/models/post_payment_intent_response_model.dart';
+import 'package:feedback_work/providers/feedback_providers.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:feedback_work/providers/user_providers.dart';
 import 'package:flutter/material.dart';
@@ -126,6 +127,9 @@ class PaymentNotifier extends Notifier<PaymentState> {
         feedbackModel: feedbackModel,
         callback: callBack,
       );
+      ref.read(feedbackProvider.notifier).appliedFeedback(
+            feedback: feedbackModel,
+          );
     } on StripeException catch (error) {
       Log.error(error.toString());
       if (error.error.code == FailureCode.Canceled) {
@@ -219,7 +223,7 @@ class PaymentNotifier extends Notifier<PaymentState> {
           .set(paymentModel.toMap());
       await firestore
           .collection(FirebaseConstants.feedbackCollection)
-          .doc(paymentModel.feedbackId)
+          .doc(paymentModel.feedback!.id!)
           .set({'paymentId': paymentModel.transactionId});
       await firestore
           .collection(FirebaseConstants.userCollection)
@@ -230,7 +234,7 @@ class PaymentNotifier extends Notifier<PaymentState> {
       await firestore
           .collection(FirebaseConstants.userCollection)
           .doc(feedbackModel.ownerId)
-          .set({
+          .update({
         'totalFeedbackAcceptedAmount': FieldValue.increment(
             paymentModel.feedbackCost ?? 0 + paymentModel.bonus!)
       });
@@ -245,7 +249,7 @@ class PaymentNotifier extends Notifier<PaymentState> {
       await firestore
           .collection(FirebaseConstants.userCollection)
           .doc(feedbackModel.providerId)
-          .set({
+          .update({
         'totalFeedbackProvidedAtCostAmount': FieldValue.increment(
             paymentModel.feedbackCost ?? 0 + paymentModel.bonus!)
       });

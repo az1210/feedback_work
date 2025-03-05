@@ -1,5 +1,6 @@
 import 'package:feedback_work/core/router/navbar.dart';
 import 'package:feedback_work/models/feedback_model.dart';
+import 'package:feedback_work/models/payment_model.dart';
 import 'package:feedback_work/models/project_model.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/screens/feedback/apply/apply_feedback_screen.dart';
@@ -211,17 +212,23 @@ final routerProvider = Provider<GoRouter>(
         GoRoute(
           name: Routes.transactionHistory,
           path: Routes.transactionHistory.p,
-          builder: (context, state) => const TransactionHistoryScreen(),
+          builder: (context, state) => TransactionHistoryScreen(
+            currentUser: state.extra as UserModel,
+          ),
         ),
         GoRoute(
           name: Routes.transactionHistoryDetails,
           path: Routes.transactionHistoryDetails.p,
-          builder: (context, state) => const TransactionHistoryDetailsScreen(),
+          builder: (context, state) => TransactionHistoryDetailsScreen(
+            currentUser: state.extra as UserModel,
+          ),
         ),
         GoRoute(
           name: Routes.feedbackReceipt,
           path: Routes.feedbackReceipt.p,
-          builder: (context, state) => const FeedbackReceiptScreen(),
+          builder: (context, state) => FeedbackReceiptScreen(
+            payment: state.extra as PaymentModel,
+          ),
         ),
         GoRoute(
           name: Routes.editProfile,

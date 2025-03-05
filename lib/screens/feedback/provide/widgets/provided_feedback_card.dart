@@ -107,7 +107,7 @@ class _ProvidedFeedbackCardState extends ConsumerState<ProvidedFeedbackCard> {
                   children: [
                     StaggeredGridTile.count(
                       crossAxisCellCount: 1,
-                      mainAxisCellCount: 1,
+                      mainAxisCellCount: 1.2,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [

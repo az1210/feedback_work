@@ -217,6 +217,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                         ),
                       ),
                       validator: (value) => validateEmail(value),
+                      keyboardType: TextInputType.emailAddress,
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -235,6 +236,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                           borderSide: BorderSide.none,
                         ),
                       ),
+                      keyboardType: TextInputType.phone,
                     ),
                     const SizedBox(height: 16),
                     Text(

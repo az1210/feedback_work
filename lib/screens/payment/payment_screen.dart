@@ -259,10 +259,12 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
                             );
                             await paymentNotifier.presentPaymentSheet(
                               paymentModel: PaymentModel(
-                                feedbackId: widget.feedback.id,
+                                feedback: widget.feedback,
                                 feedbackCost:
                                     widget.feedback.requestFeedback?.cost ?? 0,
                                 bonus: double.parse(bonus ?? '0'),
+                                providerId: widget.feedback.providerId,
+                                requestedByUserId: widget.feedback.ownerId,
                               ),
                               feedbackModel: widget.feedback,
                             );

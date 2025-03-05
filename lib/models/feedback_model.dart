@@ -1,9 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-import 'package:feedback_work/models/payment_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_quill/quill_delta.dart';
 
+import 'package:feedback_work/models/payment_model.dart';
 import 'package:feedback_work/models/project_model.dart';
 import 'package:feedback_work/models/provide_feedback_people_model.dart';
 
@@ -19,7 +20,11 @@ class FeedbackModel {
   final String? id;
   final ProjectModel? project;
   final String? ownerId;
+  final String? ownerName;
+  final String? ownerAvaterUrl;
   final String? providerId;
+  final String? providerName;
+  final String? providerAvaterUrl;
   final RequestModel? requestFeedback;
   final ProvideModel? provideFeedback;
   final AppliedModel? appliedFeedback;
@@ -31,7 +36,11 @@ class FeedbackModel {
     this.id,
     this.project,
     this.ownerId,
+    this.ownerName,
+    this.ownerAvaterUrl,
     this.providerId,
+    this.providerName,
+    this.providerAvaterUrl,
     this.requestFeedback,
     this.provideFeedback,
     this.appliedFeedback,
@@ -45,27 +54,35 @@ class FeedbackModel {
     String? id,
     ProjectModel? project,
     String? ownerId,
+    String? ownerName,
+    String? ownerAvaterUrl,
     String? providerId,
+    String? providerName,
+    String? providerAvaterUrl,
     RequestModel? requestFeedback,
     ProvideModel? provideFeedback,
     AppliedModel? appliedFeedback,
     Status? ownerSideStatus,
     Status? providerSideStatus,
     StatusReport? statusReport,
-    String? paymentModel,
+    String? paymentId,
   }) {
     return FeedbackModel(
       id: id ?? this.id,
       project: project ?? this.project,
       ownerId: ownerId ?? this.ownerId,
+      ownerName: ownerName ?? this.ownerName,
+      ownerAvaterUrl: ownerAvaterUrl ?? this.ownerAvaterUrl,
       providerId: providerId ?? this.providerId,
+      providerName: providerName ?? this.providerName,
+      providerAvaterUrl: providerAvaterUrl ?? this.providerAvaterUrl,
       requestFeedback: requestFeedback ?? this.requestFeedback,
       provideFeedback: provideFeedback ?? this.provideFeedback,
       appliedFeedback: appliedFeedback ?? this.appliedFeedback,
       ownerSideStatus: ownerSideStatus ?? this.ownerSideStatus,
       providerSideStatus: providerSideStatus ?? this.providerSideStatus,
       statusReport: statusReport ?? this.statusReport,
-      paymentId: paymentModel ?? paymentId,
+      paymentId: paymentId ?? this.paymentId,
     );
   }
 
@@ -74,7 +91,11 @@ class FeedbackModel {
       'id': id,
       'project': project?.toMap(),
       'ownerId': ownerId,
+      'ownerName': ownerName,
+      'ownerAvaterUrl': ownerAvaterUrl,
       'providerId': providerId,
+      'providerName': providerName,
+      'providerAvaterUrl': providerAvaterUrl,
       'requestFeedback': requestFeedback?.toMap(),
       'provideFeedback': provideFeedback?.toMap(),
       'appliedFeedback': appliedFeedback?.toMap(),
@@ -92,8 +113,17 @@ class FeedbackModel {
           ? ProjectModel.fromMap(map['project'] as Map<String, dynamic>)
           : null,
       ownerId: map['ownerId'] != null ? map['ownerId'] as String : null,
+      ownerName: map['ownerName'] != null ? map['ownerName'] as String : null,
+      ownerAvaterUrl: map['ownerAvaterUrl'] != null
+          ? map['ownerAvaterUrl'] as String
+          : null,
       providerId:
           map['providerId'] != null ? map['providerId'] as String : null,
+      providerName:
+          map['providerName'] != null ? map['providerName'] as String : null,
+      providerAvaterUrl: map['providerAvaterUrl'] != null
+          ? map['providerAvaterUrl'] as String
+          : null,
       requestFeedback: map['requestFeedback'] != null
           ? RequestModel.fromMap(map['requestFeedback'] as Map<String, dynamic>)
           : null,

@@ -34,7 +34,7 @@ class FeedbackCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              amount,
+              "\$ $amount",
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,

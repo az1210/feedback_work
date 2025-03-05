@@ -4,6 +4,7 @@ import 'package:feedback_work/models/project_model.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:feedback_work/providers/project_progress_provider.dart';
+import 'package:feedback_work/providers/user_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:feedback_work/core/utils/utils.dart';
@@ -39,17 +40,16 @@ class ProjectNotifier extends Notifier<ProjectNotifierState> {
           .doc(docId)
           .set(project.copyWith(id: docId).toMap());
 
-      progressNotifier
-          .addProgress(
+      progressNotifier.addProgress(
         projectId: docId,
         projectTimeline: ProjectTimelineModel(
           message: "Project Started",
           modifiedAt: DateTime.now().toString(),
         ),
-      )
-          .then((_) {
-        fetchAllProjects(userId: project.owner!.id!);
-      });
+        callBack: () {
+          fetchUserProjects(userId: ref.watch(currentUserProvider)!.id!);
+        },
+      );
       callBack?.call();
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {
@@ -58,14 +58,12 @@ class ProjectNotifier extends Notifier<ProjectNotifierState> {
     }
   }
 
-  Future<void> fetchAllProjects({required String userId}) async {
+  Future<void> fetchAllProjects() async {
     state = state.copyWith(state: AsyncState.loading);
     FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
-      final usersSnapshot = await firestore
-          .collection(FirebaseConstants.projectCollection)
-          .where('ownerId', isEqualTo: userId)
-          .get();
+      final usersSnapshot =
+          await firestore.collection(FirebaseConstants.projectCollection).get();
       final projects = usersSnapshot.docs
           .map((u) => ProjectModel.fromMap(u.data()))
           .toList();
@@ -81,9 +79,8 @@ class ProjectNotifier extends Notifier<ProjectNotifierState> {
     try {
       state = state.copyWith(state: AsyncState.loading);
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection(FirebaseConstants.userCollection)
+          .collection(FirebaseConstants.projectCollection)
           .where('ownerId', isEqualTo: userId)
-          .orderBy('createAt')
           .get();
 
       // Map each document to a list of user data
@@ -99,24 +96,24 @@ class ProjectNotifier extends Notifier<ProjectNotifierState> {
     }
   }
 
-  Future<void> fetchProjectById({required String projectId}) async {
-    try {
-      state = state.copyWith(state: AsyncState.loading);
-      DocumentSnapshot snapshot = await FirebaseFirestore.instance
-          .collection(FirebaseConstants.userCollection)
-          .doc(projectId)
-          .get();
+  // Future<void> fetchProjectById({required String projectId}) async {
+  //   try {
+  //     state = state.copyWith(state: AsyncState.loading);
+  //     DocumentSnapshot snapshot = await FirebaseFirestore.instance
+  //         .collection(FirebaseConstants.userCollection)
+  //         .doc(projectId)
+  //         .get();
 
-      // Map each document to a list of user data
-      ProjectModel projects =
-          ProjectModel.fromMap(snapshot.data() as Map<String, dynamic>);
-      state = state
-          .copyWith(currentUserProjects: [projects], state: AsyncState.success);
-    } catch (e, stackTrace) {
-      Log.error(e.toString());
-      Log.error(stackTrace.toString());
-    }
-  }
+  //     // Map each document to a list of user data
+  //     ProjectModel projects =
+  //         ProjectModel.fromMap(snapshot.data() as Map<String, dynamic>);
+  //     state = state
+  //         .copyWith(currentUserProjects: [projects], state: AsyncState.success);
+  //   } catch (e, stackTrace) {
+  //     Log.error(e.toString());
+  //     Log.error(stackTrace.toString());
+  //   }
+  // }
 }
 
 class ProjectNotifierState {

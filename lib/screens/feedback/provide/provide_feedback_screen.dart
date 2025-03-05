@@ -27,7 +27,6 @@ class ProvideFeedbackScreen extends ConsumerStatefulWidget {
 }
 
 class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
-  final formKey = GlobalKey<FormState>();
   final quill.QuillController principleDetailsController =
       quill.QuillController.basic();
   final FocusNode principleDetailsFocusNode = FocusNode();
@@ -137,7 +136,6 @@ class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
                     },
                   ),
                   AddProvideDetails(
-                    formKey: formKey,
                     onUpdatePeople: (p0) {
                       setState(() {
                         peopleInfo = p0;
@@ -199,32 +197,28 @@ class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
                           : 'Next',
                       onTap: ref.watch(provideFeedbackStepProvider) == 5
                           ? () {
-                              formKey.currentState!.save();
-                              if (formKey.currentState!.validate()) {
-                                final providedFeedback =
-                                    widget.feedbackModel.copyWith(
-                                        provideFeedback: ProvideModel(
-                                  provideInfo: peopleInfo,
-                                  principle: selectedPrinciple,
-                                  principleDetails: principleDetailsController
-                                      .document
-                                      .toDelta(),
-                                  principleToDeriveFrom:
-                                      selectedPrinciplesToDeriveForm,
-                                ));
-                                context
-                                    .pushNamed(
-                                  Routes.previewSet,
-                                  extra: providedFeedback,
-                                )
-                                    .then((_) {
-                                  provideFeedbackController.jumpToPage(0);
-                                  ref
-                                      .read(
-                                          provideFeedbackStepProvider.notifier)
-                                      .state = 1;
-                                });
-                              }
+                              final providedFeedback =
+                                  widget.feedbackModel.copyWith(
+                                      provideFeedback: ProvideModel(
+                                provideInfo: peopleInfo,
+                                principle: selectedPrinciple,
+                                principleDetails: principleDetailsController
+                                    .document
+                                    .toDelta(),
+                                principleToDeriveFrom:
+                                    selectedPrinciplesToDeriveForm,
+                              ));
+                              context
+                                  .pushNamed(
+                                Routes.previewSet,
+                                extra: providedFeedback,
+                              )
+                                  .then((_) {
+                                provideFeedbackController.jumpToPage(0);
+                                ref
+                                    .read(provideFeedbackStepProvider.notifier)
+                                    .state = 1;
+                              });
                             }
                           : () {
                               Log.info(
@@ -232,16 +226,13 @@ class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
                               Log.info(ref
                                   .watch(provideFeedbackStepProvider)
                                   .toString());
-                              formKey.currentState!.save();
-                              if (formKey.currentState!.validate()) {
-                                provideFeedbackController.nextPage(
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                );
-                                ref
-                                    .read(provideFeedbackStepProvider.notifier)
-                                    .state++;
-                              }
+                              provideFeedbackController.nextPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                              ref
+                                  .read(provideFeedbackStepProvider.notifier)
+                                  .state++;
                             },
                     ),
                   ),

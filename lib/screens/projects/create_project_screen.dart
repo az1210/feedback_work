@@ -140,6 +140,7 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
         centerTitle: false,
       ),
       body: Form(
+        key: formKey,
         child: ListView(
           children: [
             Padding(

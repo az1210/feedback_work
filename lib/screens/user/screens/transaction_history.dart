@@ -12,7 +12,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 class TransactionHistoryScreen extends ConsumerStatefulWidget {
-  const TransactionHistoryScreen({super.key});
+  const TransactionHistoryScreen({required this.currentUser, super.key});
+
+  final UserModel currentUser;
 
   @override
   ConsumerState<TransactionHistoryScreen> createState() =>
@@ -24,7 +26,6 @@ class _TransactionHistoryScreenState
   int totalFeedbackAcceptedCount = 0;
   int totalFeedbackProvidedAtFreeCount = 0;
   int totalFeedbackProvidedAtCostCount = 0;
-  UserModel? currentUser;
   @override
   void initState() {
     Future.microtask(() async {
@@ -43,7 +44,6 @@ class _TransactionHistoryScreenState
           .getDocumentCount(
               collectionName:
                   FirebaseConstants.totalFeedbackProvidedFreeTransaction);
-      currentUser = ref.watch(currentUserProvider);
     });
     super.initState();
   }
@@ -112,39 +112,55 @@ class _TransactionHistoryScreenState
                       TransactionHistoryOverviewCard(
                         index: 0,
                         price: 0,
-                        quantity: currentUser!.totalFeedbackRequested ?? 0,
+                        quantity:
+                            widget.currentUser.totalFeedbackRequested ?? 0,
                         title: "Total feedback requested",
                         onTap: () {
-                          context.pushNamed(Routes.transactionHistoryDetails);
+                          context.pushNamed(
+                            Routes.transactionHistoryDetails,
+                            extra: widget.currentUser,
+                          );
                         },
                       ),
                       TransactionHistoryOverviewCard(
                         index: 1,
-                        price: currentUser!.totalFeedbackAcceptedAmount ?? 0,
+                        price:
+                            widget.currentUser.totalFeedbackAcceptedAmount ?? 0,
                         quantity: totalFeedbackAcceptedCount,
                         title: "Total feedback accepted/applie",
                         onTap: () {
-                          context.pushNamed(Routes.transactionHistoryDetails);
+                          context.pushNamed(
+                            Routes.transactionHistoryDetails,
+                            extra: widget.currentUser,
+                          );
                         },
                       ),
                       TransactionHistoryOverviewCard(
                         index: 2,
-                        price:
-                            currentUser!.totalFeedbackProvidedFreeAmount ?? 0,
+                        price: widget
+                                .currentUser.totalFeedbackProvidedFreeAmount ??
+                            0,
                         quantity: totalFeedbackProvidedAtFreeCount,
                         title: "Total feedback provided free",
                         onTap: () {
-                          context.pushNamed(Routes.transactionHistoryDetails);
+                          context.pushNamed(
+                            Routes.transactionHistoryDetails,
+                            extra: widget.currentUser,
+                          );
                         },
                       ),
                       TransactionHistoryOverviewCard(
                         index: 3,
-                        price:
-                            currentUser!.totalFeedbackProvidedAtCostAmount ?? 0,
+                        price: widget.currentUser
+                                .totalFeedbackProvidedAtCostAmount ??
+                            0,
                         quantity: totalFeedbackProvidedAtCostCount,
                         title: "Total feedback provided at cost",
                         onTap: () {
-                          context.pushNamed(Routes.transactionHistoryDetails);
+                          context.pushNamed(
+                            Routes.transactionHistoryDetails,
+                            extra: widget.currentUser,
+                          );
                         },
                       ),
                     ],

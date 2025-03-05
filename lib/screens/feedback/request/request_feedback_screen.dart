@@ -31,7 +31,6 @@ class RequestFeedbackScreen extends ConsumerStatefulWidget {
 }
 
 class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
-  final formKey = GlobalKey<FormState>();
   late PageController requestFeedbackController;
 
   final TextEditingController projectNameController = TextEditingController();
@@ -42,7 +41,7 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
   final TextEditingController youtubeLinkController = TextEditingController();
   final quill.QuillController messageController = quill.QuillController.basic();
 
-  String? selectedUser;
+  UserModel? selectedUser;
   List<String?>? selectedGrpupUserIds;
   UserModel? currentUser;
   String? subject;
@@ -179,13 +178,11 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                     },
                   ),
                   SelectFeedbackProvider(
-                    formKey: formKey,
                     category: selectedCategory ?? "",
                     selectedIndividualUser: (p0) {
                       setState(() {
                         selectedUser = p0;
                         selectedGroupId = '';
-                        Log.info(selectedUser ?? 'No user selected');
                       });
                     },
                     selectedGroupId: (p0) {
@@ -201,7 +198,6 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                     currentUserId: currentUser?.id ?? '',
                   ),
                   TypeMessage(
-                    formKey: formKey,
                     message: messageController,
                     subject: (p0) {
                       setState(() {
@@ -221,7 +217,7 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                     feedback: FeedbackModel(
                       project: widget.project,
                       ownerId: widget.project.ownerId,
-                      providerId: selectedUser,
+                      providerId: selectedUser?.id,
                       requestFeedback: RequestModel(
                         selectedGroupMemberIds: selectedGrpupUserIds ?? [],
                         privacy: selectedPrivacy,
@@ -282,59 +278,56 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                           : 'Next',
                       onTap: ref.watch(requestFeedbackStepProvider) == 6
                           ? () {
-                              formKey.currentState!.save();
-                              if (formKey.currentState!.validate()) {
-                                final feedback = FeedbackModel(
-                                  requestFeedback: RequestModel(
-                                    isAnnonymous: isAnnonymous,
-                                    message: MessageModel(
-                                      message:
-                                          messageController.document.toDelta(),
-                                      subject: subject,
-                                      ytUrl: youtubeLink,
-                                    ),
-                                    cost: feedbackCost!.isNotEmpty ||
-                                            feedbackCost != null
-                                        ? double.tryParse(feedbackCost ?? "0")
-                                        : double.tryParse(currentUser!
-                                                .minimumRate
-                                                .toString()) ??
-                                            0,
-                                    feedbackLimit:
-                                        int.tryParse(feedbackLimit ?? "0") ?? 0,
-                                    privacy: selectedPrivacy,
-                                    groupId: selectedGroupId ?? '',
-                                    selectedGroupMemberIds:
-                                        selectedGrpupUserIds,
+                              final feedback = FeedbackModel(
+                                requestFeedback: RequestModel(
+                                  isAnnonymous: isAnnonymous,
+                                  message: MessageModel(
+                                    message:
+                                        messageController.document.toDelta(),
+                                    subject: subject,
+                                    ytUrl: youtubeLink,
                                   ),
-                                  project: widget.project,
-                                  ownerId: widget.project.ownerId!,
-                                  providerId: selectedUser,
-                                );
+                                  cost: feedbackCost != null
+                                      ? double.tryParse(feedbackCost ?? "0")
+                                      : double.tryParse(currentUser!.minimumRate
+                                              .toString()) ??
+                                          0,
+                                  feedbackLimit:
+                                      int.tryParse(feedbackLimit ?? "0") ?? 0,
+                                  privacy: selectedPrivacy,
+                                  groupId: selectedGroupId ?? '',
+                                  selectedGroupMemberIds: selectedGrpupUserIds,
+                                ),
+                                project: widget.project,
+                                ownerId: widget.project.ownerId!,
+                                ownerName:
+                                    "${widget.project.owner?.firstName} ${widget.project.owner?.lastName}",
+                                ownerAvaterUrl: widget.project.owner?.avaterUrl,
+                                providerId: selectedUser?.id,
+                                providerName:
+                                    "${selectedUser?.firstName} ${selectedUser?.lastName}",
+                                providerAvaterUrl: selectedUser?.avaterUrl,
+                              );
 
-                                Log.info(feedback.toMap().toString());
-                                ref
-                                    .read(feedbackProvider.notifier)
-                                    .createFeedbackRequest(
-                                      feedback: feedback,
-                                      userId: currentUser!.id!,
-                                      callback: () {
-                                        context.pop();
-                                      },
-                                    );
-                              }
+                              Log.info(feedback.toMap().toString());
+                              ref
+                                  .read(feedbackProvider.notifier)
+                                  .createFeedbackRequest(
+                                    feedback: feedback,
+                                    userId: currentUser!.id!,
+                                    callback: () {
+                                      context.pop();
+                                    },
+                                  );
                             }
                           : () {
-                              formKey.currentState!.save();
-                              if (formKey.currentState!.validate()) {
-                                requestFeedbackController.nextPage(
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                );
-                                ref
-                                    .read(requestFeedbackStepProvider.notifier)
-                                    .state++;
-                              }
+                              requestFeedbackController.nextPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                              ref
+                                  .read(requestFeedbackStepProvider.notifier)
+                                  .state++;
                             },
                     ),
                   ),

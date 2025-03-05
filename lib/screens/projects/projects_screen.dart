@@ -30,10 +30,11 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
   @override
   void initState() {
     Future.microtask(() {
-      final auth = ref.read(firebaseAuthProvider);
+      final auth = ref.watch(firebaseAuthProvider);
       ref
           .read(projectProvider.notifier)
-          .fetchAllProjects(userId: auth.currentUser!.uid);
+          .fetchUserProjects(userId: auth.currentUser!.uid);
+      // ref.read(projectProvider.notifier).fetchAllProjects();
     });
     super.initState();
   }
@@ -43,7 +44,7 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
     final projectState = ref.watch(projectProvider);
     ref.listen(projectProvider, (_, newState) {
       if (newState.state == AsyncState.success) {
-        projects = newState.allUsersProjects!;
+        projects = newState.currentUserProjects!;
       }
       Log.info(projects.last.toMap().toString());
     });
@@ -86,7 +87,7 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
         builder: (context) {
           if (projectState.state == AsyncState.loading) {
             return const Center(child: CircularProgressIndicator());
-          } else if (projectState.error != null) {
+          } else if (projectState.state == AsyncState.failure) {
             return const Center(
               child: Text("Something went wrong"),
             );

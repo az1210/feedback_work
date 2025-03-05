@@ -143,7 +143,7 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
                 ),
                 _buildDetailRow(
                   'Total Feedback Requested',
-                  project.owner!.totalFeedbackRequested == -1
+                  project.owner!.totalFeedbackRequested == null
                       ? '0'
                       : project.owner!.totalFeedbackRequested.toString(),
                   // TODO: Implement API
@@ -153,7 +153,7 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
                 ),
                 _buildDetailRow(
                   'Total Feedback Received',
-                  project.owner!.totalFeedbackReceived == -1
+                  project.owner!.totalFeedbackReceived == null
                       ? '0'
                       : project.owner!.totalFeedbackReceived.toString(),
                   // '${project['feedbackReceived'] ?? 0}',
@@ -162,7 +162,7 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
                 ),
                 _buildDetailRow(
                   'Total Feedback Applied',
-                  project.owner!.feedbackApplied == -1
+                  project.owner!.feedbackApplied == null
                       ? '0'
                       : project.owner!.feedbackApplied.toString(),
                   // '${project['feedbackApplied'] ?? 0}',
@@ -180,7 +180,7 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          '${project.completionPercentage == -1 ? '0' : project.completionPercentage}% Completed',
+                          '${project.completionPercentage ?? '0'}% Completed',
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium
@@ -428,8 +428,8 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
                               return const Center(
                                 child: CircularProgressIndicator(),
                               );
-                            } else if (projectProgressState.error != null ||
-                                projectProgressState.projectProgress == null) {
+                            } else if (projectProgressState.state ==
+                                AsyncState.failure) {
                               return const Center(
                                 child: Text("Something went wrong"),
                               );
@@ -540,7 +540,7 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          '${project.completionPercentage == -1 ? '0' : project.completionPercentage}% Completed',
+                          '${project.completionPercentage ?? '0'}% Completed',
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium

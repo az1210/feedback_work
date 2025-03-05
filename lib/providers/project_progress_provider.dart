@@ -39,7 +39,7 @@ class ProjectProgressNotifier extends Notifier<ProjectProgressNotifierState> {
           .collection(FirebaseConstants.projectTimelineCollection)
           .doc(projectTimeline.modifiedAt)
           .set(projectTimeline.toMap());
-      projectNotifier.fetchProjectById(projectId: projectId);
+      // projectNotifier.fetchProjectById(projectId: projectId);
       callBack?.call();
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {

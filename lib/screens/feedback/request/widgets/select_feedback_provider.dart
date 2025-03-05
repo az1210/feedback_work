@@ -11,7 +11,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SelectFeedbackProvider extends ConsumerStatefulWidget {
   const SelectFeedbackProvider({
-    required this.formKey,
     this.selectedGroupUsers,
     required this.currentUserId,
     this.selectedGroupId,
@@ -23,10 +22,9 @@ class SelectFeedbackProvider extends ConsumerStatefulWidget {
   final String category;
   final String currentUserId;
 
-  final void Function(String?) selectedIndividualUser;
+  final void Function(UserModel?) selectedIndividualUser;
   final void Function(List<String?>)? selectedGroupUsers;
   final void Function(String?)? selectedGroupId;
-  final GlobalKey<FormState> formKey;
 
   @override
   ConsumerState<SelectFeedbackProvider> createState() =>
@@ -35,14 +33,14 @@ class SelectFeedbackProvider extends ConsumerStatefulWidget {
 
 class _SelectFeedbackProviderState
     extends ConsumerState<SelectFeedbackProvider> {
-  List<FilterSection<String>> sections = [];
+  List<FilterSection<UserModel>> sections = [];
   List<GroupModel> groups = [];
   List<GroupModel> filteredGroups = [];
 
   List<UserModel> users = [];
   List<UserModel> filteredUsers = [];
   Map<String, List<UserModel>> selectedGroupUsers = {};
-  Map<String, Set<String>> selectedIndividulaUser = {};
+  Map<String, Set<UserModel>> selectedIndividulaUser = {};
   String? groupId;
 
   @override
@@ -74,9 +72,9 @@ class _SelectFeedbackProviderState
         }
         Log.info(names.first.toString());
         sections.add(
-          FilterSection<String>(
+          FilterSection<UserModel>(
             title: "provider",
-            values: ids,
+            values: filteredUsers,
             labels: names,
             allowMultipleSelection: false,
             showTitle: false,
@@ -106,83 +104,83 @@ class _SelectFeedbackProviderState
             child: Text("Error: ${userState.error}"),
           );
         } else {
-          return Form(
-            key: widget.formKey,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    FilterContent<String>(
-                      hasHeader: false,
-                      sections: sections,
-                      selectedFilters: selectedIndividulaUser,
-                      onFiltersChanged: (filters) {
-                        Log.info('Filters updated: $filters');
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  FilterContent<UserModel>(
+                    hasHeader: false,
+                    sections: sections,
+                    selectedFilters: selectedIndividulaUser,
+                    onFiltersChanged: (filters) {
+                      Log.info('Filters updated: $filters');
+                      setState(() {
+                        selectedGroupUsers = {};
+                        selectedIndividulaUser = filters;
+                        widget.selectedGroupId != null
+                            ? widget.selectedGroupId!(null)
+                            : null;
+                        widget
+                            .selectedIndividualUser(filters['provider']?.first);
+                      });
+                    },
+                    onApply: () {
+                      Log.info('Filters applied');
+                    },
+                    onReset: () {
+                      Log.info('Filters reset');
+                    },
+                    hasActionButton: false,
+                  ),
+                  if (groups != []) ...[
+                    GroupFilterContent(
+                      groups: groups
+                          .map(
+                            (g) => GroupModel(
+                              id: g.id,
+                              name: g.name,
+                              description: g.description,
+                              users: g.users
+                                  ?.map(
+                                    (u) => UserModel(
+                                      id: u.id,
+                                      firstName: u.firstName,
+                                      lastName: u.lastName,
+                                      avaterUrl: u.avaterUrl,
+                                      title: u.title,
+                                      expertise: u.expertise,
+                                      username: u.username,
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                          )
+                          .toList(),
+                      selectedUsers: selectedGroupUsers,
+                      onUserSelection: (groupId, users) {
                         setState(() {
-                          selectedGroupUsers = {};
-                          selectedIndividulaUser = filters;
-                          widget.selectedGroupId != null
-                              ? widget.selectedGroupId!(null)
-                              : null;
-                          widget.selectedIndividualUser(
-                              filters['provider']?.first);
+                          widget.selectedIndividualUser(users.firstWhere((u) {
+                            final owner = groups
+                                .firstWhere((g) => g.id == groupId)
+                                .ownerId;
+                            return u.id == owner;
+                          }));
+                          selectedIndividulaUser = {};
+                          selectedGroupUsers = {
+                            ...selectedGroupUsers,
+                            groupId: users,
+                          };
+                          widget.selectedGroupId!(groupId);
+                          widget.selectedGroupUsers!(
+                              users.map((u) => u.id).toList());
+                          Log.info(users.map((u) => u.toMap()).toString());
                         });
                       },
-                      onApply: () {
-                        Log.info('Filters applied');
-                      },
-                      onReset: () {
-                        Log.info('Filters reset');
-                      },
-                      hasActionButton: false,
+                      onGroupExpand: (groupId) {},
                     ),
-                    if (groups != []) ...[
-                      GroupFilterContent(
-                        groups: groups
-                            .map(
-                              (g) => GroupModel(
-                                id: g.id,
-                                name: g.name,
-                                description: g.description,
-                                users: g.users
-                                    ?.map(
-                                      (u) => UserModel(
-                                        id: u.id,
-                                        firstName: u.firstName,
-                                        lastName: u.lastName,
-                                        avaterUrl: u.avaterUrl,
-                                        title: u.title,
-                                        expertise: u.expertise,
-                                        username: u.username,
-                                      ),
-                                    )
-                                    .toList(),
-                              ),
-                            )
-                            .toList(),
-                        selectedUsers: selectedGroupUsers,
-                        onUserSelection: (groupId, users) {
-                          setState(() {
-                            widget.selectedIndividualUser(groups
-                                .firstWhere((g) => g.id == groupId)
-                                .ownerId);
-                            selectedIndividulaUser = {};
-                            selectedGroupUsers = {
-                              ...selectedGroupUsers,
-                              groupId: users,
-                            };
-                            widget.selectedGroupId!(groupId);
-                            widget.selectedGroupUsers!(
-                                users.map((u) => u.id).toList());
-                            Log.info(users.map((u) => u.toMap()).toString());
-                          });
-                        },
-                        onGroupExpand: (groupId) {},
-                      ),
-                    ],
                   ],
-                ),
+                ],
               ),
             ),
           );
