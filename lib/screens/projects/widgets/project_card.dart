@@ -435,73 +435,19 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
                               );
                             } else {
                               return ProjectTimeline(
-                                  events: projectProgressState.projectProgress!
-                                      .map(
-                                        (p) => TimelineEvent(
-                                          title: p.message,
-                                          date: p.modifiedAt,
-                                        ),
-                                      )
-                                      .toList());
+                                events:
+                                    (projectProgressState.projectProgress ?? [])
+                                        .map(
+                                          (p) => TimelineEvent(
+                                            title: p.message,
+                                            date: p.modifiedAt,
+                                          ),
+                                        )
+                                        .toList(),
+                              );
                             }
                           }),
                         ),
-                        // Column(
-                        //   children: [
-                        //     const CheckProgressStatus(
-                        //         title: "Project Started", subtitle: "May 26"),
-                        //     const CheckProgressStatus(
-                        //         title: "Feedback Requested John Davis",
-                        //         subtitle: "May 29"),
-                        //     const CheckProgressStatus(
-                        //         title:
-                        //             "Feedback Received from Micheale David",
-                        //         subtitle: "May 29"),
-                        //     const CheckProgressStatus(
-                        //         title: "Feedback Applied by John Davis",
-                        //         subtitle: "May 29"),
-                        //     Row(
-                        //       crossAxisAlignment: CrossAxisAlignment.start,
-                        //       children: [
-                        //         const Image(
-                        //           image: AssetImage(
-                        //             "assets/images/icons/step.png",
-                        //           ),
-                        //           height: 20.4,
-                        //         ),
-                        //         const SizedBox(width: 7.93),
-                        //         Transform.translate(
-                        //           offset: const Offset(0, -5),
-                        //           child: const Column(
-                        //             crossAxisAlignment:
-                        //                 CrossAxisAlignment.start,
-                        //             children: [
-                        //               Text(
-                        //                 "Error Corrected by John Davis",
-                        //                 style: TextStyle(
-                        //                   fontFamily: 'Inter',
-                        //                   fontSize: 13.6,
-                        //                   fontWeight: FontWeight.w400,
-                        //                 ),
-                        //               ),
-                        //               Text(
-                        //                 "May 29",
-                        //                 style: TextStyle(
-                        //                   fontFamily: 'Inter',
-                        //                   fontSize: 11.33,
-                        //                   fontWeight: FontWeight.w400,
-                        //                   color: Color.fromARGB(
-                        //                       255, 101, 103, 107),
-                        //                 ),
-                        //               ),
-                        //             ],
-                        //           ),
-                        //         ),
-                        //       ],
-                        //     )
-                        //   ],
-                        // ),
-                        // )
                       ]
                     ],
                   ),

@@ -1,7 +1,7 @@
 import 'package:feedback_work/core/extensions/string_extension.dart';
 import 'package:feedback_work/core/utils/network_image_helper.dart';
 import 'package:feedback_work/core/utils/utils.dart';
-import 'package:feedback_work/core/utils/validator.dart';
+// import 'package:feedback_work/core/utils/validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -198,36 +198,41 @@ class _FilterContentState<T> extends State<FilterContent<T>> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (widget.hasHeader)
-          BuildHeader(
-            title: widget.title?.toTitleCase(),
-            resetButtonText: widget.resetButtonText,
-            resetFilter: _resetFilters,
-          ),
-        if (widget.hasSearchOption)
-          BuildSearchBar(
-            searchController: _searchController,
-            hintText: widget.hintText ?? 'Search',
-          ),
-        SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (widget.sections != null)
-                ...widget.sections!.map((section) => _buildSection(section)),
-              if (widget.rangeSliderConfig != null) ...[
-                _buildRangeSlider(widget.rangeSliderConfig!),
-                16.ph,
-              ],
-            ],
-          ),
+    return Expanded(
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (widget.hasHeader)
+              BuildHeader(
+                title: widget.title?.toTitleCase(),
+                resetButtonText: widget.resetButtonText,
+                resetFilter: _resetFilters,
+              ),
+            if (widget.hasSearchOption)
+              BuildSearchBar(
+                searchController: _searchController,
+                hintText: widget.hintText ?? 'Search',
+              ),
+            SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (widget.sections != null)
+                    ...widget.sections!
+                        .map((section) => _buildSection(section)),
+                  if (widget.rangeSliderConfig != null) ...[
+                    _buildRangeSlider(widget.rangeSliderConfig!),
+                    16.ph,
+                  ],
+                ],
+              ),
+            ),
+            if (widget.hasActionButton) _buildApplyButton(),
+            16.ph,
+          ],
         ),
-        if (widget.hasActionButton) _buildApplyButton(),
-        16.ph,
-      ],
+      ),
     );
   }
 

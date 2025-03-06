@@ -98,29 +98,32 @@ class _StatusReportScreenState extends ConsumerState<StatusReportScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 16.w,
-                                vertical: 4.h,
-                              ),
-                              decoration: BoxDecoration(
-                                color: context.colors.pureWhite
-                                    .withValues(alpha: 0.8),
-                                border: Border.all(
-                                  color: context.colors.errorRed,
+                            Flexible(
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16.w,
+                                  vertical: 4.h,
                                 ),
-                                borderRadius: BorderRadius.circular(12.r),
-                              ),
-                              child: Text(
-                                widget.feedback.project!.problemName ??
-                                    'Unknown problem',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineLarge!
-                                    .copyWith(
-                                      color: context.colors.errorRed,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                decoration: BoxDecoration(
+                                  color: context.colors.pureWhite
+                                      .withValues(alpha: 0.8),
+                                  border: Border.all(
+                                    color: context.colors.errorRed,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12.r),
+                                ),
+                                child: Text(
+                                  widget.feedback.project!.problemName ??
+                                      'Unknown problem',
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineLarge!
+                                      .copyWith(
+                                        color: context.colors.errorRed,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                ),
                               ),
                             ),
                           ],
@@ -170,29 +173,32 @@ class _StatusReportScreenState extends ConsumerState<StatusReportScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 16.w,
-                                vertical: 4.h,
-                              ),
-                              decoration: BoxDecoration(
-                                color: context.colors.pureWhite
-                                    .withValues(alpha: 0.8),
-                                border: Border.all(
-                                  color: context.colors.successGreen,
+                            Flexible(
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16.w,
+                                  vertical: 4.h,
                                 ),
-                                borderRadius: BorderRadius.circular(12.r),
-                              ),
-                              child: Text(
-                                widget.feedback.project!.solutionName ??
-                                    'Unknown problem',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineLarge!
-                                    .copyWith(
-                                      color: context.colors.successGreen,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                decoration: BoxDecoration(
+                                  color: context.colors.pureWhite
+                                      .withValues(alpha: 0.8),
+                                  border: Border.all(
+                                    color: context.colors.successGreen,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12.r),
+                                ),
+                                child: Text(
+                                  widget.feedback.project!.solutionName ??
+                                      'Unknown problem',
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineLarge!
+                                      .copyWith(
+                                        color: context.colors.successGreen,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                ),
                               ),
                             ),
                           ],

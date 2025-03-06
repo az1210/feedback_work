@@ -42,12 +42,15 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
   @override
   Widget build(BuildContext context) {
     final projectState = ref.watch(projectProvider);
-    ref.listen(projectProvider, (_, newState) {
-      if (newState.state == AsyncState.success) {
-        projects = newState.currentUserProjects!;
-      }
-      Log.info(projects.last.toMap().toString());
-    });
+    ref.listen(
+      projectProvider,
+      (_, newState) {
+        if (newState.state == AsyncState.success) {
+          projects = newState.currentUserProjects!;
+        }
+        Log.info(projects.last.toMap().toString());
+      },
+    );
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 240, 242, 245),
