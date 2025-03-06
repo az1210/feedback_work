@@ -36,44 +36,51 @@ class _MoreTabScreenState extends ConsumerState<MoreDrawer> {
       child: ListView(
         children: [
           DrawerHeader(
-            child: Column(
-              children: [
-                CircleAvatar(
-                  radius: 24.r,
-                ),
-                Text(
-                  "${currentUser?.firstName ?? 'Hello!'} ${currentUser?.lastName ?? ''}",
-                  style: Theme.of(context).textTheme.titleMedium,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                if (!isLoggedIn) ...[
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 24.r,
+                  ),
                   Text(
-                    'Join for more access',
-                    style: Theme.of(context).textTheme.bodySmall,
-                    maxLines: 1,
+                    "${currentUser?.firstName ?? 'Hello!'} ${currentUser?.lastName ?? ''}",
+                    style: Theme.of(context).textTheme.titleMedium,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  8.ph,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AppButton.filled(
-                        label: "Sign up",
-                        onTap: () {},
-                        horizontalPadding: 16.w,
-                      ),
-                      16.pw,
-                      AppButton.outlined(
-                        label: "Sign In",
-                        onTap: () {},
-                        borderColor: context.colors.primaryBlue,
-                        horizontalPadding: 16.w,
-                      ),
-                    ],
-                  ),
+                  if (!isLoggedIn) ...[
+                    Text(
+                      'Join for more access',
+                      style: Theme.of(context).textTheme.bodySmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    8.ph,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        AppButton.filled(
+                          label: "Sign up",
+                          onTap: () {
+                            context.goNamed("sign-up");
+                          },
+                          horizontalPadding: 16.w,
+                        ),
+                        16.pw,
+                        AppButton.outlined(
+                          label: "Sign In",
+                          onTap: () {
+                            context.goNamed("sign-in");
+                          },
+                          borderColor: context.colors.primaryBlue,
+                          horizontalPadding: 16.w,
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
           Padding(

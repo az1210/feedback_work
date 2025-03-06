@@ -31,11 +31,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     Future<void> navigateBasedOnAuth() async {
-      // if (isSignedIn) {
-      //   context.go('/projects');
-      // } else {
+      if (!mounted) return;
       context.go('/onboarding');
-      // }
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {

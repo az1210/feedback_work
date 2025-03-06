@@ -36,7 +36,6 @@ class _SelectFeedbackCategoryState
     final categoryState = ref.watch(categoryProvider);
     ref.listen(categoryProvider, (_, newState) {
       if (newState.state == AsyncState.success) {
-        Log.info(newState.data.toString());
         final data = newState.data;
         List<String> options = [];
         if (data != null || data!.isNotEmpty) {
@@ -51,9 +50,6 @@ class _SelectFeedbackCategoryState
                 labels: options,
                 allowMultipleSelection: false),
           ];
-          // selectedFilters = {
-          //   "category": {options.first}
-          // };
         }
       }
     });
@@ -69,29 +65,19 @@ class _SelectFeedbackCategoryState
       } else {
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                FilterContent<String>(
-                  hasHeader: false,
-                  sections: sections,
-                  onFiltersChanged: (p0) {
-                    setState(() {
-                      selectedFilters = p0;
-                      widget.onFiltersChanged!(p0['category']?.first ?? '');
-                    });
-                  },
-                  selectedFilters: selectedFilters,
-                  onApply: () {
-                    Log.info('Filters applied');
-                  },
-                  onReset: () {
-                    Log.info('Filters reset');
-                  },
-                  hasActionButton: false,
-                ),
-              ],
-            ),
+          child: FilterContent<String>(
+            hasHeader: false,
+            sections: sections,
+            onFiltersChanged: (p0) {
+              setState(() {
+                selectedFilters = p0;
+                widget.onFiltersChanged!(p0['category']?.first ?? '');
+              });
+            },
+            selectedFilters: selectedFilters,
+            onApply: () {},
+            onReset: () {},
+            hasActionButton: false,
           ),
         );
       }

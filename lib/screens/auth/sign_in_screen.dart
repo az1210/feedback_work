@@ -37,18 +37,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           emailOrUsername: emailController.text.trim(),
           password: passwordController.text.trim(),
           callback: () {
-            context.push('/projects');
+            if (mounted) {
+              context.go('/projects');
+            }
           },
         );
       }
-
-      // Show success message or navigate
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   const SnackBar(
-      //     content: Text("Sign-In Successful!"),
-      //     backgroundColor: Color.fromARGB(255, 0, 161, 76),
-      //   ),
-      // );
     } catch (e) {
       final snackBar = CustomSnackbar.build(
         title: 'Oh Snap!',

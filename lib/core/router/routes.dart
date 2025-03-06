@@ -348,7 +348,7 @@ final routerProvider = Provider<GoRouter>(
         ),
       ],
       redirect: (context, state) {
-        final loggedIn = ref.watch(authProvider);
+        final loggedIn = ref.read(authProvider);
 
         final loggingIn = state.uri.toString() == Routes.onboarding.p;
 

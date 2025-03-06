@@ -80,9 +80,6 @@ class _SelectFeedbackProviderState
             showTitle: false,
           ),
         );
-        // selectedIndividulaUsers = {
-        //   'provider': {users.first}
-        // };
       }
     });
 

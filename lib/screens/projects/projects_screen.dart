@@ -48,7 +48,7 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
         if (newState.state == AsyncState.success) {
           projects = newState.currentUserProjects!;
         }
-        Log.info(projects.last.toMap().toString());
+        // Log.info(projects.last.toMap().toString());
       },
     );
 

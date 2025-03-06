@@ -20,18 +20,26 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
-  UserModel? currentUser;
+  // UserModel? currentUser;
 
-  @override
-  void initState() {
-    Future.microtask(() {
-      currentUser = ref.watch(currentUserProvider);
-    });
-    super.initState();
-  }
+  // @override
+  // void initState() {
+  //   Future.microtask(() {
+  //     currentUser = ref.watch(currentUserProvider);
+  //   });
+  //   super.initState();
+  // }
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = ref.watch(currentUserProvider);
+
+    if (currentUser == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text("My Profile")),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
     // final userState = ref.watch(fetchUserByIdProvider);
     // ref.listen(fetchUserByIdProvider, (_, newState) {
     //   if (newState.state == AsyncState.success) {
