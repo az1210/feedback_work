@@ -145,6 +145,46 @@ class FeedbackModel {
       paymentId: map['paymentId'] != null ? map['paymentId'] as String : null,
     );
   }
+
+  @override
+  bool operator ==(covariant FeedbackModel other) {
+    if (identical(this, other)) return true;
+
+    return other.id == id &&
+        other.project == project &&
+        other.ownerId == ownerId &&
+        other.ownerName == ownerName &&
+        other.ownerAvaterUrl == ownerAvaterUrl &&
+        other.providerId == providerId &&
+        other.providerName == providerName &&
+        other.providerAvaterUrl == providerAvaterUrl &&
+        other.requestFeedback == requestFeedback &&
+        other.provideFeedback == provideFeedback &&
+        other.appliedFeedback == appliedFeedback &&
+        other.ownerSideStatus == ownerSideStatus &&
+        other.providerSideStatus == providerSideStatus &&
+        other.statusReport == statusReport &&
+        other.paymentId == paymentId;
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode ^
+        project.hashCode ^
+        ownerId.hashCode ^
+        ownerName.hashCode ^
+        ownerAvaterUrl.hashCode ^
+        providerId.hashCode ^
+        providerName.hashCode ^
+        providerAvaterUrl.hashCode ^
+        requestFeedback.hashCode ^
+        provideFeedback.hashCode ^
+        appliedFeedback.hashCode ^
+        ownerSideStatus.hashCode ^
+        providerSideStatus.hashCode ^
+        statusReport.hashCode ^
+        paymentId.hashCode;
+  }
 }
 
 class RequestModel {

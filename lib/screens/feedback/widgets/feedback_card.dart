@@ -5,13 +5,12 @@ import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/core/utils/helper_functions.dart';
 import 'package:feedback_work/core/utils/network_image_helper.dart';
+import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/feedback_model.dart';
-import 'package:feedback_work/providers/user_providers.dart';
 import 'package:feedback_work/screens/feedback/widgets/feedback_search_and_filter.dart';
 import 'package:feedback_work/screens/feedback/widgets/received_feedback_card.dart';
 import 'package:feedback_work/screens/feedback/widgets/requested_feedback_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -21,12 +20,14 @@ class FeedbackCard extends ConsumerStatefulWidget {
   final FeedbackModel feedback;
   final bool isGrid;
   final String currentUserId;
+  final bool isMine;
 
   const FeedbackCard({
     super.key,
     required this.feedback,
     required this.isGrid,
     required this.currentUserId,
+    required this.isMine,
   });
 
   @override
@@ -36,6 +37,8 @@ class FeedbackCard extends ConsumerStatefulWidget {
 class _FeedbackCardState extends ConsumerState<FeedbackCard> {
   @override
   Widget build(BuildContext context) {
+    Log.info(feedbackStatus(
+        feedback: widget.feedback, userId: widget.currentUserId));
     return feedbackStatus(
                 feedback: widget.feedback, userId: widget.currentUserId) ==
             FeedbackScreenConnectionType.received.name.toTitleCase()
@@ -51,6 +54,7 @@ class _FeedbackCardState extends ConsumerState<FeedbackCard> {
                 isGrid: widget.isGrid,
                 feedback: widget.feedback,
                 currentUserId: widget.currentUserId,
+                isMine: widget.isMine,
               )
             : Card(
                 elevation: 4,
@@ -313,60 +317,60 @@ class _FeedbackCardState extends ConsumerState<FeedbackCard> {
                               //   focusNode: projectDescriptionFocusNode,
                               // ),
                               8.ph,
-                              if (feedbackStatus(
-                                          feedback: widget.feedback,
-                                          userId: widget.currentUserId) ==
-                                      FeedbackScreenConnectionType
-                                          .requested.name
-                                          .toTitleCase() &&
-                                  widget.feedback.ownerId ==
-                                      widget.currentUserId) ...[
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: AppButton.filled(
-                                        label: "Send Feedback",
-                                        bgColor: context.colors.primaryBlue,
-                                        fgColor: context.colors.pureWhite,
-                                        onTap: () {
-                                          context.pushNamed(
-                                            Routes.provideFeedback,
-                                            extra: widget.feedback,
-                                          );
-                                        },
-                                        verticalPadding: 8.h,
-                                      ),
+                              // if (feedbackStatus(
+                              //             feedback: widget.feedback,
+                              //             userId: widget.currentUserId) ==
+                              //         FeedbackScreenConnectionType
+                              //             .requested.name
+                              //             .toTitleCase() &&
+                              //     widget.feedback.ownerId ==
+                              //         widget.currentUserId) ...[
+                              //   Row(
+                              //     children: [
+                              //       Expanded(
+                              //         child: AppButton.filled(
+                              //           label: "Send Feedback",
+                              //           bgColor: context.colors.primaryBlue,
+                              //           fgColor: context.colors.pureWhite,
+                              //           onTap: () {
+                              //             context.pushNamed(
+                              //               Routes.provideFeedback,
+                              //               extra: widget.feedback,
+                              //             );
+                              //           },
+                              //           verticalPadding: 8.h,
+                              //         ),
+                              //       ),
+                              //     ],
+                              //   ),
+                              // ],
+                              // if (feedbackStatus(
+                              //             feedback: widget.feedback,
+                              //             userId: widget.currentUserId) ==
+                              //         FeedbackScreenConnectionType
+                              //             .requested.name
+                              //             .toTitleCase() &&
+                              //     widget.feedback.ownerId ==
+                              //         widget.currentUserId) ...[
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: AppButton.filled(
+                                      label: "Provide Feedback",
+                                      bgColor: context.colors.primaryBlue,
+                                      fgColor: context.colors.pureWhite,
+                                      onTap: () {
+                                        context.pushNamed(
+                                          Routes.provideFeedback,
+                                          extra: widget.feedback,
+                                        );
+                                      },
+                                      verticalPadding: 8.h,
                                     ),
-                                  ],
-                                ),
-                              ],
-                              if (feedbackStatus(
-                                          feedback: widget.feedback,
-                                          userId: widget.currentUserId) ==
-                                      FeedbackScreenConnectionType
-                                          .requested.name
-                                          .toTitleCase() &&
-                                  widget.feedback.providerId ==
-                                      widget.currentUserId) ...[
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: AppButton.filled(
-                                        label: "Provide Feedback",
-                                        bgColor: context.colors.primaryBlue,
-                                        fgColor: context.colors.pureWhite,
-                                        onTap: () {
-                                          context.pushNamed(
-                                            Routes.provideFeedback,
-                                            extra: widget.feedback,
-                                          );
-                                        },
-                                        verticalPadding: 8.h,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                  ),
+                                ],
+                              ),
+                              // ],
                             ],
                           )
                         ],

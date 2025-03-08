@@ -4,6 +4,7 @@ import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/core/utils/helper_functions.dart';
 import 'package:feedback_work/core/utils/network_image_helper.dart';
+import 'package:feedback_work/core/utils/toast_message.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/models/user_model.dart';
@@ -21,11 +22,13 @@ class RequestedFeedbackCard extends ConsumerStatefulWidget {
     super.key,
     required this.isGrid,
     required this.feedback,
+    required this.isMine,
     required this.currentUserId,
   });
 
   final FeedbackModel feedback;
   final bool isGrid;
+  final bool isMine;
   final String currentUserId;
 
   @override
@@ -350,12 +353,18 @@ class _RequestedFeedbackCardState extends ConsumerState<RequestedFeedbackCard> {
                                 label: "Provide Feedback",
                                 bgColor: context.colors.primaryBlue,
                                 fgColor: context.colors.pureWhite,
-                                onTap: () {
-                                  context.pushNamed(
-                                    Routes.provideFeedback,
-                                    extra: widget.feedback,
-                                  );
-                                },
+                                onTap: widget.isMine
+                                    ? () {
+                                        showToast(
+                                            message:
+                                                "You can't provide your own project");
+                                      }
+                                    : () {
+                                        context.pushNamed(
+                                          Routes.provideFeedback,
+                                          extra: widget.feedback,
+                                        );
+                                      },
                                 verticalPadding: 8.h,
                               ),
                             ),
