@@ -191,6 +191,8 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                             isGrid: isGrid,
                             feedback: filteredFeedbacks[index],
                             currentUserId: currentUser?.id ?? '',
+                            isMine:
+                                ownFeedbacks.contains(filteredFeedbacks[index]),
                           ),
                         ),
                       ),

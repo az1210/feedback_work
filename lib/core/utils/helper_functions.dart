@@ -22,13 +22,11 @@ String feedbackStatus(
     }
   } else {
     switch (feedback.providerSideStatus!.status) {
-      case "Providing":
-        return 'Providing';
       case "Provided":
         return 'Provided';
 
       default:
-        return 'Requested';
+        return 'Provided';
     }
   }
 }
