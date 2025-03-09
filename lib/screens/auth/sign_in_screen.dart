@@ -233,7 +233,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       OrDivider(
                         topText: "Don't have an account?",
                         onTap: () {
-                          context.replace('/sign-up');
+                          context.goNamed('sign-up');
                         },
                         bottomText: 'Sign Up here',
                       ),

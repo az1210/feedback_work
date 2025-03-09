@@ -7,8 +7,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import './firebase_options.dart';
-import 'core/ui/theme.dart';
-import 'core/router/routes.dart';
+import './core/ui/theme.dart';
+import './core/router/routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

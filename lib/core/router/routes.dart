@@ -349,20 +349,42 @@ final routerProvider = Provider<GoRouter>(
           ],
         ),
       ],
+      // redirect: (context, state) async {
+      //   final loggedIn = await isLoggedIn(ref);
+
+      //   final loggingIn = state.uri.toString() == Routes.signIn.p;
+
+      //   if (!loggedIn && !loggingIn) {
+      //     return Routes.splash;
+      //   }
+
+      //   if (loggedIn && loggingIn) {
+      //     return Routes.projects.p;
+      //   }
+      //   return null;
+      // },
       redirect: (context, state) async {
         final loggedIn = await isLoggedIn(ref);
+        final allowedRoutes = {
+          Routes.splash,
+          Routes.onboarding.p,
+          Routes.signIn.p,
+          Routes.signUp.p,
+          Routes.completeProfile.p,
+          Routes.forgotPassword.p
+        };
 
-        final loggingIn = state.uri.toString() == Routes.signIn.p;
-
-        // If not logged in and trying to access a restricted route, redirect to /login
-        if (!loggedIn && !loggingIn) {
+        final currentPath = state.uri.path;
+        if (!loggedIn && !allowedRoutes.contains(currentPath)) {
           return Routes.splash;
         }
 
-        // If logged in and trying to access login page, redirect to /home
-        if (loggedIn && loggingIn) {
+        if (loggedIn &&
+            (currentPath == Routes.signIn.p ||
+                currentPath == Routes.signUp.p)) {
           return Routes.projects.p;
         }
+
         return null;
       },
     );
