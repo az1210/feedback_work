@@ -1,8 +1,10 @@
 import 'package:feedback_work/core/router/routes.dart';
+import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/providers/user_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../providers/auth_providers.dart';
 
@@ -20,7 +22,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       final authService = ref.read(authServiceProvider.notifier);
       ref.read(authProvider.notifier).state =
           await authService.isUserSignedIn();
-      if (ref.read(authProvider.notifier).state) {
+      if (ref.watch(authProvider)) {
         ref.read(currentUserProvider.notifier).state =
             await ref.read(userProvider.notifier).currentUser();
       }
@@ -31,8 +33,15 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     Future<void> navigateBasedOnAuth() async {
-      if (!mounted) return;
-      context.go('/onboarding');
+      final pref = await SharedPreferences.getInstance();
+
+      // if (!mounted) return;
+      if (pref.getBool("firstInstalled") == null) {
+        Log.info(pref.getBool("firstInstalled").toString());
+        context.go('/onboarding');
+      } else {
+        context.goNamed(Routes.signIn);
+      }
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {

@@ -334,3 +334,7 @@ class CheckboxStateNotifier extends StateNotifier<bool> {
     state = value; // Update the state
   }
 }
+
+Future<bool> isLoggedIn(Ref ref) async {
+  return ref.watch(authProvider);
+}

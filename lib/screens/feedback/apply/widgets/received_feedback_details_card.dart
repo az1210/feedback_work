@@ -78,7 +78,7 @@ class _ProvidedFeedbackCardState
                         fontSize: 14,
                       ),
                 ),
-                if (widget.feedback.requestFeedback!.cost != -1) ...[
+                if (widget.feedback.requestFeedback!.cost != null) ...[
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 4.r),
                     decoration: BoxDecoration(
@@ -165,7 +165,7 @@ class _ProvidedFeedbackCardState
                                 ),
                               ),
                               Text(
-                                "${widget.feedback.project?.owner?.feedbackProvided == -1 ? '0' : widget.feedback.project?.owner?.feedbackProvided}",
+                                "${widget.feedback.project?.owner?.feedbackProvided ?? '0'}",
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyMedium!
@@ -195,7 +195,7 @@ class _ProvidedFeedbackCardState
                                 ),
                               ),
                               Text(
-                                "${widget.feedback.project?.owner?.feedbackApplied == -1 ? '0' : widget.feedback.project?.owner?.feedbackApplied}",
+                                "${widget.feedback.project?.owner?.feedbackApplied ?? '0'}",
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyMedium!
@@ -225,7 +225,7 @@ class _ProvidedFeedbackCardState
                                 ),
                               ),
                               Text(
-                                '${widget.feedback.project?.owner?.problemSolved == -1 ? '0' : widget.feedback.project?.owner?.problemSolved}',
+                                '${widget.feedback.project?.owner?.problemSolved ?? '0'}',
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyMedium!
@@ -255,7 +255,7 @@ class _ProvidedFeedbackCardState
                                 ),
                               ),
                               Text(
-                                '${widget.feedback.project?.owner?.problemHelpSolved == -1 ? '0' : widget.feedback.project?.owner?.problemHelpSolved}',
+                                '${widget.feedback.project?.owner?.problemHelpSolved ?? '0'}',
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyMedium!

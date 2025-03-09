@@ -7,7 +7,7 @@ class FileUploadHelper {
   /// Picks a file and uploads it to Firebase Storage, returning the file's download URL.
   static Future<String?> pickAndUploadFile({
     String folderPath = "project_images",
-    List<String> allowedExtensions = const ['jpg', 'png', 'pdf'],
+    List<String> allowedExtensions = const ['jpg', 'png', 'pdf', 'webp'],
   }) async {
     try {
       // Pick a file

@@ -119,7 +119,7 @@ class _ProvidedFeedbackCardState extends ConsumerState<ApplyFeedbackScreen> {
                                   ),
                                   8.pw,
                                   if (widget.feedback.requestFeedback!.cost !=
-                                      -1) ...[
+                                      null) ...[
                                     Container(
                                       padding:
                                           EdgeInsets.symmetric(horizontal: 4.r),
@@ -227,7 +227,7 @@ class _ProvidedFeedbackCardState extends ConsumerState<ApplyFeedbackScreen> {
                                               ),
                                             ),
                                             Text(
-                                              "${provider?.feedbackProvided == -1 ? '0' : provider?.feedbackProvided}",
+                                              "${provider?.feedbackProvided ?? '0'}",
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .bodyMedium!
@@ -259,7 +259,7 @@ class _ProvidedFeedbackCardState extends ConsumerState<ApplyFeedbackScreen> {
                                               ),
                                             ),
                                             Text(
-                                              "${provider?.feedbackApplied == -1 ? '0' : provider?.feedbackApplied}",
+                                              "${provider?.feedbackApplied ?? '0'}",
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .bodyMedium!
@@ -291,7 +291,7 @@ class _ProvidedFeedbackCardState extends ConsumerState<ApplyFeedbackScreen> {
                                               ),
                                             ),
                                             Text(
-                                              '${provider?.problemSolved == -1 ? '0' : provider?.problemSolved}',
+                                              '${provider?.problemSolved ?? '0'}',
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .bodyMedium!
@@ -323,7 +323,7 @@ class _ProvidedFeedbackCardState extends ConsumerState<ApplyFeedbackScreen> {
                                               ),
                                             ),
                                             Text(
-                                              '${provider?.problemHelpSolved == -1 ? '0' : provider?.problemHelpSolved}',
+                                              '${provider?.problemHelpSolved ?? '0'}',
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .bodyMedium!

@@ -114,8 +114,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       expertise: expertiseController.text.trim(),
                       accountType: selectedAccountType ?? '',
                       minimumRate:
-                          double.tryParse(minimumRateController.text.trim()) ??
-                              -1,
+                          double.tryParse(minimumRateController.text.trim()),
                     ),
                     callback: () {
                       context.pop();
@@ -414,8 +413,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               expertise: expertiseController.text.trim(),
                               accountType: selectedAccountType ?? '',
                               minimumRate: double.tryParse(
-                                      minimumRateController.text.trim()) ??
-                                  -1,
+                                  minimumRateController.text.trim()),
                             ),
                             callback: () {
                               context.pop();

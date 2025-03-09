@@ -197,14 +197,14 @@ class RequestModel {
   final String? groupId;
   final String? requestedAt;
   RequestModel({
-    this.selectedGroupMemberIds = const [],
-    this.privacy = '',
+    this.selectedGroupMemberIds,
+    this.privacy,
     this.message,
-    this.cost = -1.0,
-    this.feedbackLimit = -1,
-    this.isAnnonymous = false,
-    this.groupId = '',
-    this.requestedAt = '',
+    this.cost,
+    this.feedbackLimit,
+    this.isAnnonymous,
+    this.groupId,
+    this.requestedAt,
   });
 
   RequestModel copyWith({
@@ -250,35 +250,35 @@ class RequestModel {
               .map((x) => x.toString())
               .toList()
           : null,
-      privacy: map['privacy'] as String? ?? '',
+      privacy: map['privacy'] as String?,
       message: MessageModel.fromMap(map['message'] as Map<String, dynamic>),
-      cost: map['cost'] as double? ?? -1.0,
-      feedbackLimit: map['feedbackLimit'] as int? ?? -1,
+      cost: map['cost'] as double?,
+      feedbackLimit: map['feedbackLimit'] as int?,
       isAnnonymous: map['isAnnonymous'] as bool,
-      groupId: map['groupId'] as String? ?? '',
-      requestedAt: map['requestedAt'] as String? ?? '',
+      groupId: map['groupId'] as String?,
+      requestedAt: map['requestedAt'] as String?,
     );
   }
 }
 
 class ProvideModel {
-  final String principle;
+  final String? principle;
   final List<String>? principleToDeriveFrom;
   final ProvideInfoModel? provideInfo;
   final Delta? principleDetails;
   final Delta? feedbackMessage;
-  final String feedbackFile;
-  final bool annonymous;
+  final String? feedbackFile;
+  final bool? annonymous;
   final String? providedAt;
   ProvideModel({
-    this.principle = '',
-    this.principleToDeriveFrom = const [],
+    this.principle,
+    this.principleToDeriveFrom,
     this.provideInfo,
     this.principleDetails,
     this.feedbackMessage,
-    this.feedbackFile = '',
-    this.annonymous = false,
-    this.providedAt = '',
+    this.feedbackFile,
+    this.annonymous,
+    this.providedAt,
   });
 
   ProvideModel copyWith({
@@ -325,7 +325,7 @@ class ProvideModel {
         ? []
         : jsonDecode(map["feedbackMessage"]);
     return ProvideModel(
-      principle: map['principle'] as String? ?? '',
+      principle: map['principle'] as String?,
       principleToDeriveFrom: map['principleToDeriveFrom'] != null
           ? (map['principleToDeriveFrom'] as List<dynamic>)
               .map((x) => x.toString())
@@ -336,9 +336,9 @@ class ProvideModel {
           : null,
       principleDetails: Delta.fromJson(principleDetails),
       feedbackMessage: Delta.fromJson(feedbackMessage),
-      feedbackFile: map['feedbackFile'] as String? ?? '',
-      annonymous: map['annonymous'] as bool,
-      providedAt: map['providedAt'] as String? ?? "",
+      feedbackFile: map['feedbackFile'] as String?,
+      annonymous: map['annonymous'] as bool?,
+      providedAt: map['providedAt'] as String?,
     );
   }
 }
@@ -413,9 +413,9 @@ class AppliedModel {
         : jsonDecode(map["appliedMessage"]);
     return AppliedModel(
         appliedMessage: Delta.fromJson(appliedMessage),
-        appliedFile: map['appliedFile'] as String? ?? '',
-        isHelpToSolve: map['isHelpToSolve'] as bool? ?? false,
-        appliedAt: map['appliedAt'] as String? ?? '');
+        appliedFile: map['appliedFile'] as String?,
+        isHelpToSolve: map['isHelpToSolve'] as bool?,
+        appliedAt: map['appliedAt'] as String?);
   }
 }
 
@@ -425,10 +425,10 @@ class MessageModel {
   final String? imageUrl;
   final String? ytUrl;
   MessageModel({
-    this.subject = '',
+    this.subject,
     this.message,
-    this.imageUrl = '',
-    this.ytUrl = '',
+    this.imageUrl,
+    this.ytUrl,
   });
 
   MessageModel copyWith({
@@ -457,10 +457,10 @@ class MessageModel {
   factory MessageModel.fromMap(Map<String, dynamic> map) {
     final message = (map['message'] == null) ? [] : jsonDecode(map["message"]);
     return MessageModel(
-      subject: map['subject'] as String? ?? '',
+      subject: map['subject'] as String?,
       message: Delta.fromJson(message),
-      imageUrl: map['imageUrl'] as String? ?? '',
-      ytUrl: map['ytUrl'] as String? ?? '',
+      imageUrl: map['imageUrl'] as String?,
+      ytUrl: map['ytUrl'] as String?,
     );
   }
 }
@@ -469,8 +469,8 @@ class Status {
   final String? status;
   final String? modifiedAt;
   Status({
-    this.status = '',
-    this.modifiedAt = '',
+    this.status,
+    this.modifiedAt,
   });
 
   Status copyWith({
@@ -492,8 +492,8 @@ class Status {
 
   factory Status.fromMap(Map<String, dynamic> map) {
     return Status(
-      status: map['status'] as String? ?? '',
-      modifiedAt: map['modifiedAt'] as String? ?? '',
+      status: map['status'] as String?,
+      modifiedAt: map['modifiedAt'] as String?,
     );
   }
 }

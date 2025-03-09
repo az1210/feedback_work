@@ -7,6 +7,7 @@ import 'package:feedback_work/core/utils/file_upload_helper.dart';
 import 'package:feedback_work/core/utils/network_image_helper.dart';
 import 'package:feedback_work/core/utils/toast_message.dart';
 import 'package:feedback_work/models/feedback_model.dart';
+import 'package:feedback_work/models/payment_screen_params.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/feedback_providers.dart';
 import 'package:feedback_work/providers/user_providers.dart';
@@ -398,17 +399,20 @@ class _FeedbackAppliedCardState extends ConsumerState<FeedbackAppliedCard> {
                       child: AppButton.filled(
                         label: "Finish",
                         onTap: () {
-                          final feedback = widget.feedback.copyWith(
-                              appliedFeedback: AppliedModel(
+                          final appliedModel = AppliedModel(
                             appliedMessage:
                                 appliedMessageController.document.toDelta(),
                             appliedFile: selectedFilePath,
                             isHelpToSolve: isHelpful,
-                          ));
+                            appliedAt: DateTime.now().toString(),
+                          );
                           showDialog(
                             context: context,
                             builder: (context) => PaymentDialogue(
-                              feedback: feedback,
+                              paymentScreenParams: PaymentScreenParams(
+                                feedback: widget.feedback,
+                                appliedModel: appliedModel,
+                              ),
                             ),
                           );
                         },

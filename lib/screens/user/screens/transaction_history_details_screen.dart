@@ -129,7 +129,10 @@ class _TransactionHistoryDetailsScreenState
                                 "${requestedByMe![index].feedback?.project?.projectName}",
                             amount: "${requestedByMe![index].totalAmount}",
                             onViewReceipt: () {
-                              context.pushNamed(Routes.feedbackReceipt);
+                              context.pushNamed(
+                                Routes.feedbackReceipt,
+                                extra: requestedByMe?[index],
+                              );
                             }),
                         separatorBuilder: (_, __) => 8.ph,
                         itemCount: requestedByMe?.length ?? 0,
@@ -158,7 +161,10 @@ class _TransactionHistoryDetailsScreenState
                             subject: "subject",
                             amount: "amount",
                             onViewReceipt: () {
-                              context.pushNamed(Routes.feedbackReceipt);
+                              context.pushNamed(
+                                Routes.feedbackReceipt,
+                                extra: providedByMeForFree?[index],
+                              );
                             }),
                         separatorBuilder: (_, __) => 8.ph,
                         itemCount: providedByMeForFree?.length ?? 0,
@@ -187,7 +193,10 @@ class _TransactionHistoryDetailsScreenState
                             subject: "subject",
                             amount: "amount",
                             onViewReceipt: () {
-                              context.pushNamed(Routes.feedbackReceipt);
+                              context.pushNamed(
+                                Routes.feedbackReceipt,
+                                extra: providedByMeAtCost?[index],
+                              );
                             }),
                         separatorBuilder: (_, __) => 8.ph,
                         itemCount: providedByMeAtCost?.length ?? 0,

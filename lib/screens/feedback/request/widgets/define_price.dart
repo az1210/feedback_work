@@ -102,8 +102,7 @@ class _DefinePriceState extends ConsumerState<DefinePrice> {
                   TextFormField(
                     onChanged: widget.onDefinePrice,
                     decoration: InputDecoration(
-                      hintText:
-                          "Min price: \$${minimumPrice == -1.0 ? 0 : minimumPrice}",
+                      hintText: "Min price: \$${minimumPrice ?? 0}",
                       hintStyle: Theme.of(context).textTheme.bodySmall,
                       filled: true,
                       fillColor: context.colors.pureWhite,

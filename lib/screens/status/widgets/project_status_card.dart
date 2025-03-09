@@ -58,7 +58,7 @@ class ProjectStatusCard extends StatelessWidget {
                 BuildInfoRow(
                     label: 'Project Status',
                     value:
-                        "${feedback.project!.completionPercentage == -1 ? 0 : feedback.project!.completionPercentage}% Completed",
+                        "${feedback.project!.completionPercentage ?? 0}% Completed",
                     valueColor: context.colors.primaryBlue),
               ],
             ),

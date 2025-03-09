@@ -44,7 +44,7 @@ class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
   String selectedPrinciple = '';
   String selectedModel = '';
   List<String> selectedPrinciplesToDeriveForm = [];
-  ProvideInfoModel? peopleInfo;
+  ProvideInfoModel? provideInfo;
 
   @override
   void initState() {
@@ -138,7 +138,7 @@ class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
                   AddProvideDetails(
                     onUpdatePeople: (p0) {
                       setState(() {
-                        peopleInfo = p0;
+                        provideInfo = p0;
                       });
                     },
                   ),
@@ -197,21 +197,21 @@ class _RequestFeedbackScreenState extends ConsumerState<ProvideFeedbackScreen> {
                           : 'Next',
                       onTap: ref.watch(provideFeedbackStepProvider) == 5
                           ? () {
-                              final providedFeedback =
-                                  widget.feedbackModel.copyWith(
-                                      provideFeedback: ProvideModel(
-                                provideInfo: peopleInfo,
+                              final providedFeedback = ProvideModel(
+                                provideInfo: provideInfo,
                                 principle: selectedPrinciple,
                                 principleDetails: principleDetailsController
                                     .document
                                     .toDelta(),
                                 principleToDeriveFrom:
                                     selectedPrinciplesToDeriveForm,
-                              ));
+                              );
                               context
                                   .pushNamed(
                                 Routes.previewSet,
-                                extra: providedFeedback,
+                                extra: widget.feedbackModel.copyWith(
+                                  provideFeedback: providedFeedback,
+                                ),
                               )
                                   .then((_) {
                                 provideFeedbackController.jumpToPage(0);

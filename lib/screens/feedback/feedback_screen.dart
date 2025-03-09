@@ -98,9 +98,9 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
           IconButton(
             icon: const Icon(Icons.delete, color: Colors.red),
             onPressed: () {
-              // ref
-              //     .read(feedbackProvider.notifier)
-              //     .deleteCollection(FirebaseConstants.apiKeyCollection);
+              ref
+                  .read(feedbackProvider.notifier)
+                  .deleteCollection(FirebaseConstants.feedbackCollection);
               // ref.read(paymentProvider.notifier).stripePublishableKey();
               // ref.read(paymentProvider.notifier).stripeSecretKey();
 
@@ -130,7 +130,7 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                   ? allFeedbacks
                       .where((f) =>
                           f.ownerSideStatus!.status ==
-                              FeedbackStatus.requested.name.toTitleCase() ||
+                              FeedbackStatus.requested.name.toTitleCase() &&
                           f.providerSideStatus!.status ==
                               FeedbackStatus.requested.name.toTitleCase())
                       .toList()

@@ -206,49 +206,49 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
     }
   }
 
-  Future<void> provideFeedback(
-      {required FeedbackModel feedback,
-      required UserModel user,
-      void Function()? callback}) async {
-    state = state.copyWith(state: AsyncState.loading);
+  Future<void> provideFeedback({
+    required String feedbackId,
+    required String projectId,
+    required ProvideModel provideFeedback,
+    required UserModel user,
+    void Function()? callback,
+  }) async {
     FirebaseFirestore firestore = ref.read(firestoreProvider);
     final projectNotifier = ref.read(projectProgressProvider.notifier);
+    final date = DateTime.now().toString();
 
     try {
       state = state.copyWith(state: AsyncState.loading);
-      Log.info(feedback.provideFeedback?.toMap().toString() ?? '');
-      debugPrint(feedback.provideFeedback?.toMap().toString() ?? '');
 
       final doc = await firestore
           .collection(FirebaseConstants.feedbackCollection)
-          .doc(feedback.id)
+          .doc(feedbackId)
           .get();
       if (doc.exists) {
         await firestore
             .collection(FirebaseConstants.feedbackCollection)
-            .doc(feedback.id)
+            .doc(feedbackId)
             .update({
-          "ownerSideStatus": feedback.ownerSideStatus!
-              .copyWith(
-                status: FeedbackStatus.received.name.toTitleCase(),
-                modifiedAt: DateTime.now().toString(),
-              )
-              .toMap()
+          "ownerSideStatus": Status(
+            status: FeedbackStatus.received.name.toTitleCase(),
+            modifiedAt: date,
+          ).toMap(),
+          'provideFeedback': provideFeedback.toMap(),
         });
-        await firestore
-            .collection(FirebaseConstants.feedbackCollection)
-            .doc(feedback.id)
-            .update({'provideFeedback': feedback.provideFeedback!.toMap()});
+        // await firestore
+        //     .collection(FirebaseConstants.feedbackCollection)
+        //     .doc(feedback.id)
+        //     .update({'provideFeedback': feedback.provideFeedback!.toMap()});
       } else {
         state = state.copyWith(
             error: "Feedback doesn't exist!", state: AsyncState.failure);
       }
       fetchAllFeedbacks(userId: user.id!);
       projectNotifier.addProgress(
-        projectId: feedback.project!.id!,
+        projectId: projectId,
         projectTimeline: ProjectTimelineModel(
           message: "Feedback Received from ${user.firstName} ${user.lastName}",
-          modifiedAt: DateTime.now().toString(),
+          modifiedAt: date,
         ),
       );
       callback?.call();
@@ -259,16 +259,17 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
     }
   }
 
-  Future<void> appliedFeedback(
-      {required FeedbackModel feedback, void Function()? callback}) async {
-    state = state.copyWith(state: AsyncState.loading);
+  Future<void> appliedFeedback({
+    required FeedbackModel feedback,
+    required AppliedModel appliedFeedback,
+    void Function()? callback,
+  }) async {
     FirebaseFirestore firestore = ref.read(firestoreProvider);
     final projectNotifier = ref.read(projectProgressProvider.notifier);
+    final date = DateTime.now().toString();
 
     try {
       state = state.copyWith(state: AsyncState.loading);
-      Log.info(feedback.provideFeedback?.toMap().toString() ?? '');
-      debugPrint(feedback.provideFeedback?.toMap().toString() ?? '');
 
       final doc = await firestore
           .collection(FirebaseConstants.feedbackCollection)
@@ -279,12 +280,15 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
             .collection(FirebaseConstants.feedbackCollection)
             .doc(feedback.id)
             .update({
-          "ownerSideStatus": feedback.ownerSideStatus!
-              .copyWith(
-                status: FeedbackStatus.applied.name.toTitleCase(),
-                modifiedAt: DateTime.now().toString(),
-              )
-              .toMap()
+          "ownerSideStatus": Status(
+            status: FeedbackStatus.applied.name.toTitleCase(),
+            modifiedAt: date,
+          ).toMap(),
+          "providerSideStatus": Status(
+            status: FeedbackStatus.provided.name.toTitleCase(),
+            modifiedAt: date,
+          ).toMap(),
+          "appliedFeedback": appliedFeedback.toMap()
         });
         await firestore
             .collection(FirebaseConstants.userCollection)
@@ -292,17 +296,6 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
             .update({
           "feedbackApplied": FieldValue.increment(1),
           "totalFeedbackAccepted": FieldValue.increment(1),
-        });
-        await firestore
-            .collection(FirebaseConstants.feedbackCollection)
-            .doc(feedback.id)
-            .update({
-          "providerSideStatus": feedback.providerSideStatus!
-              .copyWith(
-                status: FeedbackStatus.provided.name.toTitleCase(),
-                modifiedAt: DateTime.now().toString(),
-              )
-              .toMap()
         });
 
         await firestore
@@ -322,7 +315,7 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
         await firestore
             .collection(FirebaseConstants.feedbackCollection)
             .doc(feedback.id)
-            .update({"appliedFeedback": feedback.appliedFeedback!.toMap()});
+            .update({});
       } else {
         state = state.copyWith(
             error: "Feedback doesn't exist!", state: AsyncState.failure);

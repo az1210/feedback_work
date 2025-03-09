@@ -3,6 +3,7 @@ import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/core/utils/network/rest_client/rest_client.dart';
 import 'package:feedback_work/models/feedback_model.dart';
+import 'package:feedback_work/models/payment_screen_params.dart';
 import 'package:feedback_work/providers/payment_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,11 +11,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 class PaymentDialogue extends ConsumerStatefulWidget {
-  final FeedbackModel feedback;
+  final PaymentScreenParams paymentScreenParams;
 
   const PaymentDialogue({
     super.key,
-    required this.feedback,
+    required this.paymentScreenParams,
   });
 
   @override
@@ -134,7 +135,8 @@ class _PaymentDialogueState extends ConsumerState<PaymentDialogue> {
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   TextSpan(
-                    text: "\$${widget.feedback.requestFeedback!.cost} ",
+                    text:
+                        "\$${widget.paymentScreenParams.feedback.requestFeedback!.cost} ",
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -145,7 +147,7 @@ class _PaymentDialogueState extends ConsumerState<PaymentDialogue> {
                   ),
                   TextSpan(
                     text:
-                        "${widget.feedback.project!.owner!.firstName} ${widget.feedback.project!.owner!.lastName} ",
+                        "${widget.paymentScreenParams.feedback.project!.owner!.firstName} ${widget.paymentScreenParams.feedback.project!.owner!.lastName} ",
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -157,7 +159,7 @@ class _PaymentDialogueState extends ConsumerState<PaymentDialogue> {
                   ),
                   TextSpan(
                     text:
-                        "${widget.feedback.project!.owner!.firstName} ${widget.feedback.project!.owner!.lastName} ",
+                        "${widget.paymentScreenParams.feedback.project!.owner!.firstName} ${widget.paymentScreenParams.feedback.project!.owner!.lastName} ",
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -188,7 +190,10 @@ class _PaymentDialogueState extends ConsumerState<PaymentDialogue> {
                     label: "Confirm Payment",
                     onTap: () {
                       context.pop();
-                      context.pushNamed(Routes.payment, extra: widget.feedback);
+                      context.pushNamed(
+                        Routes.payment,
+                        extra: widget.paymentScreenParams,
+                      );
                     },
                   ),
                 ),

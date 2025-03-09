@@ -1,8 +1,10 @@
 import 'package:feedback_work/core/router/navbar.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/models/payment_model.dart';
+import 'package:feedback_work/models/payment_screen_params.dart';
 import 'package:feedback_work/models/project_model.dart';
 import 'package:feedback_work/models/user_model.dart';
+import 'package:feedback_work/providers/auth_providers.dart';
 import 'package:feedback_work/screens/feedback/apply/apply_feedback_screen.dart';
 import 'package:feedback_work/screens/feedback/apply/received_feedback_details_screen.dart';
 import 'package:feedback_work/screens/feedback/provide/preview_set_screen.dart';
@@ -283,7 +285,7 @@ final routerProvider = Provider<GoRouter>(
           name: Routes.payment,
           path: Routes.payment.p,
           builder: (context, state) => PaymentScreen(
-            feedback: state.extra as FeedbackModel,
+            paymentScreenParams: state.extra as PaymentScreenParams,
           ),
         ),
 
@@ -347,14 +349,14 @@ final routerProvider = Provider<GoRouter>(
           ],
         ),
       ],
-      redirect: (context, state) {
-        final loggedIn = ref.read(authProvider);
+      redirect: (context, state) async {
+        final loggedIn = await isLoggedIn(ref);
 
-        final loggingIn = state.uri.toString() == Routes.onboarding.p;
+        final loggingIn = state.uri.toString() == Routes.signIn.p;
 
         // If not logged in and trying to access a restricted route, redirect to /login
-        if (!loggedIn && loggingIn) {
-          return Routes.onboarding.p;
+        if (!loggedIn && !loggingIn) {
+          return Routes.splash;
         }
 
         // If logged in and trying to access login page, redirect to /home

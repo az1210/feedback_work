@@ -227,7 +227,7 @@ class _StatusReportScreenState extends ConsumerState<StatusReportScreen> {
                     ),
                     TextSpan(
                       text:
-                          '${widget.feedback.project!.completionPercentage == -1 ? 0 : widget.feedback.project!.completionPercentage}% Completed',
+                          '${widget.feedback.project!.completionPercentage ?? 0}% Completed',
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                             color: context.colors.primaryBlue,
                           ),

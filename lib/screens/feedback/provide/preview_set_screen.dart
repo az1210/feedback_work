@@ -122,16 +122,15 @@ class _PreviewSetScreenState extends ConsumerState<PreviewSetScreen> {
                           fgColor: context.colors.pureWhite,
                           onTap: () {
                             ref.read(feedbackProvider.notifier).provideFeedback(
-                                  feedback: widget.feedback.copyWith(
-                                    provideFeedback: widget
-                                        .feedback.provideFeedback!
-                                        .copyWith(
-                                      feedbackMessage: feedbackMessageController
-                                          .document
-                                          .toDelta(),
-                                      annonymous: isAnnonymous,
-                                      feedbackFile: selectedFilePath,
-                                    ),
+                                  feedbackId: widget.feedback.id!,
+                                  projectId: widget.feedback.project!.id!,
+                                  provideFeedback:
+                                      widget.feedback.provideFeedback!.copyWith(
+                                    feedbackMessage: feedbackMessageController
+                                        .document
+                                        .toDelta(),
+                                    annonymous: isAnnonymous,
+                                    feedbackFile: selectedFilePath,
                                   ),
                                   user: currentUser!,
                                   callback: () {

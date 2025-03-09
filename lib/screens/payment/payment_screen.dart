@@ -1,22 +1,25 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/extensions/string_extension.dart';
+import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/core/utils/toast_message.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/models/payment_model.dart';
+import 'package:feedback_work/models/payment_screen_params.dart';
 import 'package:feedback_work/providers/payment_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 class PaymentScreen extends ConsumerStatefulWidget {
   const PaymentScreen({
+    required this.paymentScreenParams,
     super.key,
-    required this.feedback,
   });
-  final FeedbackModel feedback;
 
+  final PaymentScreenParams paymentScreenParams;
   @override
   _PaymentScreenState createState() => _PaymentScreenState();
 }
@@ -31,9 +34,11 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
   @override
   void initState() {
     Future.microtask(() {
-      Log.info(widget.feedback.requestFeedback!.cost!.round().toString());
+      Log.info(widget.paymentScreenParams.feedback.requestFeedback!.cost!
+          .round()
+          .toString());
       ref.read(paymentProvider.notifier).getAvailablePaymentMethods(
-            amount: widget.feedback.requestFeedback!.cost!,
+            amount: widget.paymentScreenParams.feedback.requestFeedback!.cost!,
           );
     });
     super.initState();
@@ -180,7 +185,8 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text('Subtotal'),
-                Text('\$${widget.feedback.requestFeedback!.cost}'),
+                Text(
+                    '\$${widget.paymentScreenParams.feedback.requestFeedback!.cost}'),
               ],
             ),
             4.ph,
@@ -222,7 +228,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  '\$${widget.feedback.requestFeedback!.cost! + double.parse(bonus ?? '0')}',
+                  '\$${widget.paymentScreenParams.feedback.requestFeedback!.cost! + double.parse(bonus ?? '0')}',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ],
@@ -246,30 +252,41 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
                           }
                         : () async {
                             await paymentNotifier.createPaymentIntent(
-                              amount: (widget.feedback.requestFeedback!.cost! +
+                              amount: (widget.paymentScreenParams.feedback
+                                          .requestFeedback!.cost! +
                                       double.parse(bonus ?? '0'))
                                   .round()
                                   .toString(),
                               paymentMethod: selectedPaymentMethod ?? 'usd',
                             );
                             await paymentNotifier.initializePaymentSheet(
-                              amount: widget.feedback.requestFeedback!.cost!
+                              amount: widget.paymentScreenParams.feedback
+                                  .requestFeedback!.cost!
                                   .round()
                                   .toString(),
                             );
                             await paymentNotifier.presentPaymentSheet(
                               paymentModel: PaymentModel(
-                                feedback: widget.feedback,
-                                feedbackCost:
-                                    widget.feedback.requestFeedback?.cost ?? 0,
+                                feedback: widget.paymentScreenParams.feedback,
+                                feedbackCost: widget.paymentScreenParams
+                                        .feedback.requestFeedback?.cost ??
+                                    0,
                                 bonus: double.parse(bonus ?? '0'),
-                                providerId: widget.feedback.providerId,
-                                requestedByUserId: widget.feedback.ownerId,
+                                providerId: widget
+                                    .paymentScreenParams.feedback.providerId,
+                                requestedByUserId:
+                                    widget.paymentScreenParams.feedback.ownerId,
                               ),
-                              feedbackModel: widget.feedback,
+                              feedbackModel:
+                                  widget.paymentScreenParams.feedback,
+                              appliedFeedback:
+                                  widget.paymentScreenParams.appliedModel,
+                              callBack: () {
+                                context.goNamed(Routes.feedback);
+                              },
                             );
                             // paymentSheetInitialization(
-                            //     amount: widget.feedback.requestFeedback!.cost!
+                            //     amount: widget.paymentScreenParams.feedback.requestFeedback!.cost!
                             //         .round()
                             //         .toString(),
                             //     currency: 'USD');

@@ -22,6 +22,8 @@ String feedbackStatus(
     }
   } else {
     switch (feedback.providerSideStatus!.status) {
+      case "Requested":
+        return 'Requested';
       case "Provided":
         return 'Provided';
 

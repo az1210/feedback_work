@@ -181,13 +181,9 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                         role: myConnections![index].accountType ?? '',
                         specialty: myConnections![index].expertise ?? '',
                         feedbackCount:
-                            myConnections![index].feedbackProvided! == -1
-                                ? 0
-                                : myConnections![index].feedbackProvided!,
+                            myConnections![index].feedbackProvided! ?? 0,
                         problemsSolved:
-                            myConnections![index].problemHelpSolved! == -1
-                                ? 0
-                                : myConnections![index].problemHelpSolved!,
+                            myConnections![index].problemHelpSolved! ?? 0,
                         isConnected: true,
                         appearedAs: appearedAs,
                         onConnect: () {
@@ -234,13 +230,9 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                         role: suggestions[index].accountType ?? '',
                         specialty: suggestions[index].expertise ?? '',
                         feedbackCount:
-                            suggestions[index].feedbackProvided! == -1
-                                ? 0
-                                : suggestions[index].feedbackProvided!,
+                            suggestions[index].feedbackProvided! ?? 0,
                         problemsSolved:
-                            suggestions[index].problemHelpSolved! == -1
-                                ? 0
-                                : suggestions[index].problemHelpSolved!,
+                            suggestions[index].problemHelpSolved! ?? 0,
                         isConnected: false,
                         appearedAs: appearedAs,
                         onConnect: () {
@@ -272,13 +264,9 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                             "${requests![index].firstName ?? ''} ${requests![index].lastName ?? ''}",
                         role: requests![index].accountType ?? '',
                         specialty: requests![index].expertise ?? '',
-                        feedbackCount: requests![index].feedbackProvided! == -1
-                            ? 0
-                            : requests![index].feedbackProvided!,
+                        feedbackCount: requests![index].feedbackProvided! ?? 0,
                         problemsSolved:
-                            requests![index].problemHelpSolved! == -1
-                                ? 0
-                                : requests![index].problemHelpSolved!,
+                            requests![index].problemHelpSolved! ?? 0,
                         isConnected: false,
                         appearedAs: appearedAs,
                         onRequestFeedback: () {

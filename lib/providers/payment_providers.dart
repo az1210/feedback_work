@@ -116,6 +116,7 @@ class PaymentNotifier extends Notifier<PaymentState> {
   Future<void> presentPaymentSheet({
     required PaymentModel paymentModel,
     required FeedbackModel feedbackModel,
+    required AppliedModel appliedFeedback,
     void Function()? callBack,
   }) async {
     try {
@@ -129,6 +130,7 @@ class PaymentNotifier extends Notifier<PaymentState> {
       );
       ref.read(feedbackProvider.notifier).appliedFeedback(
             feedback: feedbackModel,
+            appliedFeedback: appliedFeedback,
           );
     } on StripeException catch (error) {
       Log.error(error.toString());
