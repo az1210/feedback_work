@@ -74,14 +74,14 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
               });
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.delete, color: Colors.red),
-            onPressed: () {
-              ref
-                  .read(feedbackProvider.notifier)
-                  .deleteCollection(FirebaseConstants.projectCollection);
-            },
-          ),
+          // IconButton(
+          //   icon: const Icon(Icons.delete, color: Colors.red),
+          //   onPressed: () {
+          //     ref
+          //         .read(feedbackProvider.notifier)
+          //         .deleteCollection(FirebaseConstants.projectCollection);
+          //   },
+          // ),
         ],
         backgroundColor: Colors.white,
         elevation: 0,

@@ -94,22 +94,22 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
                     Icons.grid_view,
                   ),
           ),
-          8.pw,
-          IconButton(
-            icon: const Icon(Icons.delete, color: Colors.red),
-            onPressed: () {
-              ref
-                  .read(feedbackProvider.notifier)
-                  .deleteCollection(FirebaseConstants.feedbackCollection);
-              // ref.read(paymentProvider.notifier).stripePublishableKey();
-              // ref.read(paymentProvider.notifier).stripeSecretKey();
+          // 8.pw,
+          // IconButton(
+          //   icon: const Icon(Icons.delete, color: Colors.red),
+          //   onPressed: () {
+          //     ref
+          //         .read(feedbackProvider.notifier)
+          //         .deleteCollection(FirebaseConstants.feedbackCollection);
+          //     // ref.read(paymentProvider.notifier).stripePublishableKey();
+          //     // ref.read(paymentProvider.notifier).stripeSecretKey();
 
-              // ref.read(feedbackProvider.notifier).deleteSubCollection(
-              //     collectionPath: FirebaseConstants.userCollection,
-              //     docId: currentUser!.id,
-              //     subCollectionPath: FirebaseConstants.feedbackCollection);
-            },
-          ),
+          //     // ref.read(feedbackProvider.notifier).deleteSubCollection(
+          //     //     collectionPath: FirebaseConstants.userCollection,
+          //     //     docId: currentUser!.id,
+          //     //     subCollectionPath: FirebaseConstants.feedbackCollection);
+          //   },
+          // ),
         ],
       ),
       body: Builder(builder: (context) {
