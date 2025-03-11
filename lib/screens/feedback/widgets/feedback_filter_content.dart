@@ -1,4 +1,3 @@
-import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/ui/widgets/filter__content.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +6,7 @@ class FeedbackFilterContent extends StatefulWidget {
   const FeedbackFilterContent({super.key});
 
   @override
-  _FeedbackFilterContentState createState() => _FeedbackFilterContentState();
+  State<FeedbackFilterContent> createState() => _FeedbackFilterContentState();
 }
 
 class _FeedbackFilterContentState extends State<FeedbackFilterContent> {

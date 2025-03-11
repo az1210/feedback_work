@@ -1,6 +1,5 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/models/payment_model.dart';
-import 'package:feedback_work/screens/user/widgets/details_row.dart';
 import 'package:feedback_work/screens/user/widgets/feedback_header_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

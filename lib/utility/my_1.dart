@@ -34,7 +34,7 @@ class _SolutionFunctionState extends ConsumerState<SolutionFunction>
     _fetchSettings();
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(minutes: 2), // Default duration
+      duration: const Duration(minutes: 2),
     );
     _animationController.addListener(() {
       final percentage = (_animationController.value * 100).toInt();
@@ -134,7 +134,6 @@ class _SolutionFunctionState extends ConsumerState<SolutionFunction>
   @override
   Widget build(BuildContext context) {
     final percentage = ref.watch(percentageProvider);
-    final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     final travelWidth = screenWidth * 0.72;
     final dx = travelWidth * _animationController.value * cos(27 * pi / 180);
@@ -423,9 +422,7 @@ class _SolutionFunctionState extends ConsumerState<SolutionFunction>
                           ),
                           const SizedBox(height: 16),
                           ElevatedButton(
-                            onPressed: () {
-                              // Add your logic here to update percentage to other screens
-                            },
+                            onPressed: () {},
                             style: ElevatedButton.styleFrom(
                               backgroundColor:
                                   const Color.fromARGB(255, 8, 102, 255),

@@ -1,7 +1,6 @@
 import 'package:date_time_format/date_time_format.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:feedback_work/core/extensions/extensions.dart';
-import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/core/utils/file_upload_helper.dart';
 import 'package:feedback_work/core/utils/network_image_helper.dart';
@@ -9,15 +8,12 @@ import 'package:feedback_work/core/utils/toast_message.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/models/payment_screen_params.dart';
 import 'package:feedback_work/models/user_model.dart';
-import 'package:feedback_work/providers/feedback_providers.dart';
 import 'package:feedback_work/providers/user_providers.dart';
 import 'package:feedback_work/screens/feedback/apply/widgets/payment_dialogue.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 
 class FeedbackAppliedCard extends ConsumerStatefulWidget {
   const FeedbackAppliedCard({super.key, required this.feedback});

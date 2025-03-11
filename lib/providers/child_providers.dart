@@ -28,7 +28,7 @@ class ChildNotifier extends Notifier<ChildNotifierState> {
     FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
       UserCredential userCredential = await auth.createUserWithEmailAndPassword(
-        email: childModel.email!,
+        email: childModel.email,
         password: password,
       );
 

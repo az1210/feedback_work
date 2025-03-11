@@ -1,20 +1,14 @@
-import 'package:feedback_work/core/constants/firebase_constants.dart';
 import 'package:feedback_work/core/extensions/extensions.dart';
-import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/project_model.dart';
-import 'package:feedback_work/providers/feedback_providers.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:feedback_work/providers/new_project_providers.dart';
 import 'package:feedback_work/screens/projects/widgets/project_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../providers/project_providers.dart';
 
 class ProjectsScreen extends ConsumerStatefulWidget {
   const ProjectsScreen({super.key});

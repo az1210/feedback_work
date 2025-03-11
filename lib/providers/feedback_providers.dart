@@ -1,11 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feedback_work/models/project_model.dart';
 import 'package:feedback_work/models/user_model.dart';
-import 'package:feedback_work/providers/new_project_providers.dart';
 import 'package:feedback_work/providers/project_progress_provider.dart';
 import 'package:feedback_work/providers/user_providers.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -14,8 +11,6 @@ import 'package:feedback_work/core/extensions/string_extension.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
-
-//TODO: calculate functionality problemSolved problemHelpSolved totalEarned totalSpent
 
 final requestFeedbackStepProvider = StateProvider<int>((ref) => 1);
 final provideFeedbackStepProvider = StateProvider<int>((ref) => 1);

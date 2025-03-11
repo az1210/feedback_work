@@ -4,14 +4,12 @@ import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/group_model.dart';
 import 'package:feedback_work/models/user_model.dart';
-import 'package:feedback_work/providers/auth_providers.dart';
 import 'package:feedback_work/providers/group_providers.dart';
 import 'package:feedback_work/providers/user_providers.dart';
 import 'package:feedback_work/screens/groups/widgets/create_group_content.dart';
 import 'package:feedback_work/screens/groups/widgets/group_search_and_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 class GroupsScreen extends ConsumerStatefulWidget {

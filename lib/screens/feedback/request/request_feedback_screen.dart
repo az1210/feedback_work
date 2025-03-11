@@ -1,12 +1,10 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
-import 'package:feedback_work/core/extensions/string_extension.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/models/project_model.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/feedback_providers.dart';
-import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:feedback_work/providers/user_providers.dart';
 import 'package:feedback_work/screens/feedback/request/widgets/define_price.dart';
 import 'package:feedback_work/screens/feedback/request/widgets/preview_feedback_request.dart';

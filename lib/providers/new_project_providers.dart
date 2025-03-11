@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feedback_work/core/constants/firebase_constants.dart';
 import 'package:feedback_work/models/project_model.dart';
-import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:feedback_work/providers/project_progress_provider.dart';
 import 'package:feedback_work/providers/user_providers.dart';

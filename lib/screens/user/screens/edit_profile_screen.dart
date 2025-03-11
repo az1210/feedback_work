@@ -73,8 +73,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     usernameController.text = widget.currentUser.username ?? "";
     titleController.text = widget.currentUser.title ?? "";
     selectedAccountType = widget.currentUser.accountType;
-    minimumRateController.text =
-        widget.currentUser.minimumRate.toString() ?? "0.0";
+    minimumRateController.text = widget.currentUser.minimumRate.toString();
     Future.microtask(() {
       ref.read(categoryProvider.notifier).fetchAllCategories();
     });

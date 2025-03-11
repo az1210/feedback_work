@@ -2,7 +2,6 @@ import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/core/utils/network/rest_client/rest_client.dart';
-import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/models/payment_screen_params.dart';
 import 'package:feedback_work/providers/payment_providers.dart';
 import 'package:flutter/material.dart';

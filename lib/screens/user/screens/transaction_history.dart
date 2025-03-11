@@ -1,10 +1,8 @@
 import 'package:feedback_work/core/constants/firebase_constants.dart';
-import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/payment_providers.dart';
-import 'package:feedback_work/providers/user_providers.dart';
 import 'package:feedback_work/screens/user/widgets/transaction_history_overview_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

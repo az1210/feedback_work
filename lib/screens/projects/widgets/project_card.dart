@@ -3,8 +3,6 @@ import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/project_model.dart';
 import 'package:feedback_work/providers/project_progress_provider.dart';
-import 'package:feedback_work/providers/project_providers.dart';
-import 'package:feedback_work/screens/projects/widgets/check_progress_status.dart';
 import 'package:feedback_work/screens/projects/widgets/project_progress_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

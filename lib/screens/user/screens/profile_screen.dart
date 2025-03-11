@@ -1,9 +1,6 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
-import 'package:feedback_work/core/utils/utils.dart';
-import 'package:feedback_work/models/user_model.dart';
-import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:feedback_work/providers/user_providers.dart';
 import 'package:feedback_work/screens/network/widgets/stat_item_card.dart';
 import 'package:flutter/material.dart';
@@ -92,18 +89,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
               8.ph,
               Text(
-                "${currentUser!.firstName} ${currentUser!.lastName}",
+                "${currentUser.firstName} ${currentUser.lastName}",
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               Text(
-                currentUser!.title != null && currentUser!.expertise != null
-                    ? [currentUser!.title, currentUser!.expertise]
+                currentUser.title != null && currentUser.expertise != null
+                    ? [currentUser.title, currentUser.expertise]
                         .where((e) => e != null)
                         .join(' • ')
-                    : currentUser!.title != null
-                        ? currentUser!.title!
-                        : currentUser!.expertise != null
-                            ? currentUser!.expertise!
+                    : currentUser.title != null
+                        ? currentUser.title!
+                        : currentUser.expertise != null
+                            ? currentUser.expertise!
                             : '',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
@@ -114,7 +111,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         text: "Minimum Feedback Price: ",
                         style: Theme.of(context).textTheme.bodyMedium),
                     TextSpan(
-                      text: "\$${currentUser!.minimumRate}",
+                      text: "\$${currentUser.minimumRate}",
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -136,7 +133,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             crossAxisCellCount: 3,
                             mainAxisCellCount: 1.5,
                             child: StatItemCard(
-                              value: "\$${currentUser!.totalEarned ?? 0}",
+                              value: "\$${currentUser.totalEarned ?? 0}",
                               label: "Total Earned",
                               valueColor: context.colors.successGreen,
                             ),
@@ -145,7 +142,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             crossAxisCellCount: 3,
                             mainAxisCellCount: 1.5,
                             child: StatItemCard(
-                              value: "\$${currentUser!.totalSpent ?? 0}",
+                              value: "\$${currentUser.totalSpent ?? 0}",
                               label: "Total Spent",
                               valueColor: context.colors.errorRed,
                             ),
@@ -155,7 +152,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             mainAxisCellCount: 2.5,
                             child: StatItemCard(
                               value:
-                                  "${currentUser!.totalFeedbackProvidedForFree ?? 0}",
+                                  "${currentUser.totalFeedbackProvidedForFree ?? 0}",
                               label: "Total Feedback Provided for free",
                               valueColor: context.colors.successGreen,
                             ),
@@ -165,7 +162,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             mainAxisCellCount: 2.5,
                             child: StatItemCard(
                               value:
-                                  "${currentUser!.totalFeedbackAccepted ?? 0}",
+                                  "${currentUser.totalFeedbackAccepted ?? 0}",
                               label: "Total Feedback Accepted",
                               valueColor: context.colors.primaryBlue,
                             ),
@@ -174,7 +171,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             crossAxisCellCount: 2,
                             mainAxisCellCount: 2.5,
                             child: StatItemCard(
-                              value: "${currentUser!.totalSpent ?? 0}",
+                              value: "${currentUser.totalSpent ?? 0}",
                               label: "Total Feedback Declined",
                               valueColor: context.colors.errorRed,
                             ),
@@ -183,7 +180,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             crossAxisCellCount: 2,
                             mainAxisCellCount: 2.5,
                             child: StatItemCard(
-                              value: "${currentUser!.feedbackApplied ?? 0}",
+                              value: "${currentUser.feedbackApplied ?? 0}",
                               label: "Total Feedback Applied",
                               valueColor: context.colors.primaryBlue,
                             ),
@@ -192,7 +189,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             crossAxisCellCount: 2,
                             mainAxisCellCount: 2.5,
                             child: StatItemCard(
-                              value: "${currentUser!.problemSolved ?? 0}",
+                              value: "${currentUser.problemSolved ?? 0}",
                               label: "Total Problems Solved",
                               valueColor: context.colors.successGreen,
                             ),
@@ -201,7 +198,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             crossAxisCellCount: 2,
                             mainAxisCellCount: 2.5,
                             child: StatItemCard(
-                              value: "${currentUser!.problemHelpSolved ?? 0}",
+                              value: "${currentUser.problemHelpSolved ?? 0}",
                               label: "Total Problems Help Solved",
                               valueColor: context.colors.successGreen,
                             ),
@@ -210,7 +207,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             crossAxisCellCount: 6,
                             mainAxisCellCount: 1.5,
                             child: StatItemCard(
-                              //TODO: Should be calculated
                               value: "0",
                               label: "Total",
                               valueColor: context.colors.primaryBlue,

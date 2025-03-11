@@ -56,7 +56,7 @@ class ParentChildCard extends StatelessWidget {
             ),
             8.ph,
             Text(
-              "${child!.firstName ?? ''} ${child!.lastName ?? ''}",
+              "${child!.firstName} ${child!.lastName}",
               style: Theme.of(context).textTheme.titleMedium,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
