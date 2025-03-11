@@ -126,11 +126,11 @@ class PaymentNotifier extends Notifier<PaymentState> {
           transactionId: state.paymentIntentResponseModel!.id,
         ),
         feedbackModel: feedbackModel,
-        callback: callBack,
       );
       ref.read(feedbackProvider.notifier).appliedFeedback(
             feedback: feedbackModel,
             appliedFeedback: appliedFeedback,
+            callback: callBack,
           );
     } on StripeException catch (error) {
       Log.error(error.toString());
@@ -226,7 +226,7 @@ class PaymentNotifier extends Notifier<PaymentState> {
       await firestore
           .collection(FirebaseConstants.feedbackCollection)
           .doc(paymentModel.feedback!.id!)
-          .set({'paymentId': paymentModel.transactionId});
+          .update({'paymentId': paymentModel.transactionId});
       await firestore
           .collection(FirebaseConstants.userCollection)
           .doc(feedbackModel.ownerId)

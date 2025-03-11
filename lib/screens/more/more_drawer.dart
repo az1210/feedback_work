@@ -115,9 +115,12 @@ class _MoreTabScreenState extends ConsumerState<MoreDrawer> {
                       Divider(
                         color: context.colors.inputBorder,
                       ),
-                      const DrawerItem(
+                      DrawerItem(
                         icon: Icons.wallet,
                         itemName: "Wallet",
+                        onTap: () {
+                          context.pushNamed(Routes.wallet);
+                        },
                       ),
                       Divider(
                         color: context.colors.inputBorder,

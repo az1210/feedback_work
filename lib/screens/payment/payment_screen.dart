@@ -251,17 +251,18 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
                             showToast(message: 'Select Payment Method');
                           }
                         : () async {
-                            await paymentNotifier.createPaymentIntent(
+                            // await paymentNotifier.createPaymentIntent(
+                            //   amount: (widget.paymentScreenParams.feedback
+                            //               .requestFeedback!.cost! +
+                            //           double.parse(bonus ?? '0'))
+                            //       .round()
+                            //       .toString(),
+                            //   paymentMethod: selectedPaymentMethod ?? 'usd',
+                            // );
+                            await paymentNotifier.initializePaymentSheet(
                               amount: (widget.paymentScreenParams.feedback
                                           .requestFeedback!.cost! +
                                       double.parse(bonus ?? '0'))
-                                  .round()
-                                  .toString(),
-                              paymentMethod: selectedPaymentMethod ?? 'usd',
-                            );
-                            await paymentNotifier.initializePaymentSheet(
-                              amount: widget.paymentScreenParams.feedback
-                                  .requestFeedback!.cost!
                                   .round()
                                   .toString(),
                             );

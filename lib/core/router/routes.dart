@@ -27,6 +27,8 @@ import 'package:feedback_work/screens/network/network_screen.dart';
 import 'package:feedback_work/screens/status/status_report_screen.dart';
 import 'package:feedback_work/screens/user/screens/transaction_history.dart';
 import 'package:feedback_work/screens/user/screens/transaction_history_details_screen.dart';
+import 'package:feedback_work/screens/wallet/wallet_screen.dart';
+import 'package:feedback_work/screens/wallet/withdraw_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -86,6 +88,8 @@ class Routes {
   static const previewSet = 'preview-set';
   static const applyFeedback = 'apply-feedback';
   static const payment = 'payment';
+  static const wallet = 'wallet';
+  static const withdraw = 'withdraw';
 }
 
 final authProvider = StateProvider<bool>((ref) => false);
@@ -287,6 +291,16 @@ final routerProvider = Provider<GoRouter>(
           builder: (context, state) => PaymentScreen(
             paymentScreenParams: state.extra as PaymentScreenParams,
           ),
+        ),
+        GoRoute(
+          name: Routes.wallet,
+          path: Routes.wallet.p,
+          builder: (context, state) => const WalletScreen(),
+        ),
+        GoRoute(
+          name: Routes.withdraw,
+          path: Routes.withdraw.p,
+          builder: (context, state) => const WithdrawScreen(),
         ),
 
         // NavBar Routes
