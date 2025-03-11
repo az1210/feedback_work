@@ -24,7 +24,7 @@ class GroupFilterContent extends StatefulWidget {
   });
 
   @override
-  _GroupFilterContentState createState() => _GroupFilterContentState();
+  State<GroupFilterContent> createState() => _GroupFilterContentState();
 }
 
 class _GroupFilterContentState extends State<GroupFilterContent> {
@@ -61,14 +61,11 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
           (group.description?.toLowerCase().contains(_searchQuery) ?? false);
       bool usersMatch = group.users?.any(
             (user) =>
-                (user.firstName!.toLowerCase().contains(_searchQuery) ??
-                    false) ||
-                (user.lastName!.toLowerCase().contains(_searchQuery) ??
-                    false) ||
-                (user.username!.toLowerCase().contains(_searchQuery) ??
-                    false) ||
-                (user.title!.toLowerCase().contains(_searchQuery) ?? false) ||
-                (user.expertise!.toLowerCase().contains(_searchQuery) ?? false),
+                (user.firstName!.toLowerCase().contains(_searchQuery)) ||
+                (user.lastName!.toLowerCase().contains(_searchQuery)) ||
+                (user.username!.toLowerCase().contains(_searchQuery)) ||
+                (user.title!.toLowerCase().contains(_searchQuery)) ||
+                (user.expertise!.toLowerCase().contains(_searchQuery)),
           ) ??
           false;
       return groupMatches || usersMatch;
@@ -225,7 +222,7 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
     }
 
     final groupId = group.id ?? group.name;
-    final isSelectionMode = selectionModeGroups.contains(groupId);
+    // final isSelectionMode = selectionModeGroups.contains(groupId);
 
     return ListView.separated(
       padding: EdgeInsets.zero,

@@ -15,16 +15,16 @@ class ScaffoldWithNestedNavigation extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
   final BuildContext context;
 
-  void _goBranch(int index) {
-    if (index == 4) {
-      Scaffold.of(context).openDrawer();
-      return;
-    }
-    navigationShell.goBranch(
-      index,
-      initialLocation: index == navigationShell.currentIndex,
-    );
-  }
+  // void _goBranch(int index) {
+  //   if (index == 4) {
+  //     Scaffold.of(context).openDrawer();
+  //     return;
+  //   }
+  //   navigationShell.goBranch(
+  //     index,
+  //     initialLocation: index == navigationShell.currentIndex,
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {

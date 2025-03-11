@@ -20,20 +20,20 @@ class _ModelTwoContentState extends State<ModelTwoContent> {
 
   @override
   Widget build(BuildContext context) {
-    const config = quill.QuillSimpleToolbarConfigurations(
-      multiRowsDisplay: true,
-      showFontFamily: true,
-      showFontSize: true,
-      showBoldButton: true,
-      showItalicButton: true,
-      showUnderLineButton: true,
-      showStrikeThrough: true,
-      showColorButton: true,
-      showAlignmentButtons: true,
-      showSubscript: true,
-      showSuperscript: true,
-      showLink: true,
-    );
+    // const config = quill.QuillSimpleToolbarConfigurations(
+    //   multiRowsDisplay: true,
+    //   showFontFamily: true,
+    //   showFontSize: true,
+    //   showBoldButton: true,
+    //   showItalicButton: true,
+    //   showUnderLineButton: true,
+    //   showStrikeThrough: true,
+    //   showColorButton: true,
+    //   showAlignmentButtons: true,
+    //   showSubscript: true,
+    //   showSuperscript: true,
+    //   showLink: true,
+    // );
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [

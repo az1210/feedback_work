@@ -100,7 +100,7 @@ class _PaymentDialogueState extends ConsumerState<PaymentDialogue> {
 
   @override
   Widget build(BuildContext context) {
-    final paymentNotifier = ref.read(paymentProvider.notifier);
+    // final paymentNotifier = ref.read(paymentProvider.notifier);
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.r),
