@@ -50,7 +50,6 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Header Section
               Container(
                 color: const Color.fromARGB(255, 235, 245, 255),
                 padding: const EdgeInsets.all(8),
@@ -68,10 +67,22 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            project.createdAt is Timestamp
-                                ? DateFormat('dd/MM/yyyy').format(
-                                    (project.createdAt as Timestamp).toDate())
-                                : 'N/A',
+                            // project.createdAt is Timestamp
+                            //     ? DateFormat('dd/MM/yyyy').format(
+                            //         (project.createdAt as Timestamp).toDate())
+                            //     : project.createdAt is DateTime
+                            //         ? DateFormat('dd/MM/yyyy')
+                            //             .format(project.createdAt as DateTime)
+                            //         : 'N/A',
+                            () {
+                              final parsedDate =
+                                  DateTime.tryParse(project.createdAt ?? '');
+                              if (parsedDate != null) {
+                                return DateFormat('dd/MM/yyyy')
+                                    .format(parsedDate);
+                              }
+                              return 'N/A';
+                            }(),
                             style: const TextStyle(
                                 fontSize: 14, fontStyle: FontStyle.italic),
                             overflow: TextOverflow.ellipsis,

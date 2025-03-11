@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feedback_work/core/constants/firebase_constants.dart';
 import 'package:feedback_work/models/project_model.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
-import 'package:feedback_work/providers/new_project_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:feedback_work/core/utils/utils.dart';
@@ -24,7 +23,7 @@ class ProjectProgressNotifier extends Notifier<ProjectProgressNotifierState> {
   }) async {
     FirebaseFirestore firestore = ref.read(firestoreProvider);
 
-    final projectNotifier = ref.read(projectProvider.notifier);
+    // final projectNotifier = ref.read(projectProvider.notifier);
     try {
       final projectDoc = await firestore
           .collection(FirebaseConstants.projectCollection)

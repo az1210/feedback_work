@@ -28,7 +28,7 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
   }) async {
     state = state.copyWith(state: AsyncState.loading);
     FirebaseAuth auth = ref.read(firebaseAuthProvider);
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
+    // FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
       UserCredential userCredential = await auth.createUserWithEmailAndPassword(
         email: userModel.email!,
@@ -36,10 +36,10 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
       );
 
       // Save basic user details to Firestore
-      final docRef = await firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(userCredential.user!.uid)
-          .set(userModel.copyWith(id: userCredential.user!.uid).toMap());
+      // final docRef = await firestore
+      //     .collection(FirebaseConstants.userCollection)
+      //     .doc(userCredential.user!.uid)
+      //     .set(userModel.copyWith(id: userCredential.user!.uid).toMap());
 
       // Save session expiration date (30 days)
       await saveSession(userCredential.user!);
