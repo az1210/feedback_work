@@ -180,10 +180,9 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                             "${myConnections![index].firstName ?? ''} ${myConnections![index].lastName ?? ''}",
                         role: myConnections![index].accountType ?? '',
                         specialty: myConnections![index].expertise ?? '',
-                        feedbackCount:
-                            myConnections![index].feedbackProvided! ?? 0,
+                        feedbackCount: myConnections![index].feedbackProvided!,
                         problemsSolved:
-                            myConnections![index].problemHelpSolved! ?? 0,
+                            myConnections![index].problemHelpSolved!,
                         isConnected: true,
                         appearedAs: appearedAs,
                         onConnect: () {
@@ -229,10 +228,8 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                             "${suggestions[index].firstName ?? ''} ${suggestions[index].lastName ?? ''}",
                         role: suggestions[index].accountType ?? '',
                         specialty: suggestions[index].expertise ?? '',
-                        feedbackCount:
-                            suggestions[index].feedbackProvided! ?? 0,
-                        problemsSolved:
-                            suggestions[index].problemHelpSolved! ?? 0,
+                        feedbackCount: suggestions[index].feedbackProvided!,
+                        problemsSolved: suggestions[index].problemHelpSolved!,
                         isConnected: false,
                         appearedAs: appearedAs,
                         onConnect: () {
@@ -264,9 +261,8 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                             "${requests![index].firstName ?? ''} ${requests![index].lastName ?? ''}",
                         role: requests![index].accountType ?? '',
                         specialty: requests![index].expertise ?? '',
-                        feedbackCount: requests![index].feedbackProvided! ?? 0,
-                        problemsSolved:
-                            requests![index].problemHelpSolved! ?? 0,
+                        feedbackCount: requests![index].feedbackProvided!,
+                        problemsSolved: requests![index].problemHelpSolved!,
                         isConnected: false,
                         appearedAs: appearedAs,
                         onRequestFeedback: () {

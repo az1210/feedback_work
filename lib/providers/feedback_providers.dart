@@ -312,10 +312,14 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
             "totalFeedbackProvidedForFree": FieldValue.increment(1),
           });
         }
+        // await firestore
+        //     .collection(FirebaseConstants.feedbackCollection)
+        //     .doc(feedback.id)
+        //     .update({});
         await firestore
             .collection(FirebaseConstants.feedbackCollection)
             .doc(feedback.id)
-            .update({});
+            .update({'lastUpdated': FieldValue.serverTimestamp()});
       } else {
         state = state.copyWith(
             error: "Feedback doesn't exist!", state: AsyncState.failure);
