@@ -86,12 +86,40 @@ class PaymentNotifier extends Notifier<PaymentState> {
     }
   }
 
+  // Future<void> initializePaymentSheet({
+  //   required String amount,
+  //   String currency = 'USD',
+  // }) async {
+  //   try {
+  //     createPaymentIntent(
+  //       amount: amount,
+  //       currency: currency,
+  //     );
+
+  //     if (state.paymentIntentResponseModel != null) {
+  //       await Stripe.instance.initPaymentSheet(
+  //         paymentSheetParameters: SetupPaymentSheetParameters(
+  //           allowsDelayedPaymentMethods: true,
+  //           paymentIntentClientSecret:
+  //               state.paymentIntentResponseModel!.clientSecret,
+  //           style: ThemeMode.system,
+  //           merchantDisplayName: 'Feedback Work',
+  //         ),
+  //       );
+  //     }
+  //   } catch (e, stackTrace) {
+  //     Log.error(e.toString());
+  //     Log.error(stackTrace.toString());
+  //   }
+  // }
+
   Future<void> initializePaymentSheet({
     required String amount,
     String currency = 'USD',
   }) async {
     try {
-      createPaymentIntent(
+      // Await the creation of the payment intent
+      await createPaymentIntent(
         amount: amount,
         currency: currency,
       );
@@ -106,6 +134,8 @@ class PaymentNotifier extends Notifier<PaymentState> {
             merchantDisplayName: 'Feedback Work',
           ),
         );
+      } else {
+        Log.error("Payment intent response is null");
       }
     } catch (e, stackTrace) {
       Log.error(e.toString());

@@ -26,11 +26,15 @@ class ProjectStatusCard extends StatelessWidget {
             ),
             color: context.colors.primaryBlue.withValues(alpha: 0.1),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Text(
-                  feedback.project!.projectName ?? 'Unknown project',
-                  style: Theme.of(context).textTheme.titleMedium,
+                Expanded(
+                  child: Text(
+                    feedback.project!.projectName ?? 'Unknown project',
+                    style: Theme.of(context).textTheme.titleMedium,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),
@@ -88,6 +92,7 @@ class BuildInfoRow extends StatelessWidget {
       children: [
         Expanded(
           flex: 2,
+          // fit: FlexFit.loose,
           child: Text(
             label,
             style: Theme.of(context).textTheme.bodyMedium,
@@ -97,6 +102,7 @@ class BuildInfoRow extends StatelessWidget {
         ),
         Expanded(
           flex: 2,
+          // fit: FlexFit.loose,
           child: Text(
             value,
             style: Theme.of(context).textTheme.bodyMedium!.copyWith(
