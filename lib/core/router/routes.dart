@@ -27,6 +27,7 @@ import 'package:feedback_work/screens/network/network_screen.dart';
 import 'package:feedback_work/screens/status/status_report_screen.dart';
 import 'package:feedback_work/screens/user/screens/transaction_history.dart';
 import 'package:feedback_work/screens/user/screens/transaction_history_details_screen.dart';
+import 'package:feedback_work/screens/wallet/bank_account_setup_screen.dart';
 import 'package:feedback_work/screens/wallet/wallet_screen.dart';
 import 'package:feedback_work/screens/wallet/withdraw_screen.dart';
 import 'package:go_router/go_router.dart';
@@ -90,6 +91,7 @@ class Routes {
   static const payment = 'payment';
   static const wallet = 'wallet';
   static const withdraw = 'withdraw';
+  static const setupBankAccount = 'setup-bank-account';
 }
 
 final authProvider = StateProvider<bool>((ref) => false);
@@ -301,6 +303,11 @@ final routerProvider = Provider<GoRouter>(
           name: Routes.withdraw,
           path: Routes.withdraw.p,
           builder: (context, state) => const WithdrawScreen(),
+        ),
+        GoRoute(
+          name: Routes.setupBankAccount,
+          path: Routes.setupBankAccount.p,
+          builder: (context, state) => const BankAccountSetupScreen(),
         ),
 
         // NavBar Routes

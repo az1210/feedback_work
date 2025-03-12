@@ -118,7 +118,7 @@ class _WithdrawScreenState extends State<WithdrawScreen> {
                         ),
                       ),
                       items: const [
-                        AppDropdownDropdownItem(
+                        AppDropdownItem(
                           value: 'Direct to Local Bank (EUR)',
                           label: 'Direct to Local Bank (EUR)',
                         ),

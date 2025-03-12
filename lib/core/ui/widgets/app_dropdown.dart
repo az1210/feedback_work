@@ -1,10 +1,9 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
-import 'package:feedback_work/core/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class AppDropdownDropdownItem<T> {
-  const AppDropdownDropdownItem({
+class AppDropdownItem<T> {
+  const AppDropdownItem({
     required this.value,
     this.child,
     this.label,
@@ -40,7 +39,7 @@ class AppDropdown<T> extends StatefulWidget {
 
   final T? selectedValue;
   final Widget button;
-  final List<AppDropdownDropdownItem<T>> items;
+  final List<AppDropdownItem<T>> items;
   final List<Widget>? customItems;
   final void Function(T)? onItemSelected;
   final double? itemWidth;
@@ -69,17 +68,17 @@ class _AppDropdownState<T> extends State<AppDropdown<T>> {
 
   @override
   void initState() {
+    super.initState();
+    _calculateOverlayHeight();
+  }
+
+  void _calculateOverlayHeight() {
     if (widget.overlayHeight == null) {
-      for (final i in widget.items) {
-        _overlayHeight += i.height;
-      }
-      if (_overlayHeight > 0.2.sh) {
-        _overlayHeight = 0.2.sh;
-      }
+      _overlayHeight = widget.items.fold(0, (sum, item) => sum + item.height);
+      _overlayHeight = _overlayHeight > 0.2.sh ? 0.2.sh : _overlayHeight;
     } else {
       _overlayHeight = widget.overlayHeight!;
     }
-    super.initState();
   }
 
   @override
@@ -91,6 +90,7 @@ class _AppDropdownState<T> extends State<AppDropdown<T>> {
   void _removeOverlay() {
     _overlayEntry?.remove();
     _overlayEntry = null;
+    setState(() => _isOpen = false);
   }
 
   void _toggleDropdown() {
@@ -98,32 +98,8 @@ class _AppDropdownState<T> extends State<AppDropdown<T>> {
       _removeOverlay();
     } else {
       _createOverlay();
+      setState(() => _isOpen = true);
     }
-    setState(() {
-      _isOpen = !_isOpen;
-    });
-  }
-
-  Offset _getOffset(
-    Size buttonSize,
-    bool showAbove,
-  ) {
-    final alignment = widget.overlayAlignment;
-    var dx = 0.0;
-    final dy = !showAbove ? buttonSize.height + 5 : -_overlayHeight - 5;
-
-    if (alignment == Alignment.centerLeft) {
-      dx = 0;
-    } else if (alignment == Alignment.center) {
-      dx = (buttonSize.width - (widget.itemWidth ?? 0)) / 2;
-    } else if (alignment == Alignment.centerRight) {
-      dx = buttonSize.width - (widget.itemWidth ?? 0);
-    }
-
-    return Offset(
-      dx,
-      dy,
-    );
   }
 
   void _createOverlay() {
@@ -131,14 +107,8 @@ class _AppDropdownState<T> extends State<AppDropdown<T>> {
     Overlay.of(context).insert(_overlayEntry!);
   }
 
-  double _getButtonWidth() {
-    final renderBox =
-        _buttonKey.currentContext?.findRenderObject() as RenderBox?;
-    return renderBox?.size.width ?? 0;
-  }
-
   OverlayEntry _customDropdownOverlay() {
-    final renderBox = context.findRenderObject()! as RenderBox;
+    final renderBox = context.findRenderObject() as RenderBox;
     final offset = renderBox.localToGlobal(Offset.zero);
     final buttonSize = renderBox.size;
     final buttonWidth = _getButtonWidth();
@@ -147,7 +117,7 @@ class _AppDropdownState<T> extends State<AppDropdown<T>> {
 
     return OverlayEntry(
       builder: (context) => GestureDetector(
-        onTap: _toggleDropdown,
+        onTap: _removeOverlay,
         behavior: HitTestBehavior.translucent,
         child: ColoredBox(
           color: Colors.transparent,
@@ -156,109 +126,79 @@ class _AppDropdownState<T> extends State<AppDropdown<T>> {
               CompositedTransformFollower(
                 link: _layerLink,
                 showWhenUnlinked: false,
-                offset: _getOffset(
-                  buttonSize,
-                  showAbove,
-                ),
-                child: Column(
-                  children: [
-                    Material(
-                      elevation: 4,
-                      borderRadius: BorderRadius.circular(8),
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxHeight: _overlayHeight,
-                          minWidth: widget.itemWidth ?? buttonWidth,
-                          maxWidth: widget.itemWidth ?? buttonWidth,
-                        ),
-                        child: Container(
-                          padding: widget.overlayPadding,
-                          decoration: widget.decoration ??
-                              BoxDecoration(
-                                color: widget.overlayColor ??
-                                    context.colors.background,
-                                borderRadius: BorderRadius.circular(8),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.1),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
+                offset: _getOffset(buttonSize, showAbove),
+                child: Material(
+                  elevation: 4,
+                  borderRadius: BorderRadius.circular(8),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: _overlayHeight,
+                      minWidth: widget.itemWidth ?? buttonWidth,
+                      maxWidth: widget.itemWidth ?? buttonWidth,
+                    ),
+                    child: Container(
+                      padding: widget.overlayPadding,
+                      decoration: widget.decoration ??
+                          BoxDecoration(
+                            color: widget.overlayColor ??
+                                context.colors.background,
+                            borderRadius: BorderRadius.circular(8),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
                               ),
-                          child: ListView.separated(
-                            padding: EdgeInsets.zero,
-                            shrinkWrap: true,
-                            itemCount: widget.items.length,
-                            itemBuilder: (context, index) {
-                              final item = widget.items[index];
-                              final isSelected = widget.items[index].value ==
-                                  widget.selectedValue;
-                              return InkWell(
-                                onTap: () {
-                                  widget.onItemSelected?.call(item.value);
-                                  _toggleDropdown();
-                                },
-                                child: Container(
-                                  // margin: widget.overlayItemsMargin ??
-                                  //     EdgeInsets.symmetric(
-                                  //       horizontal: 16.w,
-                                  //       vertical: 8.h,
-                                  //     ),
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 16.w,
-                                  ),
-                                  height: widget.items[index].height,
-                                  decoration: BoxDecoration(
-                                    color: isSelected
-                                        ? widget.selectedItemBackgroundColor ??
-                                            context.colors.pureWhite
-                                        : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(
-                                      widget.itemBorderRadius ?? 4.r,
-                                    ),
-                                  ),
-                                  alignment: widget.itemsAlignment,
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: item.child ??
-                                        SizedBox(
-                                          width:
-                                              widget.itemWidth ?? buttonWidth,
-                                          child: Text(
-                                            item.label!,
-                                            style: TextStyle(
-                                              color: isSelected
-                                                  ? widget.selectedItemForegroundColor ??
-                                                      context.colors.primaryBlue
-                                                  : context.colors.textBlack,
-                                            ),
-                                          ),
-                                        ),
-                                  ),
-                                ),
-                              );
-                            },
-                            separatorBuilder: (context, index) =>
-                                widget.itemGap != null
-                                    ? widget.itemGap!.ph
-                                    : 8.ph,
+                            ],
                           ),
-                        ),
+                      child: ListView.separated(
+                        padding: EdgeInsets.zero,
+                        shrinkWrap: true,
+                        itemCount: widget.items.length,
+                        itemBuilder: (context, index) {
+                          final item = widget.items[index];
+                          final isSelected = item.value == widget.selectedValue;
+                          return InkWell(
+                            onTap: () {
+                              widget.onItemSelected?.call(item.value);
+                              _removeOverlay(); // Ensure dropdown closes on selection
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 16.w),
+                              height: item.height,
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? widget.selectedItemBackgroundColor ??
+                                        context.colors.pureWhite
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(
+                                    widget.itemBorderRadius ?? 4.r),
+                              ),
+                              alignment: widget.itemsAlignment,
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: item.child ??
+                                    SizedBox(
+                                      width: widget.itemWidth ?? buttonWidth,
+                                      child: Text(
+                                        item.label!,
+                                        style: TextStyle(
+                                          color: isSelected
+                                              ? widget.selectedItemForegroundColor ??
+                                                  context.colors.primaryBlue
+                                              : context.colors.textBlack,
+                                        ),
+                                      ),
+                                    ),
+                              ),
+                            ),
+                          );
+                        },
+                        separatorBuilder: (context, index) =>
+                            widget.itemGap != null ? widget.itemGap!.ph : 8.ph,
                       ),
                     ),
-                    8.ph,
-                    if (widget.customItems != null)
-                      ...widget.customItems!.map(
-                        (c) => Material(
-                          elevation: 4,
-                          child: SizedBox(
-                            width: widget.itemWidth ?? buttonSize.width,
-                            child: c,
-                          ),
-                        ),
-                      ),
-                  ],
+                  ),
                 ),
               ),
             ],
@@ -268,16 +208,30 @@ class _AppDropdownState<T> extends State<AppDropdown<T>> {
     );
   }
 
+  double _getButtonWidth() {
+    final renderBox =
+        _buttonKey.currentContext?.findRenderObject() as RenderBox?;
+    return renderBox?.size.width ?? 0;
+  }
+
+  Offset _getOffset(Size buttonSize, bool showAbove) {
+    final dx = switch (widget.overlayAlignment) {
+      Alignment.centerLeft => 0.0,
+      Alignment.center => (buttonSize.width - (widget.itemWidth ?? 0)) / 2,
+      Alignment.centerRight => buttonSize.width - (widget.itemWidth ?? 0),
+      _ => 0.0,
+    };
+    final dy = showAbove ? -_overlayHeight - 5 : buttonSize.height + 5;
+    return Offset(dx, dy);
+  }
+
   @override
   Widget build(BuildContext context) {
     return CompositedTransformTarget(
       link: _layerLink,
       child: Container(
         key: _buttonKey,
-        child: InkWell(
-          onTap: _toggleDropdown,
-          child: widget.button,
-        ),
+        child: InkWell(onTap: _toggleDropdown, child: widget.button),
       ),
     );
   }
