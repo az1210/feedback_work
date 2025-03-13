@@ -136,15 +136,25 @@ class LastWithdrawalCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            Text(
-              'View transaction history',
-              style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: context.colors.primaryBlue,
-                    decoration: TextDecoration.underline,
-                    decorationColor: context.colors.primaryBlue,
-                  ),
+            TextButton(
+              style: const ButtonStyle(
+                padding: WidgetStatePropertyAll(
+                  EdgeInsets.zero,
+                ),
+              ),
+              onPressed: () {
+                context.pushNamed(Routes.withdrawalHistory);
+              },
+              child: Text(
+                'View transaction history',
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: context.colors.primaryBlue,
+                      decoration: TextDecoration.underline,
+                      decorationColor: context.colors.primaryBlue,
+                    ),
+              ),
             ),
           ],
         ),

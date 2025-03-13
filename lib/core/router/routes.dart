@@ -30,6 +30,7 @@ import 'package:feedback_work/screens/user/screens/transaction_history_details_s
 import 'package:feedback_work/screens/wallet/bank_account_setup_screen.dart';
 import 'package:feedback_work/screens/wallet/wallet_screen.dart';
 import 'package:feedback_work/screens/wallet/withdraw_screen.dart';
+import 'package:feedback_work/screens/wallet/withdrawal_history_page.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -91,6 +92,7 @@ class Routes {
   static const payment = 'payment';
   static const wallet = 'wallet';
   static const withdraw = 'withdraw';
+  static const withdrawalHistory = 'withdrawal-history';
   static const setupBankAccount = 'setup-bank-account';
 }
 
@@ -308,6 +310,11 @@ final routerProvider = Provider<GoRouter>(
           name: Routes.setupBankAccount,
           path: Routes.setupBankAccount.p,
           builder: (context, state) => const BankAccountSetupScreen(),
+        ),
+        GoRoute(
+          name: Routes.withdrawalHistory,
+          path: Routes.withdrawalHistory.p,
+          builder: (context, state) => const WithdrawalHistoryScreen(),
         ),
 
         // NavBar Routes
