@@ -2,6 +2,7 @@ import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/core/ui/widgets/app_dropdown.dart';
+import 'package:feedback_work/screens/wallet/widgets/add_withdraw_method_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -135,15 +136,25 @@ class LastWithdrawalCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            Text(
-              'View transaction history',
-              style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: context.colors.primaryBlue,
-                    decoration: TextDecoration.underline,
-                    decorationColor: context.colors.primaryBlue,
-                  ),
+            TextButton(
+              style: const ButtonStyle(
+                padding: WidgetStatePropertyAll(
+                  EdgeInsets.zero,
+                ),
+              ),
+              onPressed: () {
+                context.pushNamed(Routes.withdrawalHistory);
+              },
+              child: Text(
+                'View transaction history',
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: context.colors.primaryBlue,
+                      decoration: TextDecoration.underline,
+                      decorationColor: context.colors.primaryBlue,
+                    ),
+              ),
             ),
           ],
         ),
@@ -176,7 +187,9 @@ class WithdrawalMethodsSection extends StatelessWidget {
           const SizedBox(height: 12),
           AppButton.outlined(
             label: 'Add Method',
-            onTap: () {},
+            onTap: () {
+              showWithdrawalMethodsBottomSheet(context);
+            },
             borderColor: context.colors.primaryBlue,
           ),
           const SizedBox(height: 16),
@@ -329,8 +342,8 @@ class PaymentMethodItem extends StatelessWidget {
               overlayHeight: 200.h,
               overlayAlignment: Alignment.centerRight,
               items: const [
-                AppDropdownDropdownItem(value: 'Edit', label: 'Edit'),
-                AppDropdownDropdownItem(value: 'Remove', label: 'Remove'),
+                AppDropdownItem(value: 'Edit', label: 'Edit'),
+                AppDropdownItem(value: 'Remove', label: 'Remove'),
               ],
             ),
           ],
