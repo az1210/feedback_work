@@ -122,15 +122,15 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                     Icons.grid_view,
                   ),
           ),
-          IconButton(
-            icon: const Icon(Icons.delete, color: Colors.red),
-            onPressed: () {
-              ref.read(feedbackProvider.notifier).deleteSubCollection(
-                  collectionPath: FirebaseConstants.userCollection,
-                  docId: currentUser!.id!,
-                  subCollectionPath: FirebaseConstants.networkCollection);
-            },
-          ),
+          // IconButton(
+          //   icon: const Icon(Icons.delete, color: Colors.red),
+          //   onPressed: () {
+          //     ref.read(feedbackProvider.notifier).deleteSubCollection(
+          //         collectionPath: FirebaseConstants.userCollection,
+          //         docId: currentUser!.id!,
+          //         subCollectionPath: FirebaseConstants.networkCollection);
+          //   },
+          // ),
           8.pw,
         ],
       ),
