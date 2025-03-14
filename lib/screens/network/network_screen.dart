@@ -86,7 +86,7 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
     ref.listen(userProvider, (_, newState) {
       if (newState.state == AsyncState.success) {
         Log.info(newState.data!.length.toString());
-        users = newState.data!.where((u) => u.id != currentUser!.id).toList();
+        users = newState.data ?? [];
         Log.info(users.length.toString());
       }
     });
@@ -95,8 +95,10 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
       if (newState.state == AsyncState.success) {
         myConnections = newState.data ?? [];
         requests = newState.requests ?? [];
-        suggestions =
-            users.where((u) => !myConnections!.toSet().contains(u)).toList();
+        suggestions = users
+            .where(
+                (u) => !myConnections!.toSet().contains(u) && u != currentUser)
+            .toList();
       }
     });
 
@@ -152,19 +154,19 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                   });
                 },
               ),
-              Padding(
-                padding: EdgeInsets.all(16.w),
-                child: Row(
-                  children: [
-                    Consumer(
-                      builder: (context, ref, child) => Text(
-                        "My Teacher Connection",
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // Padding(
+              //   padding: EdgeInsets.all(16.w),
+              //   child: Row(
+              //     children: [
+              //       Consumer(
+              //         builder: (context, ref, child) => Text(
+              //           "My Teacher Connection",
+              //           style: Theme.of(context).textTheme.titleMedium,
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
               if (appearedAs == NetworkScreenConnectionType.myConnections &&
                   myConnections != null) ...[
                 Expanded(
@@ -228,8 +230,9 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                             "${suggestions[index].firstName ?? ''} ${suggestions[index].lastName ?? ''}",
                         role: suggestions[index].accountType ?? '',
                         specialty: suggestions[index].expertise ?? '',
-                        feedbackCount: suggestions[index].feedbackProvided!,
-                        problemsSolved: suggestions[index].problemHelpSolved!,
+                        feedbackCount: suggestions[index].feedbackProvided ?? 0,
+                        problemsSolved:
+                            suggestions[index].problemHelpSolved ?? 0,
                         isConnected: false,
                         appearedAs: appearedAs,
                         onConnect: () {

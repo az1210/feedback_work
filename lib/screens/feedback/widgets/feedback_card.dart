@@ -308,71 +308,71 @@ class _FeedbackCardState extends ConsumerState<FeedbackCard> {
                               ),
                             ],
                           ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              const SizedBox(height: 16),
-                              // QuillEditor.basic(
-                              //   controller: projectDescriptionController,
-                              //   focusNode: projectDescriptionFocusNode,
-                              // ),
-                              8.ph,
-                              // if (feedbackStatus(
-                              //             feedback: widget.feedback,
-                              //             userId: widget.currentUserId) ==
-                              //         FeedbackScreenConnectionType
-                              //             .requested.name
-                              //             .toTitleCase() &&
-                              //     widget.feedback.ownerId ==
-                              //         widget.currentUserId) ...[
-                              //   Row(
-                              //     children: [
-                              //       Expanded(
-                              //         child: AppButton.filled(
-                              //           label: "Send Feedback",
-                              //           bgColor: context.colors.primaryBlue,
-                              //           fgColor: context.colors.pureWhite,
-                              //           onTap: () {
-                              //             context.pushNamed(
-                              //               Routes.provideFeedback,
-                              //               extra: widget.feedback,
-                              //             );
-                              //           },
-                              //           verticalPadding: 8.h,
-                              //         ),
-                              //       ),
-                              //     ],
-                              //   ),
-                              // ],
-                              // if (feedbackStatus(
-                              //             feedback: widget.feedback,
-                              //             userId: widget.currentUserId) ==
-                              //         FeedbackScreenConnectionType
-                              //             .requested.name
-                              //             .toTitleCase() &&
-                              //     widget.feedback.ownerId ==
-                              //         widget.currentUserId) ...[
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: AppButton.filled(
-                                      label: "Provide Feedback",
-                                      bgColor: context.colors.primaryBlue,
-                                      fgColor: context.colors.pureWhite,
-                                      onTap: () {
-                                        context.pushNamed(
-                                          Routes.provideFeedback,
-                                          extra: widget.feedback,
-                                        );
-                                      },
-                                      verticalPadding: 8.h,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              // ],
-                            ],
-                          )
+                          // Column(
+                          //   crossAxisAlignment: CrossAxisAlignment.center,
+                          //   children: [
+                          //     const SizedBox(height: 16),
+                          // QuillEditor.basic(
+                          //   controller: projectDescriptionController,
+                          //   focusNode: projectDescriptionFocusNode,
+                          // ),
+                          // 8.ph,
+                          // if (feedbackStatus(
+                          //             feedback: widget.feedback,
+                          //             userId: widget.currentUserId) ==
+                          //         FeedbackScreenConnectionType
+                          //             .requested.name
+                          //             .toTitleCase() &&
+                          //     widget.feedback.ownerId ==
+                          //         widget.currentUserId) ...[
+                          //   Row(
+                          //     children: [
+                          //       Expanded(
+                          //         child: AppButton.filled(
+                          //           label: "Send Feedback",
+                          //           bgColor: context.colors.primaryBlue,
+                          //           fgColor: context.colors.pureWhite,
+                          //           onTap: () {
+                          //             context.pushNamed(
+                          //               Routes.provideFeedback,
+                          //               extra: widget.feedback,
+                          //             );
+                          //           },
+                          //           verticalPadding: 8.h,
+                          //         ),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ],
+                          // if (feedbackStatus(
+                          //             feedback: widget.feedback,
+                          //             userId: widget.currentUserId) ==
+                          //         FeedbackScreenConnectionType
+                          //             .requested.name
+                          //             .toTitleCase() &&
+                          //     widget.feedback.ownerId ==
+                          //         widget.currentUserId) ...[
+                          // Row(
+                          //   children: [
+                          //     Expanded(
+                          //       child: AppButton.filled(
+                          //         label: "Provide Feedback",
+                          //         bgColor: context.colors.primaryBlue,
+                          //         fgColor: context.colors.pureWhite,
+                          //         onTap: () {
+                          //           context.pushNamed(
+                          //             Routes.provideFeedback,
+                          //             extra: widget.feedback,
+                          //           );
+                          //         },
+                          //         verticalPadding: 8.h,
+                          //       ),
+                          //     ),
+                          //   ],
+                          // ),
+                          // ],
+                          //   ],
+                          // )
                         ],
                       ),
                     ),

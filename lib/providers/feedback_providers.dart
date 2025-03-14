@@ -315,6 +315,11 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
             .collection(FirebaseConstants.feedbackCollection)
             .doc(feedback.id)
             .update({'lastUpdated': FieldValue.serverTimestamp()});
+
+        await firestore
+            .collection(FirebaseConstants.projectCollection)
+            .doc(feedback.project?.id)
+            .update({'completionPercentage': 100.0});
       } else {
         state = state.copyWith(
             error: "Feedback doesn't exist!", state: AsyncState.failure);
