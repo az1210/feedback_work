@@ -44,11 +44,29 @@ class _MoreTabScreenState extends ConsumerState<MoreDrawer> {
                     radius: 24.r,
                   ),
                   Text(
-                    "${currentUser?.firstName ?? 'Hello!'} ${currentUser?.lastName ?? ''}",
-                    style: Theme.of(context).textTheme.titleMedium,
+                    isLoggedIn && currentUser != null
+                        ? "${currentUser?.firstName ?? ''} ${currentUser?.lastName ?? ''}"
+                            .trim()
+                        : "Hello!",
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Colors.black87,
+                        ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  // Consumer(
+                  //   builder: (context, ref, child) {
+                  //     final user = ref.watch(currentUserProvider);
+                  //     return Text(
+                  //       isLoggedIn && user != null && user.firstName!.isNotEmpty
+                  //           ? "Hello, ${user.firstName} ${user.lastName}"
+                  //           : "Hello!",
+                  //       style: Theme.of(context).textTheme.titleMedium,
+                  //       maxLines: 2,
+                  //       overflow: TextOverflow.ellipsis,
+                  //     );
+                  //   },
+                  // ),
                   if (!isLoggedIn) ...[
                     Text(
                       'Join for more access',
@@ -136,8 +154,11 @@ class _MoreTabScreenState extends ConsumerState<MoreDrawer> {
                         icon: Icons.group_outlined,
                         itemName: "Groups",
                         onTap: () {
-                          context.pushNamed(Routes.groups);
                           context.pop();
+                          Future.microtask(
+                              () => context.pushNamed(Routes.groups));
+                          // context.pushNamed(Routes.groups);
+                          // context.pop();
                         },
                       ),
                     ],
@@ -164,8 +185,13 @@ class _MoreTabScreenState extends ConsumerState<MoreDrawer> {
                       DrawerItem(
                         icon: Icons.logout,
                         itemName: "Logout",
-                        onTap: () {
-                          ref.read(authServiceProvider.notifier).logout();
+                        onTap: () async {
+                          await ref.read(authServiceProvider.notifier).logout();
+                          ref.read(currentUserProvider.notifier).state = null;
+                          ref.read(authProvider.notifier).state = false;
+                          if (mounted) {
+                            context.go(Routes.signIn.p);
+                          }
                         },
                       ),
                     ],

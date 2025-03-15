@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feedback_work/core/utils/toast_message.dart';
+import 'package:feedback_work/providers/user_providers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,6 +22,36 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
   }
 
   // Sign up
+  // Future<void> signUp({
+  //   required UserModel userModel,
+  //   required String password,
+  //   void Function()? callBack,
+  // }) async {
+  //   state = state.copyWith(state: AsyncState.loading);
+  //   FirebaseAuth auth = ref.read(firebaseAuthProvider);
+  //   // FirebaseFirestore firestore = ref.read(firestoreProvider);
+  //   try {
+  //     UserCredential userCredential = await auth.createUserWithEmailAndPassword(
+  //       email: userModel.email!,
+  //       password: password,
+  //     );
+
+  //     // Save basic user details to Firestore
+  //     // final docRef = await firestore
+  //     //     .collection(FirebaseConstants.userCollection)
+  //     //     .doc(userCredential.user!.uid)
+  //     //     .set(userModel.copyWith(id: userCredential.user!.uid).toMap());
+
+  //     // Save session expiration date (30 days)
+  //     await saveSession(userCredential.user!);
+  //     callBack?.call();
+  //     state = state.copyWith(state: AsyncState.success);
+  //   } catch (e, stackTrace) {
+  //     Log.error(e.toString());
+  //     Log.error(stackTrace.toString());
+  //   }
+  // }
+
   Future<void> signUp({
     required UserModel userModel,
     required String password,
@@ -28,21 +59,29 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
   }) async {
     state = state.copyWith(state: AsyncState.loading);
     FirebaseAuth auth = ref.read(firebaseAuthProvider);
-    // FirebaseFirestore firestore = ref.read(firestoreProvider);
+    FirebaseFirestore firestore = ref.read(firestoreProvider);
+
     try {
       UserCredential userCredential = await auth.createUserWithEmailAndPassword(
         email: userModel.email!,
         password: password,
       );
 
-      // Save basic user details to Firestore
-      // final docRef = await firestore
-      //     .collection(FirebaseConstants.userCollection)
-      //     .doc(userCredential.user!.uid)
-      //     .set(userModel.copyWith(id: userCredential.user!.uid).toMap());
+      // 🔹 Ensure UID is set in userModel
+      final newUser = userModel.copyWith(id: userCredential.user!.uid);
 
-      // Save session expiration date (30 days)
+      // 🔹 Save user details in Firestore
+      await firestore
+          .collection(FirebaseConstants.userCollection)
+          .doc(newUser.id)
+          .set(newUser.toMap()); // Ensure all user data is saved
+
+      // 🔹 Save session expiration
       await saveSession(userCredential.user!);
+
+      // 🔹 Update currentUserProvider
+      ref.read(currentUserProvider.notifier).state = newUser;
+
       callBack?.call();
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {
@@ -104,6 +143,58 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
   }
 
   // Sign In with Email or Username
+  // Future<void> signInWithEmailOrUsername({
+  //   required String emailOrUsername,
+  //   required String password,
+  //   void Function()? callback,
+  // }) async {
+  //   FirebaseAuth auth = ref.read(firebaseAuthProvider);
+  //   FirebaseFirestore firestore = ref.read(firestoreProvider);
+  //   String email = emailOrUsername;
+
+  //   try {
+  //     // Check if input is a username, not an email
+  //     if (!emailOrUsername.contains('@')) {
+  //       // Query Firestore to get the email associated with the username
+  //       final querySnapshot = await firestore
+  //           .collection(FirebaseConstants.userCollection)
+  //           .where('username', isEqualTo: emailOrUsername)
+  //           .get();
+
+  //       if (querySnapshot.docs.isEmpty) {
+  //         throw Exception('No user found with that username.');
+  //       }
+
+  //       email = querySnapshot.docs.first['email'];
+  //     }
+
+  //     // Sign in with the resolved email
+  //     await auth.signInWithEmailAndPassword(email: email, password: password);
+  //     // Save session after sign-in
+  //     final user = auth.currentUser;
+  //     if (user != null) {
+  //       Log.info(user.uid);
+  //       await saveSession(user);
+  //       ref.read(authProvider.notifier).state = true;
+  //       callback?.call();
+  //     } else {
+  //       return;
+  //     }
+  //   } on FirebaseAuthException catch (e, stackTrace) {
+  //     if (e.code == 'user-not-found') {
+  //       showToast(message: "No user found for that email.");
+  //     } else if (e.code == 'wrong-password') {
+  //       showToast(message: 'Wrong password provided for that user.');
+  //     } else if (e.code == 'invalid-email') {
+  //       showToast(message: "Wrong email provided for that user.");
+  //     } else if (e.code == 'invalid-credential') {
+  //       showToast(message: "Invalid Credential provided for that user.");
+  //     }
+  //     Log.error(e.code);
+  //     Log.error(stackTrace.toString());
+  //   }
+  // }
+
   Future<void> signInWithEmailOrUsername({
     required String emailOrUsername,
     required String password,
@@ -114,32 +205,38 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
     String email = emailOrUsername;
 
     try {
-      // Check if input is a username, not an email
       if (!emailOrUsername.contains('@')) {
-        // Query Firestore to get the email associated with the username
         final querySnapshot = await firestore
             .collection(FirebaseConstants.userCollection)
             .where('username', isEqualTo: emailOrUsername)
             .get();
-
         if (querySnapshot.docs.isEmpty) {
           throw Exception('No user found with that username.');
         }
-
         email = querySnapshot.docs.first['email'];
       }
 
-      // Sign in with the resolved email
       await auth.signInWithEmailAndPassword(email: email, password: password);
-      // Save session after sign-in
+
       final user = auth.currentUser;
       if (user != null) {
-        Log.info(user.uid);
         await saveSession(user);
+
+        // 🔹 Fetch user details from Firestore
+        final userDoc = await firestore
+            .collection(FirebaseConstants.userCollection)
+            .doc(user.uid)
+            .get();
+
+        if (userDoc.exists) {
+          final userData = UserModel.fromMap(userDoc.data()!);
+          ref.read(currentUserProvider.notifier).state = userData;
+        } else {
+          Log.error("User data not found in Firestore for UID: ${user.uid}");
+        }
+
         ref.read(authProvider.notifier).state = true;
         callback?.call();
-      } else {
-        return;
       }
     } on FirebaseAuthException catch (e, stackTrace) {
       if (e.code == 'user-not-found') {
@@ -200,24 +297,55 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
   }
 
   // Complete User Profile (Step 2)
+  // Future<void> completeUserProfile({
+  //   required String uid,
+  //   required UserModel userModel,
+  // }) async {
+  //   FirebaseFirestore firestore = ref.read(firestoreProvider);
+  //   try {
+  //     await firestore
+  //         .collection(FirebaseConstants.userCollection)
+  //         .doc(uid)
+  //         .update(
+  //       {
+  //         "username": userModel.username,
+  //         "title": userModel.title,
+  //         "expertise": userModel.expertise,
+  //         "accountType": userModel.accountType,
+  //         "minimumRate": userModel.minimumRate,
+  //       },
+  //     );
+  //   } catch (e, stackTrace) {
+  //     Log.error(e.toString());
+  //     Log.error(stackTrace.toString());
+  //   }
+  // }
+
   Future<void> completeUserProfile({
     required String uid,
     required UserModel userModel,
   }) async {
     FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
-      await firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(uid)
-          .update(
-        {
-          "username": userModel.username,
-          "title": userModel.title,
-          "expertise": userModel.expertise,
-          "accountType": userModel.accountType,
-          "minimumRate": userModel.minimumRate,
-        },
-      );
+      final docRef =
+          firestore.collection(FirebaseConstants.userCollection).doc(uid);
+      final docSnapshot = await docRef.get();
+
+      if (docSnapshot.exists) {
+        // If user document exists, update the details
+        await docRef.update(
+          {
+            "username": userModel.username,
+            "title": userModel.title,
+            "expertise": userModel.expertise,
+            "accountType": userModel.accountType,
+            "minimumRate": userModel.minimumRate,
+          },
+        );
+      } else {
+        // If document does not exist, create a new one
+        await docRef.set(userModel.toMap());
+      }
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
@@ -294,7 +422,8 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
       await auth.signOut();
       await googleSignIn.signOut();
       await facebookAuth.logOut();
-      ref.read(authProvider.notifier).state = false;
+      // ref.read(authProvider.notifier).state = false;
+      ref.read(currentUserProvider.notifier).state = null;
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
@@ -336,5 +465,5 @@ class CheckboxStateNotifier extends StateNotifier<bool> {
 }
 
 Future<bool> isLoggedIn(Ref ref) async {
-  return ref.watch(authProvider);
+  return ref.read(authProvider);
 }

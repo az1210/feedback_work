@@ -404,7 +404,7 @@ final routerProvider = Provider<GoRouter>(
 
         final currentPath = state.uri.path;
         if (!loggedIn && !allowedRoutes.contains(currentPath)) {
-          return Routes.splash;
+          return Routes.signIn.p;
         }
 
         if (loggedIn &&

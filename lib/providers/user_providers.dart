@@ -13,12 +13,23 @@ final currentUserProvider = StateProvider<UserModel?>((ref) => null);
 
 class UserNotifier extends Notifier<UserNotifierState> {
   @override
+  @override
   UserNotifierState build() {
     Future.microtask(() async {
-      ref.read(currentUserProvider.notifier).state = await currentUser();
+      final user = await currentUser();
+      if (user?.id != null) {
+        ref.read(currentUserProvider.notifier).state = user;
+      }
     });
     return UserNotifierState(state: AsyncState.initial);
   }
+
+  // UserNotifierState build() {
+  //   Future.microtask(() async {
+  //     ref.read(currentUserProvider.notifier).state = await currentUser();
+  //   });
+  //   return UserNotifierState(state: AsyncState.initial);
+  // }
 
   // Sign up
   Future<void> fetchAllUsers() async {
@@ -75,22 +86,49 @@ class UserNotifier extends Notifier<UserNotifierState> {
     }
   }
 
-  Future<UserModel> currentUser() async {
+  // Future<UserModel> currentUser() async {
+  //   try {
+  //     final firestore = ref.read(firestoreProvider);
+  //     final auth = ref.read(firebaseAuthProvider);
+  //     state = state.copyWith(state: AsyncState.loading);
+  //     final querySnapshot = await firestore
+  //         .collection(FirebaseConstants.userCollection)
+  //         .doc(auth.currentUser?.uid)
+  //         .get();
+
+  //     // Map each document to a list of user data
+  //     return UserModel.fromMap(querySnapshot.data() as Map<String, dynamic>);
+  //   } catch (e, stackTrace) {
+  //     Log.error(e.toString());
+  //     Log.error(stackTrace.toString());
+  //     return UserModel();
+  //   }
+  // }
+
+  Future<UserModel?> currentUser() async {
     try {
       final firestore = ref.read(firestoreProvider);
       final auth = ref.read(firebaseAuthProvider);
-      state = state.copyWith(state: AsyncState.loading);
-      final querySnapshot = await firestore
+      final uid = auth.currentUser?.uid;
+      if (uid == null) {
+        Log.error("No logged in user.");
+        return null;
+      }
+      final doc = await firestore
           .collection(FirebaseConstants.userCollection)
-          .doc(auth.currentUser?.uid)
+          .doc(uid)
           .get();
 
-      // Map each document to a list of user data
-      return UserModel.fromMap(querySnapshot.data() as Map<String, dynamic>);
+      final data = doc.data();
+      if (data == null) {
+        Log.error("No user data found for uid: $uid");
+        return null;
+      }
+      return UserModel.fromMap(data);
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
-      return UserModel();
+      return null;
     }
   }
 
