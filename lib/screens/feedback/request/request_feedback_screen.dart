@@ -300,11 +300,11 @@ class _RequestFeedbackScreenState extends ConsumerState<RequestFeedbackScreen> {
                                 ownerId: widget.project.ownerId!,
                                 ownerName:
                                     "${widget.project.owner?.firstName} ${widget.project.owner?.lastName}",
-                                ownerAvaterUrl: widget.project.owner?.avaterUrl,
+                                ownerAvaterUrl: widget.project.owner?.avatarUrl,
                                 providerId: selectedUser?.id,
                                 providerName:
                                     "${selectedUser?.firstName} ${selectedUser?.lastName}",
-                                providerAvaterUrl: selectedUser?.avaterUrl,
+                                providerAvaterUrl: selectedUser?.avatarUrl,
                               );
 
                               Log.info(feedback.toMap().toString());

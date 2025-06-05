@@ -14,6 +14,7 @@ class ParentModel {
     this.avaterUrl = '',
     this.relationship = '',
     this.residence = '',
+    String? avatarUrl,
   });
 
   ParentModel copyWith({

@@ -51,7 +51,7 @@ class _ProvidedFeedbackCardState extends ConsumerState<ApplyFeedbackScreen> {
   Widget build(BuildContext context) {
     final providerState = ref.watch(fetchUserByIdProvider);
     ref.listen(fetchUserByIdProvider, (_, newState) {
-      if (newState.state == AsyncState.success) {
+      if (newState.state == AsyncState.success && newState.data != null) {
         provider = newState.data;
       }
     });
@@ -168,7 +168,7 @@ class _ProvidedFeedbackCardState extends ConsumerState<ApplyFeedbackScreen> {
                                           backgroundColor:
                                               context.colors.background,
                                           child: Image.network(
-                                            networkImage(provider?.avaterUrl),
+                                            networkImage(provider?.avatarUrl),
                                             errorBuilder:
                                                 (context, error, stackTrace) =>
                                                     Icon(

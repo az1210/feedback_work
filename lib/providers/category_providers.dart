@@ -1,15 +1,15 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:feedback_work/core/constants/firebase_constants.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/category_model.dart';
-import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 final categoryProvider =
     NotifierProvider<CategoryNotifier, CategoryNotifierState>(
         CategoryNotifier.new);
 
 class CategoryNotifier extends Notifier<CategoryNotifierState> {
+  final supabase = Supabase.instance.client;
+
   @override
   CategoryNotifierState build() {
     return CategoryNotifierState(state: AsyncState.initial);
@@ -17,39 +17,45 @@ class CategoryNotifier extends Notifier<CategoryNotifierState> {
 
   Future<void> fetchAllCategories() async {
     state = state.copyWith(state: AsyncState.loading);
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
-      final categoriesSnapshot = await firestore
-          .collection(FirebaseConstants.categoryCollection)
-          .orderBy("categoryTitle")
-          .get();
+      Log.info('Fetching categories from Supabase...');
 
-      final categories = categoriesSnapshot.docs
-          .map((c) => CategoryModel.fromMap(c.data()))
-          .toList();
+      final response =
+          await supabase.from('categories').select().order('category_title');
+
+      Log.info('Categories response raw: $response');
+
+      if (response == null) {
+        Log.error('Null response from categories query');
+        state = state.copyWith(
+            state: AsyncState.failure, error: 'Failed to fetch categories');
+        return;
+      }
+
+      final categories = (response as List).map((c) {
+        Log.info('Processing category: $c');
+        return CategoryModel.fromMap(c);
+      }).toList();
+
+      Log.info('Parsed ${categories.length} categories successfully');
       state = state.copyWith(data: categories, state: AsyncState.success);
     } catch (e, stackTrace) {
-      Log.error(e.toString());
+      Log.error('Error fetching categories: ${e.toString()}');
       Log.error(stackTrace.toString());
+      state = state.copyWith(state: AsyncState.failure, error: e.toString());
     }
   }
 
   Future<void> createCategory({required CategoryModel categoryModel}) async {
     state = state.copyWith(state: AsyncState.loading);
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
-      state = state.copyWith(state: AsyncState.loading);
-      await firestore
-          .collection(FirebaseConstants.categoryCollection)
-          .doc(categoryModel.categoryTitle)
-          .set(categoryModel.toMap())
-          .then((_) {
-        fetchAllCategories();
-      });
+      await supabase.from('categories').insert(categoryModel.toMap());
+      await fetchAllCategories();
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+      state = state.copyWith(state: AsyncState.failure, error: e.toString());
     }
   }
 }

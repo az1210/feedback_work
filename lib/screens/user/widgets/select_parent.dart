@@ -48,7 +48,7 @@ class _SelectFeedbackuserState extends ConsumerState<SelectParent> {
           for (var i in newState.data!) {
             values.add(i);
             labels.add("${i.firstName ?? ''} ${i.lastName ?? ''}");
-            imageUrls.add(i.avaterUrl ?? '');
+            imageUrls.add(i.avatarUrl ?? '');
           }
           sections = [
             FilterSection<UserModel>(

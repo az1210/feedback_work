@@ -255,13 +255,13 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
                         width: 80.w,
                         child: Column(
                           children: [
-                            user.avaterUrl != null
+                            user.avatarUrl != null
                                 ? CircleAvatar(
                                     onBackgroundImageError: (_, __) => Text(
                                       (user.firstName?[0])!.toUpperCase(),
                                     ),
                                     child: Image.network(
-                                      networkImage(user.avaterUrl),
+                                      networkImage(user.avatarUrl),
                                       errorBuilder:
                                           (context, error, stackTrace) =>
                                               const Icon(
@@ -403,13 +403,13 @@ class _GroupFilterContentState extends State<GroupFilterContent> {
                           bottomRight: Radius.circular(20.r))
                       : const BorderRadius.all(Radius.zero),
                 ),
-                leading: user.avaterUrl != null
+                leading: user.avatarUrl != null
                     ? CircleAvatar(
                         onBackgroundImageError: (_, __) => Text(
                           (user.firstName?[0] ?? '').toUpperCase(),
                         ),
                         child: Image.network(
-                          networkImage(user.avaterUrl),
+                          networkImage(user.avatarUrl),
                           errorBuilder: (context, error, stackTrace) =>
                               const Icon(Icons.person),
                         ),

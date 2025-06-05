@@ -6,10 +6,11 @@ import 'package:feedback_work/core/utils/network_image_helper.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/screens/feedback/apply/widgets/corrected_communication.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:convert';
 
 class ReceivedFeedbackCard extends StatefulWidget {
   final FeedbackModel feedback;
@@ -28,13 +29,14 @@ class ReceivedFeedbackCard extends StatefulWidget {
 }
 
 class _ReceivedFeedbackCardState extends State<ReceivedFeedbackCard> {
-  final QuillController projectDescriptionController = QuillController.basic();
+  final quill.QuillController projectDescriptionController =
+      quill.QuillController.basic();
   FocusNode projectDescriptionFocusNode = FocusNode();
 
   @override
   void initState() {
-    projectDescriptionController.document =
-        Document.fromDelta(widget.feedback.project!.projectDescription!);
+    projectDescriptionController.document = quill.Document.fromJson(
+        jsonDecode(widget.feedback.project!.description!));
     projectDescriptionController.readOnly = true;
     projectDescriptionFocusNode.canRequestFocus = false;
     super.initState();
@@ -131,7 +133,7 @@ class _ReceivedFeedbackCardState extends State<ReceivedFeedbackCard> {
                               backgroundColor: context.colors.background,
                               child: Image.network(
                                 networkImage(
-                                    widget.feedback.project?.owner?.avaterUrl),
+                                    widget.feedback.project?.owner?.avatarUrl),
                                 errorBuilder: (context, error, stackTrace) =>
                                     Icon(
                                   Icons.person,
@@ -285,7 +287,7 @@ class _ReceivedFeedbackCardState extends State<ReceivedFeedbackCard> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      QuillEditor.basic(
+                      quill.QuillEditor.basic(
                         controller: projectDescriptionController,
                         focusNode: projectDescriptionFocusNode,
                       ),

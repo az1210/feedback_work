@@ -1,9 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:feedback_work/core/constants/firebase_constants.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/group_model.dart';
-import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 final groupProvider =
     NotifierProvider<GroupNotifier, GroupNotifierState>(GroupNotifier.new);
@@ -11,6 +9,8 @@ final joinGroupProvider =
     NotifierProvider<JoinGroupNotifier, JoinGroupState>(JoinGroupNotifier.new);
 
 class GroupNotifier extends Notifier<GroupNotifierState> {
+  final supabase = Supabase.instance.client;
+
   @override
   GroupNotifierState build() {
     return GroupNotifierState(state: AsyncState.initial);
@@ -18,73 +18,72 @@ class GroupNotifier extends Notifier<GroupNotifierState> {
 
   Future<void> fetchAllGroups() async {
     state = state.copyWith(state: AsyncState.loading);
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
-      final groupsSnapshot = await firestore
-          .collection(FirebaseConstants.groupCollection)
-          .orderBy("name")
-          .get();
+      final response = await supabase.from('groups').select().order('name');
 
       final groups =
-          groupsSnapshot.docs.map((c) => GroupModel.fromMap(c.data())).toList();
+          (response as List).map((data) => GroupModel.fromMap(data)).toList();
       state = state.copyWith(data: groups, state: AsyncState.success);
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+      state = state.copyWith(state: AsyncState.failure, error: e.toString());
     }
   }
 
   Future<void> createGroup(
       {required GroupModel group, void Function()? callback}) async {
     state = state.copyWith(state: AsyncState.loading);
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
-      state = state.copyWith(state: AsyncState.loading);
-      final docRef = await firestore
-          .collection(FirebaseConstants.groupCollection)
-          .add(group.toMap());
-      await docRef.update({"id": docRef.id}).then((_) {
-        fetchAllGroups();
-      });
-      callback?.call();
-      state = state.copyWith(state: AsyncState.success);
+      final response =
+          await supabase.from('groups').insert(group.toMap()).select().single();
+
+      if (response != null) {
+        await fetchAllGroups();
+        callback?.call();
+        state = state.copyWith(state: AsyncState.success);
+      }
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+      state = state.copyWith(state: AsyncState.failure, error: e.toString());
     }
   }
 }
 
 class JoinGroupNotifier extends Notifier<JoinGroupState> {
+  final supabase = Supabase.instance.client;
+
   @override
   JoinGroupState build() {
-    Future.microtask(() {});
     return JoinGroupState(state: AsyncState.initial);
   }
 
-  Future<void> joinGroup(
-      {required String groupId,
-      required String userId,
-      void Function()? callback}) async {
+  Future<void> joinGroup({
+    required String groupId,
+    required String userId,
+    void Function()? callback,
+  }) async {
     state = state.copyWith(state: AsyncState.loading);
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
-      state = state.copyWith(state: AsyncState.loading);
-      final groupsSnapshot = await firestore
-          .collection(FirebaseConstants.groupCollection)
-          .doc(groupId)
-          .get();
-      Log.info("Is Exist ++++> ${groupsSnapshot.exists.toString()}");
-      final docRef =
-          firestore.collection(FirebaseConstants.groupCollection).doc(groupId);
-      await docRef.update({
-        "uIds": FieldValue.arrayUnion([userId])
-      });
-      callback?.call();
-      state = state.copyWith(state: AsyncState.success);
+      // First check if group exists
+      final group =
+          await supabase.from('groups').select().eq('id', groupId).single();
+
+      if (group != null) {
+        // Add user to group_members table
+        await supabase.from('group_members').insert({
+          'group_id': groupId,
+          'user_id': userId,
+        });
+
+        callback?.call();
+        state = state.copyWith(state: AsyncState.success);
+      }
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+      state = state.copyWith(state: AsyncState.failure, error: e.toString());
     }
   }
 }

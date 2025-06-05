@@ -6,140 +6,112 @@ import 'package:feedback_work/models/user_model.dart';
 
 class ProjectModel {
   final String? id;
+  final String title;
+  final String? description;
+  final String ownerId;
+  final UserModel? owner;
+  final String status;
+  final String? createdAt;
+  final String? updatedAt;
+  final String? startDateTime;
+  final String? finishDateTime;
+  final String? completionPercentage;
   final String? projectName;
   final String? problemName;
   final String? solutionName;
   final String? solutionFunctionName;
-  final Delta? projectDescription;
-  final String? youtubeLink;
-  final String? imageUrl;
-  final UserModel? owner;
-  final String? ownerId;
-  final String? createdAt;
-  final String? startDateTime;
-  final String? finishDateTime;
-  final String? breakDateTime;
-  final String? audioUrl;
-  final String? popUpText;
-  final double? completionPercentage;
+
   ProjectModel({
     this.id,
+    required this.title,
+    this.description,
+    required this.ownerId,
+    this.owner,
+    this.status = 'active',
+    this.createdAt,
+    this.updatedAt,
+    this.startDateTime,
+    this.finishDateTime,
+    this.completionPercentage,
     this.projectName,
     this.problemName,
     this.solutionName,
     this.solutionFunctionName,
-    this.projectDescription,
-    this.youtubeLink,
-    this.imageUrl,
-    this.owner,
-    this.ownerId,
-    this.createdAt,
-    this.startDateTime,
-    this.finishDateTime,
-    this.breakDateTime,
-    this.audioUrl,
-    this.popUpText,
-    this.completionPercentage,
   });
 
   ProjectModel copyWith({
     String? id,
+    String? title,
+    String? description,
+    String? ownerId,
+    UserModel? owner,
+    String? status,
+    String? createdAt,
+    String? updatedAt,
+    String? startDateTime,
+    String? finishDateTime,
+    String? completionPercentage,
     String? projectName,
     String? problemName,
     String? solutionName,
     String? solutionFunctionName,
-    Delta? projectDescription,
-    String? youtubeLink,
-    String? imageUrl,
-    UserModel? owner,
-    String? ownerId,
-    String? createdAt,
-    String? startDateTime,
-    String? finishDateTime,
-    String? breakDateTime,
-    String? audioUrl,
-    String? popUpText,
-    double? completionPercentage,
   }) {
     return ProjectModel(
       id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      ownerId: ownerId ?? this.ownerId,
+      owner: owner ?? this.owner,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      startDateTime: startDateTime ?? this.startDateTime,
+      finishDateTime: finishDateTime ?? this.finishDateTime,
+      completionPercentage: completionPercentage ?? this.completionPercentage,
       projectName: projectName ?? this.projectName,
       problemName: problemName ?? this.problemName,
       solutionName: solutionName ?? this.solutionName,
       solutionFunctionName: solutionFunctionName ?? this.solutionFunctionName,
-      projectDescription: projectDescription ?? this.projectDescription,
-      youtubeLink: youtubeLink ?? this.youtubeLink,
-      imageUrl: imageUrl ?? this.imageUrl,
-      owner: owner ?? this.owner,
-      ownerId: ownerId ?? this.ownerId,
-      createdAt: createdAt ?? this.createdAt,
-      startDateTime: startDateTime ?? this.startDateTime,
-      finishDateTime: finishDateTime ?? this.finishDateTime,
-      breakDateTime: breakDateTime ?? this.breakDateTime,
-      audioUrl: audioUrl ?? this.audioUrl,
-      popUpText: popUpText ?? this.popUpText,
-      completionPercentage: completionPercentage ?? this.completionPercentage,
     );
   }
 
   Map<String, dynamic> toMap() {
-    return <String, dynamic>{
+    return {
       'id': id,
-      'projectName': projectName,
-      'problemName': problemName,
-      'solutionName': solutionName,
-      'solutionFunctionName': solutionFunctionName,
-      'projectDescription': jsonEncode(projectDescription?.toJson()),
-      'youtubeLink': youtubeLink,
-      'imageUrl': imageUrl,
+      'title': title,
+      'description': description,
+      'owner_id': ownerId,
       'owner': owner?.toMap(),
-      'ownerId': ownerId,
-      'createdAt': DateTime.now().toString(),
-      'startDateTime': startDateTime,
-      'finishDateTime': finishDateTime,
-      'breakDateTime': breakDateTime,
-      'audioUrl': audioUrl,
-      'popUpText': popUpText,
-      'completionPercentage': completionPercentage,
+      'status': status,
+      'created_at': createdAt,
+      'updated_at': updatedAt,
+      'start_date_time': startDateTime,
+      'finish_date_time': finishDateTime,
+      'completion_percentage': completionPercentage,
+      'project_name': projectName,
+      'problem_name': problemName,
+      'solution_name': solutionName,
+      'solution_function_name': solutionFunctionName,
     };
   }
 
   factory ProjectModel.fromMap(Map<String, dynamic> map) {
-    final projectDescription = (map['projectDescription'] == null)
-        ? []
-        : jsonDecode(map["projectDescription"]);
     return ProjectModel(
-      id: map['id'] != null ? map['id'] as String : null,
-      projectName:
-          map['projectName'] != null ? map['projectName'] as String : null,
-      problemName:
-          map['problemName'] != null ? map['problemName'] as String : null,
-      solutionName:
-          map['solutionName'] != null ? map['solutionName'] as String : null,
-      solutionFunctionName: map['solutionFunctionName'] != null
-          ? map['solutionFunctionName'] as String
-          : null,
-      projectDescription: Delta.fromJson(projectDescription),
-      youtubeLink:
-          map['youtubeLink'] != null ? map['youtubeLink'] as String : null,
-      imageUrl: map['imageUrl'] != null ? map['imageUrl'] as String : null,
-      owner: map['owner'] != null
-          ? UserModel.fromMap(map['owner'] as Map<String, dynamic>)
-          : null,
-      ownerId: map['ownerId'] != null ? map['ownerId'] as String : null,
-      createdAt: map['createdAt'] != null ? map['createdAt'] as String : null,
-      startDateTime:
-          map['startDateTime'] != null ? map['startDateTime'] as String : null,
-      finishDateTime: map['finishDateTime'] != null
-          ? map['finishDateTime'] as String
-          : null,
-      breakDateTime:
-          map['breakDateTime'] != null ? map['breakDateTime'] as String : null,
-      audioUrl: map['audioUrl'] != null ? map['audioUrl'] as String : null,
-      popUpText: map['popUpText'] != null ? map['popUpText'] as String : null,
-      completionPercentage: map['completionPercentage'] != null
-          ? map['completionPercentage'] as double
-          : null,
+      id: map['id'],
+      title: map['title'] ?? '',
+      description: map['description'],
+      ownerId: map['owner_id'] ?? '',
+      owner: map['owner'] != null ? UserModel.fromMap(map['owner']) : null,
+      status: map['status'] ?? 'active',
+      createdAt: map['created_at'],
+      updatedAt: map['updated_at'],
+      startDateTime: map['start_date_time'],
+      finishDateTime: map['finish_date_time'],
+      completionPercentage: map['completion_percentage'],
+      projectName: map['project_name'],
+      problemName: map['problem_name'],
+      solutionName: map['solution_name'],
+      solutionFunctionName: map['solution_function_name'],
     );
   }
 }
@@ -147,32 +119,39 @@ class ProjectModel {
 class ProjectTimelineModel {
   final String message;
   final String modifiedAt;
+  final String? projectId;
+
   ProjectTimelineModel({
     required this.message,
     required this.modifiedAt,
+    this.projectId,
   });
 
   ProjectTimelineModel copyWith({
     String? message,
     String? modifiedAt,
+    String? projectId,
   }) {
     return ProjectTimelineModel(
       message: message ?? this.message,
       modifiedAt: modifiedAt ?? this.modifiedAt,
+      projectId: projectId ?? this.projectId,
     );
   }
 
   Map<String, dynamic> toMap() {
-    return <String, dynamic>{
+    return {
       'message': message,
-      'modifiedAt': modifiedAt,
+      'modified_at': modifiedAt,
+      'project_id': projectId,
     };
   }
 
   factory ProjectTimelineModel.fromMap(Map<String, dynamic> map) {
     return ProjectTimelineModel(
       message: map['message'] as String,
-      modifiedAt: map['modifiedAt'] as String,
+      modifiedAt: map['modified_at'] as String,
+      projectId: map['project_id'] as String?,
     );
   }
 }

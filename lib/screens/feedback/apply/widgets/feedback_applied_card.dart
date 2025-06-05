@@ -120,7 +120,7 @@ class _FeedbackAppliedCardState extends ConsumerState<FeedbackAppliedCard> {
                             radius: 30.r,
                             backgroundColor: context.colors.background,
                             child: Image.network(
-                              networkImage(currentUser!.avaterUrl),
+                              networkImage(currentUser!.avatarUrl),
                               errorBuilder: (context, error, stackTrace) =>
                                   Icon(
                                 Icons.person,
@@ -160,13 +160,13 @@ class _FeedbackAppliedCardState extends ConsumerState<FeedbackAppliedCard> {
                                       ),
                                 ),
                                 TextSpan(
-                                  text: widget.feedback.project?.projectName,
+                                  text: widget.feedback.project?.title ??
+                                      'No Title',
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall!
                                       .copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
+                                        color: context.colors.primaryBlue,
                                       ),
                                 ),
                               ],
@@ -191,14 +191,13 @@ class _FeedbackAppliedCardState extends ConsumerState<FeedbackAppliedCard> {
                                       ),
                                 ),
                                 TextSpan(
-                                  text: widget.feedback.project?.problemName,
+                                  text: widget.feedback.project?.problemName ??
+                                      'No Problem',
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall!
                                       .copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                        color: context.colors.errorRed,
+                                        color: context.colors.primaryBlue,
                                       ),
                                 ),
                               ],
@@ -223,14 +222,13 @@ class _FeedbackAppliedCardState extends ConsumerState<FeedbackAppliedCard> {
                                       ),
                                 ),
                                 TextSpan(
-                                  text: widget.feedback.project?.solutionName,
+                                  text: widget.feedback.project?.solutionName ??
+                                      'No Solution',
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall!
                                       .copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                        color: context.colors.successGreen,
+                                        color: context.colors.primaryBlue,
                                       ),
                                 ),
                               ],
@@ -255,15 +253,42 @@ class _FeedbackAppliedCardState extends ConsumerState<FeedbackAppliedCard> {
                                       ),
                                 ),
                                 TextSpan(
-                                  text: widget
-                                      .feedback.project!.solutionFunctionName,
+                                  text: widget.feedback.project
+                                          ?.solutionFunctionName ??
+                                      'No Solution Function',
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall!
                                       .copyWith(
-                                        fontWeight: FontWeight.bold,
+                                        color: context.colors.primaryBlue,
+                                      ),
+                                ),
+                              ],
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          RichText(
+                            text: TextSpan(
+                              style: DefaultTextStyle.of(context).style,
+                              children: [
+                                TextSpan(
+                                  text: 'Description ',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall!
+                                      .copyWith(
                                         fontSize: 14,
-                                        color: context.colors.successGreen,
+                                      ),
+                                ),
+                                TextSpan(
+                                  text: widget.feedback.project?.description ??
+                                      'No Problem Description',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall!
+                                      .copyWith(
+                                        color: context.colors.primaryBlue,
                                       ),
                                 ),
                               ],

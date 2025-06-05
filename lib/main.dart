@@ -1,20 +1,23 @@
 import 'package:device_preview/device_preview.dart';
+import 'package:feedback_work/core/config/supabase_config.dart';
 import 'package:feedback_work/core/utils/cache_service/cache_service.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-import './firebase_options.dart';
 import './core/ui/theme.dart';
 import './core/router/routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+
+  await Supabase.initialize(
+    url: SupabaseConfig.supabaseUrl,
+    anonKey: SupabaseConfig.supabaseAnonKey,
   );
+
   await ScreenUtil.ensureScreenSize();
   await Hive.initFlutter();
   final appBox = await Hive.openBox("feedbackWorks");

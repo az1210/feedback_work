@@ -6,6 +6,8 @@ import 'package:feedback_work/models/feedback_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'package:flutter_quill/quill_delta.dart';
+import 'dart:convert';
 
 class PreviewFeedbackCard extends StatefulWidget {
   final FeedbackModel feedbackModel;
@@ -22,19 +24,20 @@ class PreviewFeedbackCard extends StatefulWidget {
 }
 
 class _PreviewFeedbackCardState extends State<PreviewFeedbackCard> {
-  final quill.QuillController projectDescriptionController =
-      quill.QuillController.basic();
+  late quill.QuillController projectDescriptionController;
   FocusNode projectDescriptionFocusNode = FocusNode();
 
   @override
   void initState() {
-    Log.info(widget.feedbackModel.project?.toMap().toString() ?? 'No Project');
-    projectDescriptionController.document =
-        widget.feedbackModel.requestFeedback!.message?.message != null
-            ? quill.Document.fromDelta(
-                widget.feedbackModel.requestFeedback!.message!.message!)
-            : quill.Document.fromDelta(
-                widget.feedbackModel.project!.projectDescription!);
+    projectDescriptionController = widget.feedbackModel.requestFeedback != null
+        ? quill.QuillController(
+            document: quill.Document.fromDelta(
+                widget.feedbackModel.requestFeedback!.message!.message!),
+            selection: const TextSelection.collapsed(offset: 0))
+        : quill.QuillController(
+            document: quill.Document.fromDelta(Delta.fromJson(
+                jsonDecode(widget.feedbackModel.project!.description!))),
+            selection: const TextSelection.collapsed(offset: 0));
     projectDescriptionController.readOnly = true;
     projectDescriptionFocusNode.canRequestFocus = false;
     super.initState();
@@ -92,7 +95,7 @@ class _PreviewFeedbackCardState extends State<PreviewFeedbackCard> {
                             backgroundColor: context.colors.background,
                             child: Image.network(
                               networkImage(widget
-                                  .feedbackModel.project?.owner?.avaterUrl),
+                                  .feedbackModel.project?.owner?.avatarUrl),
                               errorBuilder: (context, error, stackTrace) =>
                                   Icon(
                                 Icons.person,

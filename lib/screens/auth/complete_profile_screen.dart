@@ -123,7 +123,7 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
       if (newState.state == AsyncState.success) {
         Log.info(newState.data.toString());
         final data = newState.data;
-        if (data != null || data!.isNotEmpty) {
+        if (data != null && data.isNotEmpty) {
           categories = newState.data!;
         }
       }
@@ -135,8 +135,21 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
             child: CircularProgressIndicator(),
           );
         } else if (categoryState.state == AsyncState.failure) {
-          return const Center(
-            child: CircularProgressIndicator(),
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Failed to load categories",
+                    style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 8),
+                TextButton(
+                  onPressed: () {
+                    ref.read(categoryProvider.notifier).fetchAllCategories();
+                  },
+                  child: const Text("Retry"),
+                ),
+              ],
+            ),
           );
         } else {
           return Form(
@@ -305,8 +318,9 @@ class _CompleteProfileScreenState extends ConsumerState<CompleteProfileScreen> {
                             dropdownMenuEntries: categories
                                 .map(
                                   (c) => DropdownMenuEntry(
-                                      value: c.categoryTitle,
-                                      label: c.categoryTitle),
+                                    value: c.categoryTitle,
+                                    label: c.categoryTitle,
+                                  ),
                                 )
                                 .toList(),
                           ),

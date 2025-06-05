@@ -6,7 +6,7 @@ import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/core/utils/validator.dart';
 import 'package:feedback_work/models/project_model.dart';
 import 'package:feedback_work/models/user_model.dart';
-import 'package:feedback_work/providers/firebase_providers.dart';
+import 'package:feedback_work/providers/supabase_providers.dart';
 import 'package:feedback_work/providers/new_project_providers.dart';
 import 'package:feedback_work/providers/user_providers.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +14,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'dart:convert';
 
 class CreateProjectScreen extends ConsumerStatefulWidget {
   const CreateProjectScreen({super.key});
@@ -67,20 +69,19 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
       if (formKey.currentState!.validate()) {
         await projectService.createProject(
           project: ProjectModel(
+            title: projectNameController.text.trim(),
+            description: jsonEncode(
+                projectDescriptionController.document.toDelta().toJson()),
+            ownerId: currentUserId ?? '',
+            owner: currentUser,
             projectName: projectNameController.text.trim(),
             problemName: problemNameController.text.trim(),
             solutionName: solutionNameController.text.trim(),
-            solutionFunctionName:
-                solutionFunctionController.text.trim().isNotEmpty
-                    ? solutionFunctionController.text.trim()
-                    : null,
-            projectDescription: projectDescriptionController.document.toDelta(),
-            youtubeLink: youtubeLinkController.text.trim().isNotEmpty
-                ? youtubeLinkController.text.trim()
-                : null,
-            imageUrl: selectedFilePath,
-            owner: currentUser,
-            ownerId: currentUserId,
+            solutionFunctionName: solutionFunctionController.text.trim(),
+            startDateTime: DateTime.now().toIso8601String(),
+            finishDateTime:
+                DateTime.now().add(const Duration(days: 30)).toIso8601String(),
+            completionPercentage: "0",
           ),
         );
         showToast(message: 'Project Created Successfully!');
@@ -93,10 +94,9 @@ class _CreateProjectScreenState extends ConsumerState<CreateProjectScreen> {
 
   @override
   void initState() {
-    Future.microtask(() {
-      ref.read(userProvider.notifier).currentUser();
-      final auth = ref.read(firebaseAuthProvider);
-      currentUserId = auth.currentUser!.uid;
+    Future.microtask(() async {
+      await ref.read(userProvider.notifier).currentUser();
+      currentUserId = Supabase.instance.client.auth.currentUser?.id;
     });
     super.initState();
   }

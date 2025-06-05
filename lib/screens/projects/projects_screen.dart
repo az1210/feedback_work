@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProjectsScreen extends ConsumerStatefulWidget {
   const ProjectsScreen({super.key});
@@ -24,11 +25,10 @@ class _ProjectsScreenState extends ConsumerState<ProjectsScreen> {
   @override
   void initState() {
     Future.microtask(() {
-      final auth = ref.watch(firebaseAuthProvider);
+      final auth = Supabase.instance.client.auth;
       ref
           .read(projectProvider.notifier)
-          .fetchUserProjects(userId: auth.currentUser!.uid);
-      // ref.read(projectProvider.notifier).fetchAllProjects();
+          .fetchUserProjects(userId: auth.currentUser?.id ?? '');
     });
     super.initState();
   }

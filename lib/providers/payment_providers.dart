@@ -1,15 +1,13 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:feedback_work/core/constants/firebase_constants.dart';
 import 'package:feedback_work/core/utils/toast_message.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/models/payment_model.dart';
 import 'package:feedback_work/models/post_payment_intent_response_model.dart';
 import 'package:feedback_work/providers/feedback_providers.dart';
-import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:feedback_work/providers/user_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:feedback_work/core/constants/api_endpoints.dart';
 import 'package:feedback_work/core/utils/network/rest_client/rest_client.dart';
@@ -20,6 +18,8 @@ final paymentProvider = NotifierProvider<PaymentNotifier, PaymentState>(
 );
 
 class PaymentNotifier extends Notifier<PaymentState> {
+  final supabase = Supabase.instance.client;
+
   @override
   PaymentState build() {
     return PaymentState(createPaymentState: AsyncState.initial);
@@ -174,66 +174,69 @@ class PaymentNotifier extends Notifier<PaymentState> {
   }
 
   Future<void> fetchMyPayments() async {
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
       state = state.copyWith(fetchPaymentState: AsyncState.loading);
-      final requestedByMePaymentsSnapshot = await firestore
-          .collection(FirebaseConstants.paymentCollection)
-          .where('requestedByUserId',
-              isEqualTo: ref.watch(currentUserProvider)!.id)
-          .get();
-      final providedByMePaymentsSnapshot = await firestore
-          .collection(FirebaseConstants.paymentCollection)
-          .where('providerId', isEqualTo: ref.watch(currentUserProvider)!.id)
-          .get();
+      final currentUser = ref.watch(currentUserProvider);
+      if (currentUser?.id == null) {
+        throw Exception('No user logged in');
+      }
+      final userId = currentUser!.id!;
 
-      final requestedByMePayments = requestedByMePaymentsSnapshot.docs
-          .map((c) => PaymentModel.fromMap(c.data()))
-          .toList();
+      final requestedByMePayments = await supabase
+          .from('payments')
+          .select()
+          .eq('requested_by_user_id', userId);
 
-      final providedByMePayments = providedByMePaymentsSnapshot.docs
-          .map((c) => PaymentModel.fromMap(c.data()))
-          .toList();
+      final providedByMePayments =
+          await supabase.from('payments').select().eq('provider_id', userId);
+
       state = state.copyWith(
-          requestedByMePayments: requestedByMePayments,
-          providedByMePayments: providedByMePayments,
+          requestedByMePayments: (requestedByMePayments as List)
+              .map((c) => PaymentModel.fromMap(c))
+              .toList(),
+          providedByMePayments: (providedByMePayments as List)
+              .map((c) => PaymentModel.fromMap(c))
+              .toList(),
           fetchPaymentState: AsyncState.success);
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+      state = state.copyWith(fetchPaymentState: AsyncState.failure);
     }
   }
 
   Future<void> fetchPaymentById({required String paymentId}) async {
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
       state = state.copyWith(fetchPaymentState: AsyncState.loading);
-      final paymentsSnapshot = await firestore
-          .collection(FirebaseConstants.paymentCollection)
-          .doc(paymentId)
-          .get();
-
       final payment =
-          PaymentModel.fromMap(paymentsSnapshot.data() as Map<String, dynamic>);
-      state = state.copyWith(
-          singlePayment: payment, fetchPaymentState: AsyncState.success);
+          await supabase.from('payments').select().eq('id', paymentId).single();
+
+      if (payment != null) {
+        state = state.copyWith(
+            singlePayment: PaymentModel.fromMap(payment),
+            fetchPaymentState: AsyncState.success);
+      }
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+      state = state.copyWith(fetchPaymentState: AsyncState.failure);
     }
   }
 
   Future<int> getDocumentCount({required String collectionName}) async {
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
       state = state.copyWith(documentCountState: AsyncState.loading);
-      final collection = firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(ref.watch(currentUserProvider)!.id!)
-          .collection(collectionName);
-      final countQuery = await collection.count().get();
+      final currentUser = ref.watch(currentUserProvider);
+      if (currentUser?.id == null) {
+        throw Exception('No user logged in');
+      }
+      final userId = currentUser!.id!;
+
+      final response =
+          await supabase.from(collectionName).select().eq('user_id', userId);
+
       state = state.copyWith(documentCountState: AsyncState.success);
-      return countQuery.count ?? 0;
+      return (response as List).length;
     } catch (e) {
       Log.error(e.toString());
       state = state.copyWith(documentCountState: AsyncState.failure);
@@ -246,73 +249,40 @@ class PaymentNotifier extends Notifier<PaymentState> {
     required FeedbackModel feedbackModel,
     void Function()? callback,
   }) async {
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
       state = state.copyWith(createPaymentState: AsyncState.loading);
-      await firestore
-          .collection(FirebaseConstants.paymentCollection)
-          .doc(paymentModel.transactionId)
-          .set(paymentModel.toMap());
-      await firestore
-          .collection(FirebaseConstants.feedbackCollection)
-          .doc(paymentModel.feedback!.id!)
-          .update({'paymentId': paymentModel.transactionId});
-      await firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(feedbackModel.ownerId)
-          .collection(FirebaseConstants.totalFeedbackAcceptedTransaction)
-          .doc(paymentModel.transactionId)
-          .set({'paymentId': paymentModel.transactionId});
-      await firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(feedbackModel.ownerId)
-          .update({
-        'totalFeedbackAcceptedAmount': FieldValue.increment(
-            paymentModel.feedbackCost ?? 0 + paymentModel.bonus!)
+
+      // Begin transaction
+      await supabase.rpc('create_payment', params: {
+        'payment_data': paymentModel.toMap(),
+        'feedback_id': feedbackModel.id,
+        'owner_id': feedbackModel.ownerId,
+        'provider_id': feedbackModel.providerId,
+        'feedback_cost': paymentModel.feedbackCost ?? 0,
+        'bonus': paymentModel.bonus ?? 0,
+        'is_free': feedbackModel.requestFeedback?.cost == 0,
       });
-      await firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(feedbackModel.providerId)
-          .collection(feedbackModel.requestFeedback!.cost != 0
-              ? FirebaseConstants.totalFeedbackProvidedAtCostTransaction
-              : FirebaseConstants.totalFeedbackProvidedFreeTransaction)
-          .doc(paymentModel.transactionId)
-          .set({'paymentId': paymentModel.transactionId});
-      await firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(feedbackModel.providerId)
-          .update({
-        'totalFeedbackProvidedAtCostAmount': FieldValue.increment(
-            paymentModel.feedbackCost ?? 0 + paymentModel.bonus!)
-      });
+
       callback?.call();
       state = state.copyWith(createPaymentState: AsyncState.success);
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+      state = state.copyWith(createPaymentState: AsyncState.failure);
     }
   }
 
   Future<String?> stripePublishableKey({void Function()? callback}) async {
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
-
     try {
       String key = '';
-      final docRef = await firestore
-          .collection(FirebaseConstants.apiKeyCollection)
-          .doc('stripePublishableKey')
-          .get();
-      if (docRef.exists) {
-        key = docRef.data()?['stripePublishableKey'] ?? '';
+      final docRef = await supabase
+          .from('api_keys')
+          .select()
+          .eq('key', 'stripePublishableKey')
+          .single();
+      if (docRef != null) {
+        key = docRef['value'] ?? '';
       }
-
-      // await firestore
-      //     .collection(FirebaseConstants.apiKeyCollection)
-      //     .doc('stripePublishableKey')
-      //     .set({
-      //   'stripePublishableKey':
-      //       'pk_test_51QnJuXG6nVf1Zo6aiQILYmJGg9OULLE5Tumi2Dcnz1dIEoHOhEZVu6fC7GXyDkjipMFSy1idpkoqZy5lQ9Nl8OCI00cx1cvFoV'
-      // });
 
       callback?.call();
       return key;
@@ -324,24 +294,16 @@ class PaymentNotifier extends Notifier<PaymentState> {
   }
 
   Future<String?> stripeSecretKey({void Function()? callback}) async {
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
-
     try {
       String key = '';
-      final docRef = await firestore
-          .collection(FirebaseConstants.apiKeyCollection)
-          .doc('stripeSecretKey')
-          .get();
-      if (docRef.exists) {
-        key = docRef.data()?['stripeSecretKey'] ?? '';
+      final docRef = await supabase
+          .from('api_keys')
+          .select()
+          .eq('key', 'stripeSecretKey')
+          .single();
+      if (docRef != null) {
+        key = docRef['value'] ?? '';
       }
-      // await firestore
-      //     .collection(FirebaseConstants.apiKeyCollection)
-      //     .doc('stripeSecretKey')
-      //     .set({
-      //   'stripeSecretKey':
-      //       'sk_test_51QnJuXG6nVf1Zo6aTnLslcX2oKXJxQ5WuIGmqSYTvoyfwFCcSajOzPwj6nJKn6VdihYVTedtmpUFdW5tmBP3dglv00VazxU0Hm'
-      // });
 
       callback?.call();
       return key;

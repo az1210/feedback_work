@@ -1,22 +1,19 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:feedback_work/core/constants/firebase_constants.dart';
 import 'package:feedback_work/models/child_model.dart';
-import 'package:feedback_work/providers/firebase_providers.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 
 final childProvider =
     NotifierProvider<ChildNotifier, ChildNotifierState>(ChildNotifier.new);
 
 class ChildNotifier extends Notifier<ChildNotifierState> {
+  final supabase = Supabase.instance.client;
+
   @override
   ChildNotifierState build() {
     return ChildNotifierState(state: AsyncState.initial);
   }
 
-  // Create Child account
   Future<void> createChildAccount({
     required ChildModel childModel,
     required String password,
@@ -24,74 +21,47 @@ class ChildNotifier extends Notifier<ChildNotifierState> {
     void Function()? callBack,
   }) async {
     state = state.copyWith(state: AsyncState.loading);
-    FirebaseAuth auth = ref.read(firebaseAuthProvider);
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
-      UserCredential userCredential = await auth.createUserWithEmailAndPassword(
+      final response = await supabase.auth.signUp(
         email: childModel.email,
         password: password,
       );
 
-      // Save child info into parent
-      ChildModel model = ChildModel(
-        firstName: childModel.firstName,
-        lastName: childModel.lastName,
-        email: childModel.email,
-        avaterUrl: childModel.avaterUrl,
-      );
-      await firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(parentId)
-          .collection(FirebaseConstants.childCollection)
-          .doc(userCredential.user!.uid)
-          .set(model.toMap())
-          .then((_) {
-        fetchAllChilds(parentId: parentId);
-      });
+      if (response.user != null) {
+        // Save child info into parent's children collection
+        await supabase.from('children').insert({
+          'id': response.user!.id,
+          'parent_id': parentId,
+          'first_name': childModel.firstName,
+          'last_name': childModel.lastName,
+          'email': childModel.email,
+          'avatar_url': childModel.avaterUrl,
+        });
 
-      callBack?.call();
-      state = state.copyWith(state: AsyncState.success);
+        await fetchAllChilds(parentId: parentId);
+        callBack?.call();
+        state = state.copyWith(state: AsyncState.success);
+      }
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+      state = state.copyWith(state: AsyncState.failure, error: e.toString());
     }
   }
 
-  // Sign up
   Future<void> fetchAllChilds({required String parentId}) async {
     state = state.copyWith(state: AsyncState.loading);
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
-      // final usersDoc =
-      //     firestore.collection(FirebaseConstants.userCollection).doc();
+      final response =
+          await supabase.from('children').select().eq('parent_id', parentId);
 
-      // await firestore
-      //     .collection(FirebaseConstants.userCollection)
-      //     .doc(usersDoc.id)
-      //     .update({"id": usersDoc.id, "minimumRate": 10});
-
-      // final usersCollection = FirebaseFirestore.instance.collection('users');
-
-      // final querySnapshot = await usersCollection.get();
-
-      // for (final doc in querySnapshot.docs) {
-      //   await usersCollection.doc(doc.id).update({
-      //     'id': doc.id,
-      //     "minimumRate": 10.0,
-      //   });
-      // }
-
-      final childSnapshot = await firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(parentId)
-          .collection(FirebaseConstants.childCollection)
-          .get();
-      final child =
-          childSnapshot.docs.map((u) => ChildModel.fromMap(u.data())).toList();
-      state = state.copyWith(data: child, state: AsyncState.success);
+      final children =
+          (response as List).map((data) => ChildModel.fromMap(data)).toList();
+      state = state.copyWith(data: children, state: AsyncState.success);
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+      state = state.copyWith(state: AsyncState.failure, error: e.toString());
     }
   }
 }

@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 class SolutionFunction extends StatefulWidget {
@@ -45,19 +45,19 @@ class _SolutionFunctionState extends State<SolutionFunction>
 
   Future<void> _fetchSettings() async {
     try {
-      final settingsDoc = await FirebaseFirestore.instance
-          .collection('projects')
-          .doc(widget.projectId)
-          .collection('settings')
-          .doc('solutionFunctionSettings')
-          .get();
+      final supabase = Supabase.instance.client;
+      final response = await supabase
+          .from('projects')
+          .select('solution_function_settings')
+          .eq('id', widget.projectId)
+          .single();
 
-      if (settingsDoc.exists) {
+      if (response != null && response['solution_function_settings'] != null) {
         setState(() {
-          settingsData = settingsDoc.data();
+          settingsData = response['solution_function_settings'];
 
-          final startTime = (settingsData!['startTime'] as Timestamp).toDate();
-          final endTime = (settingsData!['endTime'] as Timestamp).toDate();
+          final startTime = DateTime.parse(settingsData!['startTime']);
+          final endTime = DateTime.parse(settingsData!['endTime']);
           final travelPerHour = settingsData!['travelPerHour'] ?? 50.0;
 
           _animationController.duration = Duration(
@@ -67,8 +67,7 @@ class _SolutionFunctionState extends State<SolutionFunction>
           );
 
           if (settingsData!['breakTime'] != null) {
-            final breakTime =
-                (settingsData!['breakTime'] as Timestamp).toDate();
+            final breakTime = DateTime.parse(settingsData!['breakTime']);
             final now = DateTime.now();
             if (now.isBefore(breakTime)) {
               final durationUntilBreak = breakTime.difference(now);

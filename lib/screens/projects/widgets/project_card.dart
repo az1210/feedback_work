@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/project_model.dart';
@@ -62,7 +61,7 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            project.projectName ?? 'No Name',
+                            project.title ?? 'No Name',
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           const SizedBox(height: 8),
@@ -134,19 +133,25 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
                 ),
                 _buildDetailRow(
                   'Start Date',
-                  project.startDateTime is Timestamp
-                      ? DateFormat('dd/MM/yyyy')
-                          .format((project.startDateTime as Timestamp).toDate())
-                      : '01/01/2024, 5PM',
+                  () {
+                    final parsedDate =
+                        DateTime.tryParse(project.startDateTime ?? '');
+                    return parsedDate != null
+                        ? DateFormat('dd/MM/yyyy').format(parsedDate)
+                        : '01/01/2024, 5PM';
+                  }(),
                   Colors.black54,
                   () {},
                 ),
                 _buildDetailRow(
                   'End Date',
-                  project.finishDateTime is Timestamp
-                      ? DateFormat('dd/MM/yyyy').format(
-                          (project.finishDateTime as Timestamp).toDate())
-                      : '05/01/2024, 5PM',
+                  () {
+                    final parsedDate =
+                        DateTime.tryParse(project.finishDateTime ?? '');
+                    return parsedDate != null
+                        ? DateFormat('dd/MM/yyyy').format(parsedDate)
+                        : '05/01/2024, 5PM';
+                  }(),
                   Colors.black54,
                   () {},
                 ),

@@ -69,6 +69,15 @@
     	<key>NSAllowsLocalNetworking</key>
     	<true/>
 	</dict>
+	<key>CFBundleURLTypes</key>
+	<array>
+    	<dict>
+        	<key>CFBundleURLSchemes</key>
+        	<array>
+            	<string>io.supabase.flutterquickstart</string>
+        	</array>
+    	</dict>
+	</array>
 	<key>FacebookAppID</key>
 	<string>896107745835146</string>
 	<key>FacebookDisplayName</key>
@@ -86,6 +95,7 @@
 	<string>Scan your card to add it automatically</string>
 	<key>NSCameraUsageDescription</key>
 	<string>To scan cards</string>
+
 </dict>
 </plist>
 

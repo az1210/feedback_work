@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UserModel {
   final String? id;
@@ -7,12 +8,12 @@ class UserModel {
   final String? lastName;
   final String? email;
   final String? username;
-  final String? avaterUrl;
+  final String? avatarUrl;
   final String? phoneNumber;
   final String? title;
   final String? expertise;
   final String? accountType;
-  final String? createdAt;
+  final DateTime? createdAt;
   final double? minimumRate;
   final int? feedbackProvided;
   final int? feedbackApplied;
@@ -28,13 +29,14 @@ class UserModel {
   final double? totalFeedbackAcceptedAmount;
   final double? totalFeedbackProvidedAtCostAmount;
   final double? totalFeedbackProvidedFreeAmount;
+
   UserModel({
     this.id,
     this.firstName,
     this.lastName,
     this.email,
     this.username,
-    this.avaterUrl,
+    this.avatarUrl,
     this.phoneNumber,
     this.title,
     this.expertise,
@@ -57,18 +59,129 @@ class UserModel {
     this.totalFeedbackProvidedFreeAmount,
   });
 
+  // Factory constructor to create UserModel from Supabase User
+  factory UserModel.fromSupabaseUser(User user,
+      [Map<String, dynamic>? extraData]) {
+    return UserModel(
+      id: user.id,
+      email: user.email,
+      firstName: user.userMetadata?['firstName'] ?? extraData?['firstName'],
+      lastName: user.userMetadata?['lastName'] ?? extraData?['lastName'],
+      username: user.userMetadata?['username'] ?? extraData?['username'],
+      avatarUrl: user.userMetadata?['avatarUrl'] ?? extraData?['avatarUrl'],
+      createdAt: DateTime.parse(user.createdAt),
+      // Other fields from extraData if available
+      phoneNumber: extraData?['phoneNumber'],
+      title: extraData?['title'],
+      expertise: extraData?['expertise'],
+      accountType: extraData?['accountType'],
+      minimumRate: extraData?['minimumRate']?.toDouble(),
+      feedbackProvided: extraData?['feedbackProvided'],
+      feedbackApplied: extraData?['feedbackApplied'],
+      problemSolved: extraData?['problemSolved'],
+      problemHelpSolved: extraData?['problemHelpSolved'],
+      totalEarned: extraData?['totalEarned']?.toDouble(),
+      totalSpent: extraData?['totalSpent']?.toDouble(),
+      totalFeedbackRequested: extraData?['totalFeedbackRequested'],
+      totalFeedbackReceived: extraData?['totalFeedbackReceived'],
+      totalFeedbackProvidedForFree: extraData?['totalFeedbackProvidedForFree'],
+      totalFeedbackAccepted: extraData?['totalFeedbackAccepted'],
+      totalFeedbackDeclined: extraData?['totalFeedbackDeclined'],
+      totalFeedbackAcceptedAmount:
+          extraData?['totalFeedbackAcceptedAmount']?.toDouble(),
+      totalFeedbackProvidedAtCostAmount:
+          extraData?['totalFeedbackProvidedAtCostAmount']?.toDouble(),
+      totalFeedbackProvidedFreeAmount:
+          extraData?['totalFeedbackProvidedFreeAmount']?.toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'id': id,
+      'first_name': firstName,
+      'last_name': lastName,
+      'email': email,
+      'username': username,
+      'avatar_url': avatarUrl,
+      'phone_number': phoneNumber,
+      'title': title,
+      'expertise': expertise,
+      'account_type': accountType,
+      'created_at': createdAt?.toIso8601String(),
+      'minimum_rate': minimumRate,
+      'feedback_provided': feedbackProvided,
+      'feedback_applied': feedbackApplied,
+      'problem_solved': problemSolved,
+      'problem_help_solved': problemHelpSolved,
+      'total_earned': totalEarned,
+      'total_spent': totalSpent,
+      'total_feedback_requested': totalFeedbackRequested,
+      'total_feedback_received': totalFeedbackReceived,
+      'total_feedback_provided_for_free': totalFeedbackProvidedForFree,
+      'total_feedback_accepted': totalFeedbackAccepted,
+      'total_feedback_declined': totalFeedbackDeclined,
+      'total_feedback_accepted_amount': totalFeedbackAcceptedAmount,
+      'total_feedback_provided_at_cost_amount':
+          totalFeedbackProvidedAtCostAmount,
+      'total_feedback_provided_free_amount': totalFeedbackProvidedFreeAmount,
+    };
+  }
+
+  factory UserModel.fromMap(Map<String, dynamic> map) {
+    return UserModel(
+      id: map['id']?.toString(),
+      firstName: map['first_name']?.toString(),
+      lastName: map['last_name']?.toString(),
+      email: map['email']?.toString(),
+      username: map['username']?.toString(),
+      avatarUrl: map['avatar_url']?.toString(),
+      phoneNumber: map['phone_number']?.toString(),
+      title: map['title']?.toString(),
+      expertise: map['expertise']?.toString(),
+      accountType: map['account_type']?.toString(),
+      createdAt: map['created_at'] != null
+          ? DateTime.parse(map['created_at'].toString())
+          : null,
+      minimumRate: map['minimum_rate']?.toDouble(),
+      feedbackProvided: map['feedback_provided']?.toInt(),
+      feedbackApplied: map['feedback_applied']?.toInt(),
+      problemSolved: map['problem_solved']?.toInt(),
+      problemHelpSolved: map['problem_help_solved']?.toInt(),
+      totalEarned: map['total_earned']?.toDouble(),
+      totalSpent: map['total_spent']?.toDouble(),
+      totalFeedbackRequested: map['total_feedback_requested']?.toInt(),
+      totalFeedbackReceived: map['total_feedback_received']?.toInt(),
+      totalFeedbackProvidedForFree:
+          map['total_feedback_provided_for_free']?.toInt(),
+      totalFeedbackAccepted: map['total_feedback_accepted']?.toInt(),
+      totalFeedbackDeclined: map['total_feedback_declined']?.toInt(),
+      totalFeedbackAcceptedAmount:
+          map['total_feedback_accepted_amount']?.toDouble(),
+      totalFeedbackProvidedAtCostAmount:
+          map['total_feedback_provided_at_cost_amount']?.toDouble(),
+      totalFeedbackProvidedFreeAmount:
+          map['total_feedback_provided_free_amount']?.toDouble(),
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory UserModel.fromJson(String source) =>
+      UserModel.fromMap(json.decode(source) as Map<String, dynamic>);
+
   UserModel copyWith({
     String? id,
     String? firstName,
     String? lastName,
     String? email,
     String? username,
-    String? avaterUrl,
+    String? avatarUrl,
     String? phoneNumber,
     String? title,
     String? expertise,
     String? accountType,
-    String? createdAt,
+    DateTime? createdAt,
     double? minimumRate,
     int? feedbackProvided,
     int? feedbackApplied,
@@ -91,7 +204,7 @@ class UserModel {
       lastName: lastName ?? this.lastName,
       email: email ?? this.email,
       username: username ?? this.username,
-      avaterUrl: avaterUrl ?? this.avaterUrl,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       title: title ?? this.title,
       expertise: expertise ?? this.expertise,
@@ -123,105 +236,9 @@ class UserModel {
     );
   }
 
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      'id': id,
-      'firstName': firstName,
-      'lastName': lastName,
-      'email': email,
-      'username': username,
-      'avaterUrl': avaterUrl,
-      'phoneNumber': phoneNumber,
-      'title': title,
-      'expertise': expertise,
-      'accountType': accountType,
-      'createdAt': createdAt,
-      'minimumRate': minimumRate,
-      'feedbackProvided': feedbackProvided,
-      'feedbackApplied': feedbackApplied,
-      'problemSolved': problemSolved,
-      'problemHelpSolved': problemHelpSolved,
-      'totalEarned': totalEarned,
-      'totalSpent': totalSpent,
-      'totalFeedbackRequested': totalFeedbackRequested,
-      'totalFeedbackReceived': totalFeedbackReceived,
-      'totalFeedbackProvidedForFree': totalFeedbackProvidedForFree,
-      'totalFeedbackAccepted': totalFeedbackAccepted,
-      'totalFeedbackDeclined': totalFeedbackDeclined,
-      'totalFeedbackAcceptedAmount': totalFeedbackAcceptedAmount,
-      'totalFeedbackProvidedAtCostAmount': totalFeedbackProvidedAtCostAmount,
-      'totalFeedbackProvidedFreeAmount': totalFeedbackProvidedFreeAmount,
-    };
-  }
-
-  factory UserModel.fromMap(Map<String, dynamic> map) {
-    return UserModel(
-      id: map['id'] != null ? map['id'] as String : null,
-      firstName: map['firstName'] != null ? map['firstName'] as String : null,
-      lastName: map['lastName'] != null ? map['lastName'] as String : null,
-      email: map['email'] != null ? map['email'] as String : null,
-      username: map['username'] != null ? map['username'] as String : null,
-      avaterUrl: map['avaterUrl'] != null ? map['avaterUrl'] as String : null,
-      phoneNumber:
-          map['phoneNumber'] != null ? map['phoneNumber'] as String : null,
-      title: map['title'] != null ? map['title'] as String : null,
-      expertise: map['expertise'] != null ? map['expertise'] as String : null,
-      accountType:
-          map['accountType'] != null ? map['accountType'] as String : null,
-      createdAt: map['createdAt'] != null ? map['createdAt'] as String : null,
-      minimumRate:
-          map['minimumRate'] != null ? map['minimumRate'] as double : null,
-      feedbackProvided: map['feedbackProvided'] != null
-          ? map['feedbackProvided'] as int
-          : null,
-      feedbackApplied:
-          map['feedbackApplied'] != null ? map['feedbackApplied'] as int : null,
-      problemSolved:
-          map['problemSolved'] != null ? map['problemSolved'] as int : null,
-      problemHelpSolved: map['problemHelpSolved'] != null
-          ? map['problemHelpSolved'] as int
-          : null,
-      totalEarned:
-          map['totalEarned'] != null ? map['totalEarned'] as double : null,
-      totalSpent:
-          map['totalSpent'] != null ? map['totalSpent'] as double : null,
-      totalFeedbackRequested: map['totalFeedbackRequested'] != null
-          ? map['totalFeedbackRequested'] as int
-          : null,
-      totalFeedbackReceived: map['totalFeedbackReceived'] != null
-          ? map['totalFeedbackReceived'] as int
-          : null,
-      totalFeedbackProvidedForFree: map['totalFeedbackProvidedForFree'] != null
-          ? map['totalFeedbackProvidedForFree'] as int
-          : null,
-      totalFeedbackAccepted: map['totalFeedbackAccepted'] != null
-          ? map['totalFeedbackAccepted'] as int
-          : null,
-      totalFeedbackDeclined: map['totalFeedbackDeclined'] != null
-          ? map['totalFeedbackDeclined'] as int
-          : null,
-      totalFeedbackAcceptedAmount: map['totalFeedbackAcceptedAmount'] != null
-          ? map['totalFeedbackAcceptedAmount'] as double
-          : null,
-      totalFeedbackProvidedAtCostAmount:
-          map['totalFeedbackProvidedAtCostAmount'] != null
-              ? map['totalFeedbackProvidedAtCostAmount'] as double
-              : null,
-      totalFeedbackProvidedFreeAmount:
-          map['totalFeedbackProvidedFreeAmount'] != null
-              ? map['totalFeedbackProvidedFreeAmount'] as double
-              : null,
-    );
-  }
-
-  String toJson() => json.encode(toMap());
-
-  factory UserModel.fromJson(String source) =>
-      UserModel.fromMap(json.decode(source) as Map<String, dynamic>);
-
   @override
   String toString() {
-    return 'UserModel(id: $id, firstName: $firstName, lastName: $lastName, email: $email, username: $username, avaterUrl: $avaterUrl, phoneNumber: $phoneNumber, title: $title, expertise: $expertise, accountType: $accountType, createdAt: $createdAt, minimumRate: $minimumRate, feedbackProvided: $feedbackProvided, feedbackApplied: $feedbackApplied, problemSolved: $problemSolved, problemHelpSolved: $problemHelpSolved, totalEarned: $totalEarned, totalSpent: $totalSpent, totalFeedbackRequested: $totalFeedbackRequested, totalFeedbackReceived: $totalFeedbackReceived, totalFeedbackProvidedForFree: $totalFeedbackProvidedForFree, totalFeedbackAccepted: $totalFeedbackAccepted, totalFeedbackDeclined: $totalFeedbackDeclined, totalFeedbackAcceptedAmount: $totalFeedbackAcceptedAmount, totalFeedbackProvidedAtCostAmount: $totalFeedbackProvidedAtCostAmount, totalFeedbackProvidedFreeAmount: $totalFeedbackProvidedFreeAmount)';
+    return 'UserModel(id: $id, firstName: $firstName, lastName: $lastName, email: $email, username: $username, avatarUrl: $avatarUrl, phoneNumber: $phoneNumber, title: $title, expertise: $expertise, accountType: $accountType, createdAt: $createdAt, minimumRate: $minimumRate, feedbackProvided: $feedbackProvided, feedbackApplied: $feedbackApplied, problemSolved: $problemSolved, problemHelpSolved: $problemHelpSolved, totalEarned: $totalEarned, totalSpent: $totalSpent, totalFeedbackRequested: $totalFeedbackRequested, totalFeedbackReceived: $totalFeedbackReceived, totalFeedbackProvidedForFree: $totalFeedbackProvidedForFree, totalFeedbackAccepted: $totalFeedbackAccepted, totalFeedbackDeclined: $totalFeedbackDeclined, totalFeedbackAcceptedAmount: $totalFeedbackAcceptedAmount, totalFeedbackProvidedAtCostAmount: $totalFeedbackProvidedAtCostAmount, totalFeedbackProvidedFreeAmount: $totalFeedbackProvidedFreeAmount)';
   }
 
   @override
@@ -233,7 +250,7 @@ class UserModel {
         other.lastName == lastName &&
         other.email == email &&
         other.username == username &&
-        other.avaterUrl == avaterUrl &&
+        other.avatarUrl == avatarUrl &&
         other.phoneNumber == phoneNumber &&
         other.title == title &&
         other.expertise == expertise &&
@@ -265,7 +282,7 @@ class UserModel {
         lastName.hashCode ^
         email.hashCode ^
         username.hashCode ^
-        avaterUrl.hashCode ^
+        avatarUrl.hashCode ^
         phoneNumber.hashCode ^
         title.hashCode ^
         expertise.hashCode ^

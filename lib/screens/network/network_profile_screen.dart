@@ -33,7 +33,7 @@ class NetworkProfileScreen extends StatelessWidget {
                     radius: 50,
                     backgroundColor: context.colors.inputBorder,
                     child: Image.network(
-                      networkImage(user.avaterUrl),
+                      networkImage(user.avatarUrl),
                       errorBuilder: (context, error, stackTrace) => Icon(
                         Icons.person,
                         color: context.colors.darkGrey,

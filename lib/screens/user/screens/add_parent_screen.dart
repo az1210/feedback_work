@@ -171,7 +171,7 @@ class _RequestFeedbackScreenState extends ConsumerState<AddParentScreen> {
                                       id: selectedUser!.id,
                                       firstName: selectedUser!.firstName,
                                       lastName: selectedUser!.lastName,
-                                      avaterUrl: selectedUser!.avaterUrl,
+                                      avatarUrl: selectedUser!.avatarUrl,
                                       email: selectedUser!.email,
                                       relationship: selectedRelationship,
                                       residence: selectedResidence),

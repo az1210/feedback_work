@@ -1,16 +1,16 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:feedback_work/core/constants/firebase_constants.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/network_request_model.dart';
 import 'package:feedback_work/models/user_model.dart';
-import 'package:feedback_work/providers/firebase_providers.dart';
 import 'package:feedback_work/providers/user_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 final networkProvider = NotifierProvider<NetworkNotifier, NetworkNotifierState>(
     NetworkNotifier.new);
 
 class NetworkNotifier extends Notifier<NetworkNotifierState> {
+  final supabase = Supabase.instance.client;
+
   @override
   NetworkNotifierState build() {
     return NetworkNotifierState(state: AsyncState.initial);
@@ -18,26 +18,28 @@ class NetworkNotifier extends Notifier<NetworkNotifierState> {
 
   Future<void> fetchAllOwnNetwork() async {
     state = state.copyWith(state: AsyncState.loading);
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
-    UserModel currentUser = ref.watch(currentUserProvider.notifier).state!;
+    UserModel? currentUser = ref.watch(currentUserProvider);
     try {
-      final networksSnapshot = await firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(currentUser.id)
-          .collection(FirebaseConstants.networkCollection)
-          .get();
+      if (currentUser?.id == null) {
+        throw Exception('No user logged in');
+      }
 
-      List<String> userIds = networksSnapshot.docs
-          .map((doc) => doc.data()['id'] as String)
+      final userId = currentUser!.id as String;
+      final response = await supabase
+          .from('networks')
+          .select('connected_user_id')
+          .eq('user_id', userId);
+
+      List<String> userIds = (response as List)
+          .map((doc) => doc['connected_user_id'] as String)
           .toList();
+
       List<UserModel> users = [];
-      for (var i in userIds) {
-        final doc = await firestore
-            .collection(FirebaseConstants.userCollection)
-            .doc(i)
-            .get();
-        if (doc.exists) {
-          users.add(UserModel.fromMap(doc.data() as Map<String, dynamic>));
+      for (var id in userIds) {
+        final userResponse =
+            await supabase.from('users').select().eq('id', id).single();
+        if (userResponse != null) {
+          users.add(UserModel.fromMap(userResponse));
         }
       }
 
@@ -45,34 +47,34 @@ class NetworkNotifier extends Notifier<NetworkNotifierState> {
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+      state = state.copyWith(state: AsyncState.failure, error: e.toString());
     }
   }
 
   Future<void> fetchAllRequests() async {
     state = state.copyWith(state: AsyncState.loading);
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
-    UserModel currentUser = ref.watch(currentUserProvider.notifier).state!;
+    UserModel? currentUser = ref.watch(currentUserProvider);
     try {
-      final networksSnapshot = await firestore
-          .collection(FirebaseConstants.networkCollection)
-          .where('requestedTo', isEqualTo: currentUser.id)
-          .get();
+      if (currentUser?.id == null) {
+        throw Exception('No user logged in');
+      }
 
-      Log.info(
-          "Request from====> ${networksSnapshot.docs.map((c) => c.data()['requestedFrom'].toString()).toList().toString()}");
+      final userId = currentUser!.id as String;
+      final response = await supabase
+          .from('network_requests')
+          .select()
+          .eq('requested_to', userId);
 
-      final List<String> ids = networksSnapshot.docs
-          .map((c) => c.data()['requestedFrom'] as String)
+      final List<String> requestedFromIds = (response as List)
+          .map((doc) => doc['requested_from'] as String)
           .toList();
+
       List<UserModel> users = [];
-      for (var i in ids) {
-        final doc = await firestore
-            .collection(FirebaseConstants.userCollection)
-            .doc(i)
-            .get();
-        if (doc.exists) {
-          Log.info(doc.data().toString());
-          users.add(UserModel.fromMap(doc.data() as Map<String, dynamic>));
+      for (var id in requestedFromIds) {
+        final userResponse =
+            await supabase.from('users').select().eq('id', id).single();
+        if (userResponse != null) {
+          users.add(UserModel.fromMap(userResponse));
         }
       }
 
@@ -80,63 +82,61 @@ class NetworkNotifier extends Notifier<NetworkNotifierState> {
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+      state = state.copyWith(state: AsyncState.failure, error: e.toString());
     }
   }
 
-  Future<void> requestNetwork(
-      {required NetworkRequestModel networkRequestModel,
-      void Function()? callback}) async {
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
+  Future<void> requestNetwork({
+    required NetworkRequestModel networkRequestModel,
+    void Function()? callback,
+  }) async {
     try {
-      Log.info("request network");
-      Log.info(networkRequestModel.toMap().toString());
       state = state.copyWith(state: AsyncState.loading);
-      final n = networkRequestModel.copyWith(
-          connectionStatus: ConnectionStatus.requested.name.toString());
-      Log.info(n.toMap().toString());
-      await firestore
-          .collection(FirebaseConstants.networkCollection)
-          .doc(
-              "${networkRequestModel.requestedFrom}${networkRequestModel.requestedTo}")
-          .set(n.toMap());
+
+      await supabase.from('network_requests').insert({
+        'requested_from': networkRequestModel.requestedFrom,
+        'requested_to': networkRequestModel.requestedTo,
+        'status': ConnectionStatus.requested.name,
+      });
+
       state = state.copyWith(state: AsyncState.success);
       callback?.call();
-      fetchAllRequests();
-      fetchAllOwnNetwork();
+      await fetchAllRequests();
+      await fetchAllOwnNetwork();
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+      state = state.copyWith(state: AsyncState.failure, error: e.toString());
     }
   }
 
-  Future<void> requestAccept(
-      {required String currentUserId, required String connectionId}) async {
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
+  Future<void> requestAccept({
+    required String currentUserId,
+    required String connectionId,
+  }) async {
     try {
       state = state.copyWith(state: AsyncState.loading);
-      await firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(currentUserId)
-          .collection(FirebaseConstants.networkCollection)
-          .doc("$connectionId$currentUserId")
-          .set({'id': connectionId});
-      await firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(connectionId)
-          .collection(FirebaseConstants.networkCollection)
-          .doc("$connectionId$currentUserId")
-          .set({'id': currentUserId});
-      await firestore
-          .collection(FirebaseConstants.networkCollection)
-          .doc("$connectionId$currentUserId")
-          .delete();
-      state = state.copyWith(state: AsyncState.success);
 
-      fetchAllRequests();
-      fetchAllOwnNetwork();
+      // Create bidirectional connection
+      await supabase.from('networks').insert([
+        {'user_id': currentUserId, 'connected_user_id': connectionId},
+        {'user_id': connectionId, 'connected_user_id': currentUserId},
+      ]);
+
+      // Delete the request
+      await supabase
+          .from('network_requests')
+          .delete()
+          .eq('requested_from', connectionId)
+          .eq('requested_to', currentUserId);
+
+      state = state.copyWith(state: AsyncState.success);
+      await fetchAllRequests();
+      await fetchAllOwnNetwork();
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+      state = state.copyWith(state: AsyncState.failure, error: e.toString());
     }
   }
 
@@ -144,30 +144,22 @@ class NetworkNotifier extends Notifier<NetworkNotifierState> {
     required String currentUserId,
     required String connectionId,
   }) async {
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
       state = state.copyWith(state: AsyncState.loading);
-      final snapshots = await firestore
-          .collection(FirebaseConstants.networkCollection)
-          .where(
-            'requestedTo',
-            isEqualTo: connectionId,
-          )
-          .where('requestedFrom', isEqualTo: currentUserId)
-          .get();
-      for (var i in snapshots.docs) {
-        await firestore
-            .collection(FirebaseConstants.networkCollection)
-            .doc(i.id)
-            .delete();
-      }
-      state = state.copyWith(state: AsyncState.success);
 
-      fetchAllRequests();
-      fetchAllOwnNetwork();
+      await supabase
+          .from('network_requests')
+          .delete()
+          .eq('requested_from', connectionId)
+          .eq('requested_to', currentUserId);
+
+      state = state.copyWith(state: AsyncState.success);
+      await fetchAllRequests();
+      await fetchAllOwnNetwork();
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+      state = state.copyWith(state: AsyncState.failure, error: e.toString());
     }
   }
 
@@ -175,44 +167,26 @@ class NetworkNotifier extends Notifier<NetworkNotifierState> {
     required String userId,
     required String connectionUserId,
   }) async {
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
       state = state.copyWith(state: AsyncState.loading);
-      final userSnapshots = await firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(userId)
-          .collection(FirebaseConstants.networkCollection)
-          .where("id", isEqualTo: connectionUserId)
-          .get();
-      for (var d in userSnapshots.docs) {
-        await firestore
-            .collection(FirebaseConstants.userCollection)
-            .doc(userId)
-            .collection(FirebaseConstants.networkCollection)
-            .doc(d.id)
-            .delete();
-      }
 
-      final snapshots = await firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(connectionUserId)
-          .collection(FirebaseConstants.networkCollection)
-          .where("id", isEqualTo: userId)
-          .get();
-      for (var d in snapshots.docs) {
-        await firestore
-            .collection(FirebaseConstants.userCollection)
-            .doc(connectionUserId)
-            .collection(FirebaseConstants.networkCollection)
-            .doc(d.id)
-            .delete();
-      }
+      // Remove bidirectional connection
+      await supabase.from('networks').delete().match({
+        'user_id': userId,
+        'connected_user_id': connectionUserId,
+      });
+      await supabase.from('networks').delete().match({
+        'user_id': connectionUserId,
+        'connected_user_id': userId,
+      });
+
       state = state.copyWith(state: AsyncState.success);
-      fetchAllRequests();
-      fetchAllOwnNetwork();
+      await fetchAllRequests();
+      await fetchAllOwnNetwork();
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+      state = state.copyWith(state: AsyncState.failure, error: e.toString());
     }
   }
 }

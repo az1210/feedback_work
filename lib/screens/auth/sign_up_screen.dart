@@ -1,10 +1,10 @@
 import 'package:feedback_work/core/utils/validator.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../providers/auth_providers.dart';
 import './widgets/third_party_icon_button.dart';
@@ -38,9 +38,14 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     if (formKey.currentState!.validate()) {
       if (!_validateInputs()) return;
       if (passwordController.text != confirmPasswordController.text) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Passwords do not match")),
+        final snackBar = CustomSnackbar.build(
+          title: 'Oh Snap!',
+          message: "Passwords do not match",
+          contentType: ContentType.failure,
         );
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(snackBar);
         return;
       }
       setState(() {
@@ -57,24 +62,36 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               password: passwordController.text,
             );
 
-        final userId = FirebaseAuth.instance.currentUser?.uid;
+        final supabase = Supabase.instance.client;
+        final userId = supabase.auth.currentUser?.id;
 
-        if (userId != null) {
+        if (userId != null && mounted) {
           context.push('/complete-profile', extra: userId);
         }
       } catch (e) {
-        final snackBar = CustomSnackbar.build(
-          title: 'Oh Snap!',
-          message: 'Something went wrong!',
-          contentType: ContentType.failure,
-        );
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(snackBar);
+        String errorMessage = e.toString();
+        if (e is AuthException) {
+          errorMessage = e.message;
+        } else {
+          errorMessage = errorMessage.replaceAll('Exception: ', '');
+        }
+
+        if (mounted) {
+          final snackBar = CustomSnackbar.build(
+            title: 'Oh Snap!',
+            message: errorMessage,
+            contentType: ContentType.failure,
+          );
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(snackBar);
+        }
       } finally {
-        setState(() {
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
       }
     }
   }
@@ -118,6 +135,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           // LayoutBuilder(
           //   builder: (context, constraints) {
           //     bool isWideScreen = constraints.maxWidth > 800;
+          //   }
           const Align(
             alignment: Alignment.topCenter,
             child: Image(

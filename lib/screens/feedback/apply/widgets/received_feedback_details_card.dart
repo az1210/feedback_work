@@ -116,7 +116,7 @@ class _ProvidedFeedbackCardState
                             backgroundColor: context.colors.background,
                             child: Image.network(
                               networkImage(
-                                  widget.feedback.project?.owner?.avaterUrl),
+                                  widget.feedback.project?.owner?.avatarUrl),
                               errorBuilder: (context, error, stackTrace) =>
                                   Icon(
                                 Icons.person,

@@ -1,16 +1,15 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feedback_work/core/utils/toast_message.dart';
 import 'package:feedback_work/providers/user_providers.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:feedback_work/utility/custom_snackbar.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 
-import 'package:feedback_work/core/constants/firebase_constants.dart';
-import 'package:feedback_work/core/router/routes.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/user_model.dart';
-import 'package:feedback_work/providers/firebase_providers.dart';
+import 'package:feedback_work/providers/supabase_providers.dart';
+
+final authProvider = StateProvider<bool>((ref) => false);
 
 final authServiceProvider =
     NotifierProvider<AuthNotifier, AuthNotifierState>(AuthNotifier.new);
@@ -21,432 +20,288 @@ class AuthNotifier extends Notifier<AuthNotifierState> {
     return AuthNotifierState(state: AsyncState.initial);
   }
 
-  // Sign up
-  // Future<void> signUp({
-  //   required UserModel userModel,
-  //   required String password,
-  //   void Function()? callBack,
-  // }) async {
-  //   state = state.copyWith(state: AsyncState.loading);
-  //   FirebaseAuth auth = ref.read(firebaseAuthProvider);
-  //   // FirebaseFirestore firestore = ref.read(firestoreProvider);
-  //   try {
-  //     UserCredential userCredential = await auth.createUserWithEmailAndPassword(
-  //       email: userModel.email!,
-  //       password: password,
-  //     );
-
-  //     // Save basic user details to Firestore
-  //     // final docRef = await firestore
-  //     //     .collection(FirebaseConstants.userCollection)
-  //     //     .doc(userCredential.user!.uid)
-  //     //     .set(userModel.copyWith(id: userCredential.user!.uid).toMap());
-
-  //     // Save session expiration date (30 days)
-  //     await saveSession(userCredential.user!);
-  //     callBack?.call();
-  //     state = state.copyWith(state: AsyncState.success);
-  //   } catch (e, stackTrace) {
-  //     Log.error(e.toString());
-  //     Log.error(stackTrace.toString());
-  //   }
-  // }
-
   Future<void> signUp({
     required UserModel userModel,
     required String password,
     void Function()? callBack,
   }) async {
     state = state.copyWith(state: AsyncState.loading);
-    FirebaseAuth auth = ref.read(firebaseAuthProvider);
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
+    final supabase = ref.read(supabaseClientProvider);
 
     try {
-      UserCredential userCredential = await auth.createUserWithEmailAndPassword(
-        email: userModel.email!,
+      // Clean and validate the email
+      final email = userModel.email?.trim().toLowerCase();
+      if (email == null || email.isEmpty) {
+        throw Exception('Email is required');
+      }
+
+      // First create the auth user with minimal data
+      final response = await supabase.auth.signUp(
+        email: email,
         password: password,
+        data: {
+          'first_name': userModel.firstName?.trim(),
+          'last_name': userModel.lastName?.trim(),
+          'phone_number': userModel.phoneNumber?.trim(),
+        },
       );
 
-      // 🔹 Ensure UID is set in userModel
-      final newUser = userModel.copyWith(id: userCredential.user!.uid);
+      if (response.user != null) {
+        try {
+          // Create the user profile
+          await supabase.from('users').insert({
+            'id': response.user!.id,
+            'email': email,
+            'first_name': userModel.firstName?.trim(),
+            'last_name': userModel.lastName?.trim(),
+            'phone_number': userModel.phoneNumber?.trim(),
+            'minimum_rate': 10.0,
+          });
 
-      // 🔹 Save user details in Firestore
-      await firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(newUser.id)
-          .set(newUser.toMap()); // Ensure all user data is saved
+          // Update currentUserProvider
+          ref.read(currentUserProvider.notifier).state =
+              userModel.copyWith(id: response.user!.id);
 
-      // 🔹 Save session expiration
-      await saveSession(userCredential.user!);
+          // Update auth state
+          ref.read(authProvider.notifier).state = true;
 
-      // 🔹 Update currentUserProvider
-      ref.read(currentUserProvider.notifier).state = newUser;
-
-      callBack?.call();
-      state = state.copyWith(state: AsyncState.success);
-    } catch (e, stackTrace) {
-      Log.error(e.toString());
-      Log.error(stackTrace.toString());
-    }
-  }
-
-  // Check if user is signed in and session is valid
-  Future<bool> isUserSignedIn() async {
-    FirebaseAuth auth = ref.read(firebaseAuthProvider);
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
-    final user = auth.currentUser;
-    try {
-      if (user != null) {
-        // Verify session expiration logic in Firestore
-        final sessionDoc = await firestore
-            .collection(FirebaseConstants.sessionCollection)
-            .doc(user.uid)
-            .get();
-        if (sessionDoc.exists) {
-          final expirationDate = sessionDoc['expirationDate']?.toDate();
-          if (expirationDate != null &&
-              expirationDate.isAfter(DateTime.now())) {
-            // Session is valid
-            return true;
-          } else {
-            // Session expired, delete from Firestore
-            await firestore
-                .collection(FirebaseConstants.sessionCollection)
-                .doc(user.uid)
-                .delete();
-          }
+          // Call the callback after everything is successful
+          callBack?.call();
+          state = state.copyWith(state: AsyncState.success);
+        } catch (e) {
+          Log.error('Error creating user profile: ${e.toString()}');
+          throw e;
         }
+      } else {
+        throw Exception('Failed to create user account');
       }
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
-    }
+      state = state.copyWith(state: AsyncState.failure);
 
-    return false; // No active session
-  }
+      String errorMessage;
+      if (e is AuthApiException) {
+        if (e.message.contains('email_address_not_authorized')) {
+          errorMessage =
+              'Please set up a custom SMTP provider to send emails to this address';
+        } else if (e.message.contains('User already registered')) {
+          errorMessage = 'This email is already registered';
+        } else {
+          errorMessage = e.message;
+        }
+      } else {
+        errorMessage = 'Failed to sign up';
+      }
 
-  // Save session expiration date (30 days from now)
-  Future<void> saveSession(User user) async {
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
-    final expirationDate = DateTime.now().add(const Duration(days: 30));
-    try {
-      await firestore
-          .collection(FirebaseConstants.sessionCollection)
-          .doc(user.uid)
-          .set({
-        'expirationDate': expirationDate,
-      }, SetOptions(merge: true));
-    } catch (e, stackTrace) {
-      Log.error(e.toString());
-      Log.error(stackTrace.toString());
+      throw Exception(errorMessage);
     }
   }
 
-  // Sign In with Email or Username
-  // Future<void> signInWithEmailOrUsername({
-  //   required String emailOrUsername,
-  //   required String password,
-  //   void Function()? callback,
-  // }) async {
-  //   FirebaseAuth auth = ref.read(firebaseAuthProvider);
-  //   FirebaseFirestore firestore = ref.read(firestoreProvider);
-  //   String email = emailOrUsername;
-
-  //   try {
-  //     // Check if input is a username, not an email
-  //     if (!emailOrUsername.contains('@')) {
-  //       // Query Firestore to get the email associated with the username
-  //       final querySnapshot = await firestore
-  //           .collection(FirebaseConstants.userCollection)
-  //           .where('username', isEqualTo: emailOrUsername)
-  //           .get();
-
-  //       if (querySnapshot.docs.isEmpty) {
-  //         throw Exception('No user found with that username.');
-  //       }
-
-  //       email = querySnapshot.docs.first['email'];
-  //     }
-
-  //     // Sign in with the resolved email
-  //     await auth.signInWithEmailAndPassword(email: email, password: password);
-  //     // Save session after sign-in
-  //     final user = auth.currentUser;
-  //     if (user != null) {
-  //       Log.info(user.uid);
-  //       await saveSession(user);
-  //       ref.read(authProvider.notifier).state = true;
-  //       callback?.call();
-  //     } else {
-  //       return;
-  //     }
-  //   } on FirebaseAuthException catch (e, stackTrace) {
-  //     if (e.code == 'user-not-found') {
-  //       showToast(message: "No user found for that email.");
-  //     } else if (e.code == 'wrong-password') {
-  //       showToast(message: 'Wrong password provided for that user.');
-  //     } else if (e.code == 'invalid-email') {
-  //       showToast(message: "Wrong email provided for that user.");
-  //     } else if (e.code == 'invalid-credential') {
-  //       showToast(message: "Invalid Credential provided for that user.");
-  //     }
-  //     Log.error(e.code);
-  //     Log.error(stackTrace.toString());
-  //   }
-  // }
+  Future<bool> isUserSignedIn() async {
+    final supabase = ref.read(supabaseClientProvider);
+    final session = supabase.auth.currentSession;
+    return session != null;
+  }
 
   Future<void> signInWithEmailOrUsername({
     required String emailOrUsername,
     required String password,
     void Function()? callback,
   }) async {
-    FirebaseAuth auth = ref.read(firebaseAuthProvider);
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
+    state = state.copyWith(state: AsyncState.loading);
+    final supabase = ref.read(supabaseClientProvider);
     String email = emailOrUsername;
 
     try {
+      // Check if input is a username, not an email
       if (!emailOrUsername.contains('@')) {
-        final querySnapshot = await firestore
-            .collection(FirebaseConstants.userCollection)
-            .where('username', isEqualTo: emailOrUsername)
-            .get();
-        if (querySnapshot.docs.isEmpty) {
+        final response = await supabase
+            .from('users')
+            .select()
+            .eq('username', emailOrUsername)
+            .single();
+
+        if (response == null) {
           throw Exception('No user found with that username.');
         }
-        email = querySnapshot.docs.first['email'];
+        email = response['email'];
       }
 
-      await auth.signInWithEmailAndPassword(email: email, password: password);
+      final response = await supabase.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
 
-      final user = auth.currentUser;
-      if (user != null) {
-        await saveSession(user);
-
-        // 🔹 Fetch user details from Firestore
-        final userDoc = await firestore
-            .collection(FirebaseConstants.userCollection)
-            .doc(user.uid)
-            .get();
-
-        if (userDoc.exists) {
-          final userData = UserModel.fromMap(userDoc.data()!);
-          ref.read(currentUserProvider.notifier).state = userData;
-        } else {
-          Log.error("User data not found in Firestore for UID: ${user.uid}");
-        }
-
+      if (response.user != null) {
         ref.read(authProvider.notifier).state = true;
         callback?.call();
       }
-    } on FirebaseAuthException catch (e, stackTrace) {
-      if (e.code == 'user-not-found') {
-        showToast(message: "No user found for that email.");
-      } else if (e.code == 'wrong-password') {
-        showToast(message: 'Wrong password provided for that user.');
-      } else if (e.code == 'invalid-email') {
-        showToast(message: "Wrong email provided for that user.");
-      } else if (e.code == 'invalid-credential') {
-        showToast(message: "Invalid Credential provided for that user.");
-      }
-      Log.error(e.code);
-      Log.error(stackTrace.toString());
-    }
-  }
-
-  // Google Sign-In
-  Future<void> signInWithGoogle({void Function()? callBack}) async {
-    FirebaseAuth auth = ref.read(firebaseAuthProvider);
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
-    GoogleSignIn googleSignIn = ref.read(googleSignInProvider);
-    try {
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-      if (googleUser == null) return; // User canceled the login.
-
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      UserModel userModel = UserModel(
-        firstName: googleUser.displayName?.split(' ')[0] ?? '',
-        lastName: googleUser.displayName?.split(' ')[1] ?? '',
-        email: googleUser.email,
-        phoneNumber: "",
-      );
-
-      UserCredential userCredential =
-          await auth.signInWithCredential(credential);
-
-      if (userCredential.additionalUserInfo!.isNewUser) {
-        await firestore
-            .collection(FirebaseConstants.userCollection)
-            .doc(userCredential.user!.uid)
-            .set(userModel.toMap());
-      }
-
-      // Save session after sign-in
-      await saveSession(userCredential.user!);
-      ref.read(authProvider.notifier).state = true;
-      callBack?.call();
-    } catch (e, stackTrace) {
+      state = state.copyWith(state: AsyncState.success);
+    } catch (e) {
       Log.error(e.toString());
-      Log.error(stackTrace.toString());
+      state = state.copyWith(state: AsyncState.failure);
+      showToast(message: "Failed to sign in: ${e.toString()}");
     }
   }
 
-  // Complete User Profile (Step 2)
-  // Future<void> completeUserProfile({
-  //   required String uid,
-  //   required UserModel userModel,
-  // }) async {
-  //   FirebaseFirestore firestore = ref.read(firestoreProvider);
-  //   try {
-  //     await firestore
-  //         .collection(FirebaseConstants.userCollection)
-  //         .doc(uid)
-  //         .update(
-  //       {
-  //         "username": userModel.username,
-  //         "title": userModel.title,
-  //         "expertise": userModel.expertise,
-  //         "accountType": userModel.accountType,
-  //         "minimumRate": userModel.minimumRate,
-  //       },
-  //     );
-  //   } catch (e, stackTrace) {
-  //     Log.error(e.toString());
-  //     Log.error(stackTrace.toString());
-  //   }
-  // }
+  Future<void> signOut() async {
+    final supabase = ref.read(supabaseClientProvider);
+    await supabase.auth.signOut();
+    ref.read(authProvider.notifier).state = false;
+    ref.read(currentUserProvider.notifier).state = null;
+  }
+
+  Future<bool> isUsernameAvailable(String username) async {
+    final supabase = ref.read(supabaseClientProvider);
+    try {
+      final response = await supabase
+          .from('users')
+          .select()
+          .eq('username', username)
+          .maybeSingle();
+      return response == null;
+    } catch (e) {
+      Log.error(e.toString());
+      return false;
+    }
+  }
 
   Future<void> completeUserProfile({
     required String uid,
     required UserModel userModel,
   }) async {
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
+    state = state.copyWith(state: AsyncState.loading);
+    final supabase = ref.read(supabaseClientProvider);
     try {
-      final docRef =
-          firestore.collection(FirebaseConstants.userCollection).doc(uid);
-      final docSnapshot = await docRef.get();
-
-      if (docSnapshot.exists) {
-        // If user document exists, update the details
-        await docRef.update(
-          {
-            "username": userModel.username,
-            "title": userModel.title,
-            "expertise": userModel.expertise,
-            "accountType": userModel.accountType,
-            "minimumRate": userModel.minimumRate,
-          },
-        );
-      } else {
-        // If document does not exist, create a new one
-        await docRef.set(userModel.toMap());
-      }
-    } catch (e, stackTrace) {
+      await supabase.from('users').update({
+        'username': userModel.username,
+        'title': userModel.title,
+        'expertise': userModel.expertise,
+        'account_type': userModel.accountType,
+        'minimum_rate': userModel.minimumRate,
+      }).eq('id', uid);
+      state = state.copyWith(state: AsyncState.success);
+    } catch (e) {
       Log.error(e.toString());
-      Log.error(stackTrace.toString());
+      state = state.copyWith(state: AsyncState.failure);
+      throw Exception('Failed to complete profile: ${e.toString()}');
     }
   }
 
-  // Real-Time Username Validation
-  Future<bool> isUsernameAvailable(String username) async {
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
+  Future<void> signInWithGoogle({void Function()? callBack}) async {
+    final supabase = ref.read(supabaseClientProvider);
     try {
-      final querySnapshot = await firestore
-          .collection(FirebaseConstants.userCollection)
-          .where('username', isEqualTo: username)
-          .get();
+      state = state.copyWith(state: AsyncState.loading);
+      final response = await supabase.auth.signInWithOAuth(
+        OAuthProvider.google,
+        redirectTo: 'https://vribqwdjfgonhhyngjtv.supabase.co/auth/v1/callback',
+        queryParams: {
+          'access_type': 'offline',
+          'prompt': 'consent',
+        },
+      );
 
-      return querySnapshot.docs.isEmpty;
-    } catch (e, stackTrace) {
-      Log.error(e.toString());
-      Log.error(stackTrace.toString());
-    }
-    return false;
-  }
+      // After successful OAuth sign-in, get the session
+      final session = supabase.auth.currentSession;
+      if (session != null) {
+        final userResponse = await supabase.auth.getUser();
+        if (userResponse.user != null) {
+          final userData = await supabase
+              .from('users')
+              .select()
+              .eq('id', userResponse.user!.id)
+              .single();
 
-  // Facebook Sign-In
-  Future<void> signInWithFacebook() async {
-    FirebaseAuth auth = ref.read(firebaseAuthProvider);
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
-    FacebookAuth facebookAuth = ref.read(facebookSignInProvider);
-    try {
-      final LoginResult result = await facebookAuth.login();
-
-      if (result.status == LoginStatus.success) {
-        final AccessToken accessToken = result.accessToken!;
-
-        final OAuthCredential credential =
-            FacebookAuthProvider.credential(accessToken.tokenString);
-
-        UserCredential userCredential =
-            await auth.signInWithCredential(credential);
-
-        UserModel userModel = UserModel(
-          firstName: userCredential.user!.displayName?.split(' ')[0] ?? '',
-          lastName: userCredential.user!.displayName?.split(' ')[1] ?? '',
-          email: userCredential.user!.email ?? "",
-          phoneNumber: userCredential.user!.phoneNumber ?? '',
-        );
-
-        if (userCredential.additionalUserInfo!.isNewUser) {
-          await firestore
-              .collection(FirebaseConstants.userCollection)
-              .doc(userCredential.user!.uid)
-              .set(userModel.toMap());
+          if (userData != null) {
+            final user = UserModel.fromMap(userData);
+            ref.read(currentUserProvider.notifier).state = user;
+            ref.read(authProvider.notifier).state = true;
+          }
         }
-
-        // Save session after sign-in
-        await saveSession(userCredential.user!);
-        ref.read(authProvider.notifier).state = true;
-      } else if (result.status == LoginStatus.cancelled) {
-        throw Exception('Facebook sign-in was cancelled.');
+        state = state.copyWith(state: AsyncState.success);
+        callBack?.call();
       } else {
-        throw Exception('Facebook sign-in failed: ${result.message}');
+        state = state.copyWith(
+          state: AsyncState.failure,
+          error: 'Google sign in failed',
+        );
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       Log.error(e.toString());
-      Log.error(stackTrace.toString());
+      state = state.copyWith(
+        state: AsyncState.failure,
+        error: e.toString(),
+      );
+      throw Exception('Google sign in failed: ${e.toString()}');
     }
   }
 
-  Future<void> logout() async {
-    FirebaseAuth auth = ref.read(firebaseAuthProvider);
-    FacebookAuth facebookAuth = ref.read(facebookSignInProvider);
-    GoogleSignIn googleSignIn = ref.read(googleSignInProvider);
+  Future<void> signInWithFacebook({void Function()? callBack}) async {
+    final supabase = ref.read(supabaseClientProvider);
     try {
-      await auth.signOut();
-      await googleSignIn.signOut();
-      await facebookAuth.logOut();
-      // ref.read(authProvider.notifier).state = false;
-      ref.read(currentUserProvider.notifier).state = null;
-    } catch (e, stackTrace) {
+      state = state.copyWith(state: AsyncState.loading);
+      final response = await supabase.auth.signInWithOAuth(
+        OAuthProvider.facebook,
+        redirectTo: 'https://vribqwdjfgonhhyngjtv.supabase.co/auth/v1/callback',
+        queryParams: {
+          'auth_type': 'rerequest',
+          'scope': 'email,public_profile',
+        },
+      );
+
+      // After successful OAuth sign-in, get the session
+      final session = supabase.auth.currentSession;
+      if (session != null) {
+        final userResponse = await supabase.auth.getUser();
+        if (userResponse.user != null) {
+          final userData = await supabase
+              .from('users')
+              .select()
+              .eq('id', userResponse.user!.id)
+              .single();
+
+          if (userData != null) {
+            final user = UserModel.fromMap(userData);
+            ref.read(currentUserProvider.notifier).state = user;
+            ref.read(authProvider.notifier).state = true;
+          }
+        }
+        state = state.copyWith(state: AsyncState.success);
+        callBack?.call();
+      } else {
+        state = state.copyWith(
+          state: AsyncState.failure,
+          error: 'Facebook sign in failed',
+        );
+      }
+    } catch (e) {
       Log.error(e.toString());
-      Log.error(stackTrace.toString());
+      state = state.copyWith(
+        state: AsyncState.failure,
+        error: e.toString(),
+      );
+      throw Exception('Facebook sign in failed: ${e.toString()}');
     }
   }
 }
 
 class AuthNotifierState {
-  final String? error;
   final AsyncState state;
+  final String? error;
 
   AuthNotifierState({
-    this.error,
     required this.state,
+    this.error,
   });
 
   AuthNotifierState copyWith({
-    String? error,
     AsyncState? state,
+    String? error,
   }) {
     return AuthNotifierState(
-      error: error ?? this.error,
       state: state ?? this.state,
+      error: error ?? this.error,
     );
   }
 }

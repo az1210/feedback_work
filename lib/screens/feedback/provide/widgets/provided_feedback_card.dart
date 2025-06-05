@@ -6,6 +6,7 @@ import 'package:feedback_work/core/ui/assets/app_assets.dart';
 import 'package:feedback_work/core/utils/network_image_helper.dart';
 import 'package:feedback_work/models/feedback_model.dart';
 import 'package:feedback_work/providers/firebase_providers.dart';
+import 'package:feedback_work/providers/supabase_providers.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/feedback_provided_content.dart';
 import 'package:feedback_work/screens/feedback/provide/widgets/model2_content.dart';
 import 'package:flutter/material.dart';
@@ -33,16 +34,12 @@ class ProvidedFeedbackCard extends ConsumerStatefulWidget {
 
 class _ProvidedFeedbackCardState extends ConsumerState<ProvidedFeedbackCard> {
   Future<String> uploadFileToFirebase(String filePath) async {
-    final fileName = filePath.split('/').last; // Extract the file name
-    final firebaseStorage = ref.read(storageProvider);
-    final storageRef = firebaseStorage.ref().child(
-        'project_images/$fileName'); // Create a reference in Firebase Storage
+    final fileName = filePath.split('/').last;
+    final supabaseStorage = ref.read(supabaseStorageProvider);
+    final file = File(filePath);
 
-    final file = File(filePath); // Local file reference
-
-    await storageRef.putFile(file);
-
-    return await storageRef.getDownloadURL();
+    await supabaseStorage.from('project_images').upload(fileName, file);
+    return supabaseStorage.from('project_images').getPublicUrl(fileName);
   }
 
   @override
@@ -113,7 +110,7 @@ class _ProvidedFeedbackCardState extends ConsumerState<ProvidedFeedbackCard> {
                             backgroundColor: context.colors.background,
                             child: Image.network(
                               networkImage(
-                                  widget.feedback.project?.owner?.avaterUrl),
+                                  widget.feedback.project?.owner?.avatarUrl),
                               errorBuilder: (context, error, stackTrace) =>
                                   Icon(
                                 Icons.person,

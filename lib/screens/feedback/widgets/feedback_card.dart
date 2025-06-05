@@ -1,8 +1,6 @@
 import 'package:date_time_format/date_time_format.dart';
 import 'package:feedback_work/core/extensions/extensions.dart';
 import 'package:feedback_work/core/extensions/string_extension.dart';
-import 'package:feedback_work/core/router/routes.dart';
-import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/core/utils/helper_functions.dart';
 import 'package:feedback_work/core/utils/network_image_helper.dart';
 import 'package:feedback_work/core/utils/utils.dart';
@@ -14,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:go_router/go_router.dart';
 
 class FeedbackCard extends ConsumerStatefulWidget {
   final FeedbackModel feedback;
@@ -134,7 +131,7 @@ class _FeedbackCardState extends ConsumerState<FeedbackCard> {
                                           context.colors.background,
                                       child: Image.network(
                                         networkImage(widget.feedback.project
-                                            ?.owner?.avaterUrl),
+                                            ?.owner?.avatarUrl),
                                         errorBuilder:
                                             (context, error, stackTrace) =>
                                                 Icon(
@@ -179,8 +176,8 @@ class _FeedbackCardState extends ConsumerState<FeedbackCard> {
                                                 ),
                                           ),
                                           TextSpan(
-                                            text: widget.feedback.project
-                                                    ?.projectName ??
+                                            text: widget
+                                                    .feedback.project?.title ??
                                                 '',
                                             style: Theme.of(context)
                                                 .textTheme
@@ -214,7 +211,7 @@ class _FeedbackCardState extends ConsumerState<FeedbackCard> {
                                           ),
                                           TextSpan(
                                             text: widget.feedback.project
-                                                    ?.problemName ??
+                                                    ?.description ??
                                                 '',
                                             style: Theme.of(context)
                                                 .textTheme
@@ -250,7 +247,7 @@ class _FeedbackCardState extends ConsumerState<FeedbackCard> {
                                           ),
                                           TextSpan(
                                             text: widget.feedback.project
-                                                    ?.solutionName ??
+                                                    ?.description ??
                                                 '',
                                             style: Theme.of(context)
                                                 .textTheme
@@ -286,7 +283,7 @@ class _FeedbackCardState extends ConsumerState<FeedbackCard> {
                                           ),
                                           TextSpan(
                                             text: widget.feedback.project
-                                                    ?.solutionFunctionName ??
+                                                    ?.description ??
                                                 '',
                                             style: Theme.of(context)
                                                 .textTheme

@@ -1,5 +1,5 @@
 import 'package:feedback_work/core/extensions/extensions.dart';
-import 'package:feedback_work/core/router/routes.dart';
+import 'package:feedback_work/core/router/routes.dart' as routes;
 import 'package:feedback_work/core/ui/widgets/app_button.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/auth_providers.dart';
@@ -126,7 +126,7 @@ class _MoreTabScreenState extends ConsumerState<MoreDrawer> {
                         icon: Icons.person_outline_rounded,
                         itemName: "Profile",
                         onTap: () {
-                          context.pushNamed(Routes.profile);
+                          context.pushNamed(routes.Routes.profile);
                           context.pop();
                         },
                       ),
@@ -137,7 +137,7 @@ class _MoreTabScreenState extends ConsumerState<MoreDrawer> {
                         icon: Icons.wallet,
                         itemName: "Wallet",
                         onTap: () {
-                          context.pushNamed(Routes.wallet);
+                          context.pushNamed(routes.Routes.wallet);
                         },
                       ),
                       Divider(
@@ -156,8 +156,8 @@ class _MoreTabScreenState extends ConsumerState<MoreDrawer> {
                         onTap: () {
                           context.pop();
                           Future.microtask(
-                              () => context.pushNamed(Routes.groups));
-                          // context.pushNamed(Routes.groups);
+                              () => context.pushNamed(routes.Routes.groups));
+                          // context.pushNamed(routes.Routes.groups);
                           // context.pop();
                         },
                       ),
@@ -186,11 +186,13 @@ class _MoreTabScreenState extends ConsumerState<MoreDrawer> {
                         icon: Icons.logout,
                         itemName: "Logout",
                         onTap: () async {
-                          await ref.read(authServiceProvider.notifier).logout();
+                          await ref
+                              .read(authServiceProvider.notifier)
+                              .signOut();
                           ref.read(currentUserProvider.notifier).state = null;
                           ref.read(authProvider.notifier).state = false;
                           if (mounted) {
-                            context.go(Routes.signIn.p);
+                            context.go(routes.Routes.signIn.p);
                           }
                         },
                       ),

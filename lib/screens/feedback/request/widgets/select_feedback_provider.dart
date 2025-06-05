@@ -144,7 +144,7 @@ class _SelectFeedbackProviderState
                                       id: u.id,
                                       firstName: u.firstName,
                                       lastName: u.lastName,
-                                      avaterUrl: u.avaterUrl,
+                                      avatarUrl: u.avatarUrl,
                                       title: u.title,
                                       expertise: u.expertise,
                                       username: u.username,

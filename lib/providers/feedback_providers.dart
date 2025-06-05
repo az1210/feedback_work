@@ -1,16 +1,14 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feedback_work/models/project_model.dart';
 import 'package:feedback_work/models/user_model.dart';
 import 'package:feedback_work/providers/project_progress_provider.dart';
 import 'package:feedback_work/providers/user_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:feedback_work/core/constants/firebase_constants.dart';
 import 'package:feedback_work/core/extensions/string_extension.dart';
 import 'package:feedback_work/core/utils/utils.dart';
 import 'package:feedback_work/models/feedback_model.dart';
-import 'package:feedback_work/providers/firebase_providers.dart';
 
 final requestFeedbackStepProvider = StateProvider<int>((ref) => 1);
 final provideFeedbackStepProvider = StateProvider<int>((ref) => 1);
@@ -22,6 +20,8 @@ final ecfProvider =
     NotifierProvider<ECFNotifier, ECFNotifierState>(ECFNotifier.new);
 
 class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
+  final supabase = Supabase.instance.client;
+
   @override
   FeedbackNotifierState build() {
     return FeedbackNotifierState(state: AsyncState.initial);
@@ -31,173 +31,93 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
     Log.info("Fetch all own feedback called");
     Log.info("User ID: $userId");
 
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
       state = state.copyWith(state: AsyncState.loading);
       List<FeedbackModel> allFeedbacks = [];
-      final feedbacksSnapshot = await firestore
-          .collection(FirebaseConstants.feedbackCollection)
-          .where('ownerId', isEqualTo: userId)
-          .get();
 
-      allFeedbacks.addAll(feedbacksSnapshot.docs.map((f) {
-        return FeedbackModel.fromMap(f.data());
-      }).toList());
+      // Get feedbacks where user is owner
+      final ownerFeedbacks =
+          await supabase.from('feedbacks').select().eq('ownerId', userId);
 
-      final providerFeedbacksSnapshot = await firestore
-          .collection(FirebaseConstants.feedbackCollection)
-          .where('providerId', isEqualTo: userId)
-          .get();
-      allFeedbacks.addAll(providerFeedbacksSnapshot.docs.map((f) {
-        Log.info(f.data().toString());
-        return FeedbackModel.fromMap(f.data());
-      }).toList());
+      allFeedbacks.addAll((ownerFeedbacks as List)
+          .map((data) => FeedbackModel.fromMap(data))
+          .toList());
+
+      // Get feedbacks where user is provider
+      final providerFeedbacks =
+          await supabase.from('feedbacks').select().eq('providerId', userId);
+
+      allFeedbacks.addAll((providerFeedbacks as List)
+          .map((data) => FeedbackModel.fromMap(data))
+          .toList());
+
       state =
           state.copyWith(allFeedback: allFeedbacks, state: AsyncState.success);
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+      state = state.copyWith(state: AsyncState.failure, error: e.toString());
     }
   }
-
-  // Future<void> fetchAllOwnFeedbacks({required String userId}) async {
-  //   Log.info("Fetch all own feedback called");
-  //   Log.info("User ID: $userId");
-
-  //   FirebaseFirestore firestore = ref.read(firestoreProvider);
-  //   try {
-  //     state = state.copyWith(state: AsyncState.loading);
-  //     final feedbacksSnapshot = await firestore
-  //         .collection(FirebaseConstants.feedbackCollection)
-  //         .where('ownerId', isEqualTo: userId)
-  //         .get();
-  //     Log.info(
-  //         "Feedback owner id====> ${feedbacksSnapshot.docs.map((f) => f.data()['ownerId'])}");
-  //     Log.info(
-  //         "Feedback Snapshot====> ${feedbacksSnapshot.docs.map((f) => f.data()['requestFeedback'])}");
-
-  //     Log.info(
-  //         "Feedback Snapshot====> ${feedbacksSnapshot.docs.map((f) => f.data()['provideFeedback'])}");
-  //     Log.info(
-  //         "Feedback Snapshot====> ${feedbacksSnapshot.docs.map((f) => f.data()['ownerSideStatus'])}");
-  //     Log.info(
-  //         "Feedback Snapshot====> ${feedbacksSnapshot.docs.map((f) => f.data()['providerSideStatus'])}");
-
-  //     final feedbacks = feedbacksSnapshot.docs.map((f) {
-  //       return FeedbackModel.fromMap(f.data());
-  //     }).toList();
-  //     Log.info(
-  //         feedbacks.map((f) => f.ownerSideStatus!.status).toList().toString());
-  //     state = state.copyWith(
-  //         allFeedbackAsOwner: feedbacks, state: AsyncState.success);
-  //   } catch (e, stackTrace) {
-  //     Log.error(e.toString());
-  //     Log.error(stackTrace.toString());
-  //   }
-  // }
-
-  // Future<void> fetchAllFeedbacksAsProvider({required String userId}) async {
-  //   Log.info("Fetch all another feedback called");
-  //   Log.info("User ID: $userId");
-
-  //   state = state.copyWith(state: AsyncState.loading);
-  //   FirebaseFirestore firestore = ref.read(firestoreProvider);
-  //   try {
-  //     final feedbacksSnapshot = await firestore
-  //         .collection(FirebaseConstants.feedbackCollection)
-  //         .where('providerId', isEqualTo: userId)
-  //         .get();
-  //     Log.info(
-  //         "Feedback Provider id====> ${feedbacksSnapshot.docs.map((f) => f.data()['providerId'])}");
-  //     Log.info(
-  //         "Feedback Provider Snapshot====> ${feedbacksSnapshot.docs.map((f) => f.data()['requestFeedback'])}");
-
-  //     Log.info(
-  //         "Feedback Provider Snapshot====> ${feedbacksSnapshot.docs.map((f) => f.data()['provideFeedback'])}");
-  //     Log.info(
-  //         "Feedback Provider Snapshot====> ${feedbacksSnapshot.docs.map((f) => f.data()['ownerSideStatus'])}");
-  //     Log.info(
-  //         "Feedback Provider Snapshot====> ${feedbacksSnapshot.docs.map((f) => f.data()['providerSideStatus'])}");
-
-  //     final feedbacks = feedbacksSnapshot.docs.map((f) {
-  //       Log.info(f.data().toString());
-  //       return FeedbackModel.fromMap(f.data());
-  //     }).toList();
-  //     state = state.copyWith(
-  //         allFeedbackAsProvider: feedbacks, state: AsyncState.success);
-  //   } catch (e, stackTrace) {
-  //     Log.error(e.toString());
-  //     Log.error(stackTrace.toString());
-  //     state = state.copyWith(error: e.toString(), state: AsyncState.failure);
-  //   }
-  // }
 
   Future<void> createFeedbackRequest(
       {required FeedbackModel feedback,
       required String userId,
       void Function()? callback}) async {
-    state = state.copyWith(state: AsyncState.loading);
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
-    final projectNotifier = ref.read(projectProgressProvider.notifier);
     try {
       state = state.copyWith(state: AsyncState.loading);
       const uuid = Uuid();
       final feedbackId = uuid.v1();
+      final date = DateTime.now().toString();
+
       final fb = feedback.copyWith(
         id: feedbackId,
         ownerSideStatus: Status(
           status: FeedbackStatus.requested.name.toTitleCase(),
-          modifiedAt: DateTime.now().toString(),
+          modifiedAt: date,
         ),
         providerSideStatus: Status(
           status: FeedbackStatus.requested.name.toTitleCase(),
-          modifiedAt: DateTime.now().toString(),
+          modifiedAt: date,
         ),
       );
 
-      Log.info(fb.requestFeedback!.toMap().toString());
+      // Create feedback
+      await supabase.from('feedbacks').insert(fb.toMap());
 
-      await firestore
-          .collection(FirebaseConstants.feedbackCollection)
-          .doc(feedbackId)
-          .set(fb.toMap());
+      // Create user-feedback relationships
+      await supabase.from('user_feedbacks').insert([
+        {'user_id': feedback.ownerId, 'feedback_id': feedbackId},
+        {'user_id': fb.providerId, 'feedback_id': feedbackId}
+      ]);
 
-      await firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(feedback.ownerId)
-          .collection(FirebaseConstants.feedbackCollection)
-          .doc(feedbackId)
-          .set({'id': feedbackId});
-
-      await firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(fb.providerId)
-          .collection(FirebaseConstants.feedbackCollection)
-          .doc(feedbackId)
-          .set({'id': feedbackId});
-
+      // Add to group if group feedback
       if (feedback.requestFeedback?.groupId != '') {
-        await firestore
-            .collection(FirebaseConstants.groupCollection)
-            .doc(feedback.requestFeedback!.groupId)
-            .collection(FirebaseConstants.feedbackCollection)
-            .doc(feedbackId)
-            .set({'id': feedbackId});
+        await supabase.from('group_feedbacks').insert({
+          'group_id': feedback.requestFeedback!.groupId,
+          'feedback_id': feedbackId
+        });
       }
-      fetchAllFeedbacks(userId: userId);
+
+      await fetchAllFeedbacks(userId: userId);
+
+      // Add project progress
+      final projectNotifier = ref.read(projectProgressProvider.notifier);
       projectNotifier.addProgress(
         projectId: feedback.project!.id!,
         projectTimeline: ProjectTimelineModel(
           message:
               "Feedback Requested by ${feedback.project!.owner!.firstName} ${feedback.project!.owner!.lastName}",
-          modifiedAt: DateTime.now().toString(),
+          modifiedAt: date,
         ),
       );
+
       callback?.call();
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+      state = state.copyWith(state: AsyncState.failure, error: e.toString());
     }
   }
 
@@ -208,37 +128,23 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
     required UserModel user,
     void Function()? callback,
   }) async {
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
-    final projectNotifier = ref.read(projectProgressProvider.notifier);
-    final date = DateTime.now().toString();
-
     try {
       state = state.copyWith(state: AsyncState.loading);
+      final date = DateTime.now().toString();
 
-      final doc = await firestore
-          .collection(FirebaseConstants.feedbackCollection)
-          .doc(feedbackId)
-          .get();
-      if (doc.exists) {
-        await firestore
-            .collection(FirebaseConstants.feedbackCollection)
-            .doc(feedbackId)
-            .update({
-          "ownerSideStatus": Status(
-            status: FeedbackStatus.received.name.toTitleCase(),
-            modifiedAt: date,
-          ).toMap(),
-          'provideFeedback': provideFeedback.toMap(),
-        });
-        // await firestore
-        //     .collection(FirebaseConstants.feedbackCollection)
-        //     .doc(feedback.id)
-        //     .update({'provideFeedback': feedback.provideFeedback!.toMap()});
-      } else {
-        state = state.copyWith(
-            error: "Feedback doesn't exist!", state: AsyncState.failure);
-      }
-      fetchAllFeedbacks(userId: user.id!);
+      // Update feedback status and add provide feedback
+      await supabase.from('feedbacks').update({
+        'ownerSideStatus': Status(
+          status: FeedbackStatus.received.name.toTitleCase(),
+          modifiedAt: date,
+        ).toMap(),
+        'provideFeedback': provideFeedback.toMap(),
+      }).eq('id', feedbackId);
+
+      await fetchAllFeedbacks(userId: user.id!);
+
+      // Add project progress
+      final projectNotifier = ref.read(projectProgressProvider.notifier);
       projectNotifier.addProgress(
         projectId: projectId,
         projectTimeline: ProjectTimelineModel(
@@ -246,11 +152,13 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
           modifiedAt: date,
         ),
       );
+
       callback?.call();
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+      state = state.copyWith(state: AsyncState.failure, error: e.toString());
     }
   }
 
@@ -259,85 +167,42 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
     required AppliedModel appliedFeedback,
     void Function()? callback,
   }) async {
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
-    final projectNotifier = ref.read(projectProgressProvider.notifier);
-    final date = DateTime.now().toString();
-
     try {
       state = state.copyWith(state: AsyncState.loading);
+      final date = DateTime.now().toString();
 
-      final doc = await firestore
-          .collection(FirebaseConstants.feedbackCollection)
-          .doc(feedback.id)
-          .get();
-      if (doc.exists) {
-        await firestore
-            .collection(FirebaseConstants.feedbackCollection)
-            .doc(feedback.id)
-            .update({
-          "ownerSideStatus": Status(
-            status: FeedbackStatus.applied.name.toTitleCase(),
-            modifiedAt: date,
-          ).toMap(),
-          "providerSideStatus": Status(
-            status: FeedbackStatus.provided.name.toTitleCase(),
-            modifiedAt: date,
-          ).toMap(),
-          "appliedFeedback": appliedFeedback.toMap()
-        });
-        await firestore
-            .collection(FirebaseConstants.userCollection)
-            .doc(feedback.ownerId)
-            .update({
-          "feedbackApplied": FieldValue.increment(1),
-          "totalFeedbackAccepted": FieldValue.increment(1),
-        });
+      // Begin transaction
+      await supabase.rpc('apply_feedback', params: {
+        'feedback_id': feedback.id,
+        'owner_id': feedback.ownerId,
+        'provider_id': feedback.providerId,
+        'status_date': date,
+        'owner_status': FeedbackStatus.applied.name.toTitleCase(),
+        'provider_status': FeedbackStatus.provided.name.toTitleCase(),
+        'applied_feedback': appliedFeedback.toMap(),
+        'is_free': feedback.requestFeedback!.cost == 0,
+        'project_id': feedback.project?.id,
+      });
 
-        await firestore
-            .collection(FirebaseConstants.userCollection)
-            .doc(feedback.providerId)
-            .update({
-          "feedbackProvided": FieldValue.increment(1),
-        });
-        if (feedback.requestFeedback!.cost == 0) {
-          await firestore
-              .collection(FirebaseConstants.userCollection)
-              .doc(feedback.providerId)
-              .update({
-            "totalFeedbackProvidedForFree": FieldValue.increment(1),
-          });
-        }
-        // await firestore
-        //     .collection(FirebaseConstants.feedbackCollection)
-        //     .doc(feedback.id)
-        //     .update({});
-        await firestore
-            .collection(FirebaseConstants.feedbackCollection)
-            .doc(feedback.id)
-            .update({'lastUpdated': FieldValue.serverTimestamp()});
+      await fetchAllFeedbacks(userId: ref.watch(currentUserProvider)?.id ?? '');
 
-        await firestore
-            .collection(FirebaseConstants.projectCollection)
-            .doc(feedback.project?.id)
-            .update({'completionPercentage': 100.0});
-      } else {
-        state = state.copyWith(
-            error: "Feedback doesn't exist!", state: AsyncState.failure);
-      }
-      fetchAllFeedbacks(userId: ref.watch(currentUserProvider)!.id!);
+      // Add project progress
+      final projectNotifier = ref.read(projectProgressProvider.notifier);
       projectNotifier.addProgress(
         projectId: feedback.project!.id!,
         projectTimeline: ProjectTimelineModel(
           message:
               "Feedback Applied by ${feedback.project!.owner!.firstName} ${feedback.project!.owner!.lastName}",
-          modifiedAt: DateTime.now().toString(),
+          modifiedAt: date,
         ),
       );
+
       callback?.call();
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+      state = state.copyWith(state: AsyncState.failure, error: e.toString());
     }
   }
 
@@ -346,123 +211,48 @@ class FeedbackNotifier extends Notifier<FeedbackNotifierState> {
       required FeedbackModel feedback,
       required String userId,
       void Function()? callback}) async {
-    state = state.copyWith(state: AsyncState.loading);
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
-
     try {
       state = state.copyWith(state: AsyncState.loading);
 
-      final doc = await firestore
-          .collection(FirebaseConstants.feedbackCollection)
-          .doc(feedback.id)
-          .get();
-      if (doc.exists) {
-        await firestore
-            .collection(FirebaseConstants.feedbackCollection)
-            .doc(feedback.id)
-            .collection(FirebaseConstants.ecfCollection)
-            .add(ecf.toMap());
-        await firestore
-            .collection(FirebaseConstants.feedbackCollection)
-            .doc(feedback.id)
-            .update({
-          "providerSideStatus": feedback.providerSideStatus!
-              .copyWith(
-                status: FeedbackStatus.requested.name.toTitleCase(),
-                modifiedAt: DateTime.now().toString(),
-              )
-              .toMap()
-        });
+      // Add ECF and update status
+      await supabase.rpc('decline_feedback', params: {
+        'feedback_id': feedback.id,
+        'owner_id': feedback.ownerId,
+        'ecf_data': ecf.toMap(),
+        'status_date': DateTime.now().toString(),
+        'provider_status': FeedbackStatus.requested.name.toTitleCase(),
+      });
 
-        await firestore
-            .collection(FirebaseConstants.userCollection)
-            .doc(feedback.ownerId)
-            .update({
-          "totalFeedbackDeclined": FieldValue.increment(1),
-        });
-      } else {
-        state = state.copyWith(
-            error: "Feedback doesn't exist!", state: AsyncState.failure);
-      }
-      fetchAllFeedbacks(userId: userId);
+      await fetchAllFeedbacks(userId: userId);
       callback?.call();
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+      state = state.copyWith(state: AsyncState.failure, error: e.toString());
     }
   }
 
   Future<void> submitStatusReport(
       {required FeedbackModel feedback, void Function()? callback}) async {
-    state = state.copyWith(state: AsyncState.loading);
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
-
     try {
       state = state.copyWith(state: AsyncState.loading);
 
-      final doc = await firestore
-          .collection(FirebaseConstants.feedbackCollection)
-          .doc(feedback.id)
-          .get();
-      if (doc.exists) {
-        await firestore
-            .collection(FirebaseConstants.feedbackCollection)
-            .doc(feedback.id)
-            .update({'statusReport': feedback.statusReport!.toMap()});
-      } else {
-        state = state.copyWith(
-            error: "Feedback doesn't exist!", state: AsyncState.failure);
+      if (feedback.id == null) {
+        throw Exception('Feedback ID cannot be null');
       }
-      fetchAllFeedbacks(userId: feedback.ownerId!);
+      await supabase
+          .from('feedbacks')
+          .update({'statusReport': feedback.statusReport!.toMap()}).eq(
+              'id', feedback.id as String);
+
+      await fetchAllFeedbacks(userId: feedback.ownerId!);
       callback?.call();
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
-    }
-  }
-
-  Future<void> deleteCollection(String collectionPath) async {
-    final collectionRef = FirebaseFirestore.instance.collection(collectionPath);
-
-    try {
-      // Fetch the documents in the collection
-      final querySnapshot = await collectionRef.get();
-
-      // Delete each document in the collection
-      for (final document in querySnapshot.docs) {
-        await document.reference.delete();
-      }
-
-      print("Collection '$collectionPath' deleted successfully.");
-    } catch (e) {
-      print("Error deleting collection '$collectionPath': $e");
-    }
-  }
-
-  Future<void> deleteSubCollection({
-    required String collectionPath,
-    required String docId,
-    required String subCollectionPath,
-  }) async {
-    final collectionRef = FirebaseFirestore.instance
-        .collection(collectionPath)
-        .doc(docId)
-        .collection(subCollectionPath);
-
-    try {
-      // Fetch the documents in the collection
-      final querySnapshot = await collectionRef.get();
-
-      // Delete each document in the collection
-      for (final document in querySnapshot.docs) {
-        await document.reference.delete();
-      }
-
-      print("Collection '$collectionPath' deleted successfully.");
-    } catch (e) {
-      print("Error deleting collection '$collectionPath': $e");
+      state = state.copyWith(state: AsyncState.failure, error: e.toString());
     }
   }
 }
@@ -492,6 +282,8 @@ class FeedbackNotifierState {
 }
 
 class ECFNotifier extends Notifier<ECFNotifierState> {
+  final supabase = Supabase.instance.client;
+
   @override
   ECFNotifierState build() {
     return ECFNotifierState(state: AsyncState.initial);
@@ -501,47 +293,40 @@ class ECFNotifier extends Notifier<ECFNotifierState> {
       {required EcfModel ecf,
       required String feedbackId,
       void Function()? callback}) async {
-    state = state.copyWith(state: AsyncState.loading);
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
       state = state.copyWith(state: AsyncState.loading);
 
-      await firestore
-          .collection(FirebaseConstants.feedbackCollection)
-          .doc(feedbackId)
-          .collection(FirebaseConstants.ecfCollection)
-          .add(ecf.toMap());
-      fetchErrorMessages(feedbackId: feedbackId);
-      // fetchAllFeedbacksAsProvider(userId: userId);
-      // fetchAllOwnFeedbacks(userId: userId);
+      await supabase
+          .from('ecfs')
+          .insert({...ecf.toMap(), 'feedback_id': feedbackId});
+
+      await fetchErrorMessages(feedbackId: feedbackId);
       callback?.call();
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+      state = state.copyWith(state: AsyncState.failure, error: e.toString());
     }
   }
 
   Future<void> fetchErrorMessages(
       {required String feedbackId, void Function()? callback}) async {
-    state = state.copyWith(state: AsyncState.loading);
-    FirebaseFirestore firestore = ref.read(firestoreProvider);
     try {
       state = state.copyWith(state: AsyncState.loading);
 
-      final ecfSnapshots = await firestore
-          .collection(FirebaseConstants.feedbackCollection)
-          .doc(feedbackId)
-          .collection(FirebaseConstants.ecfCollection)
-          .get();
+      final response =
+          await supabase.from('ecfs').select().eq('feedback_id', feedbackId);
 
-      List<EcfModel> errorMessages =
-          ecfSnapshots.docs.map((e) => EcfModel.fromMap(e.data())).toList();
+      final errorMessages =
+          (response as List).map((data) => EcfModel.fromMap(data)).toList();
+
       callback?.call();
       state = state.copyWith(data: errorMessages, state: AsyncState.success);
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
+      state = state.copyWith(state: AsyncState.failure, error: e.toString());
     }
   }
 }
@@ -550,6 +335,7 @@ class ECFNotifierState {
   final AsyncState state;
   final List<EcfModel>? data;
   final String? error;
+
   ECFNotifierState({
     required this.state,
     this.data,

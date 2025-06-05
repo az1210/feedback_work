@@ -116,7 +116,7 @@ class _TransactionHistoryDetailsScreenState
                             name:
                                 "${widget.currentUser.firstName} ${widget.currentUser.lastName}",
                             date: "${requestedByMe![index].payAt}",
-                            profileImageUrl: "${widget.currentUser.avaterUrl}",
+                            profileImageUrl: "${widget.currentUser.avatarUrl}",
                             project:
                                 "${requestedByMe![index].feedback?.project?.projectName}",
                             problem:
