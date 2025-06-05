@@ -21,26 +21,27 @@ class ProjectProgressNotifier extends Notifier<ProjectProgressNotifierState> {
     void Function()? callBack,
   }) async {
     try {
-      // Check if project exists
-      final project =
-          await supabase.from('projects').select().eq('id', projectId).single();
+      state = state.copyWith(state: AsyncState.loading);
 
-      if (project == null) {
-        throw Exception("Project not found");
-      }
-
-      // Add timeline entry
+      // Add timeline entry - RLS will handle permission check
       await supabase.from('project_timelines').insert({
         ...projectTimeline.toMap(),
         'project_id': projectId,
       });
+
+      // Fetch updated progress
+      await fetchProgress(projectId: projectId);
 
       callBack?.call();
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
-      state = state.copyWith(state: AsyncState.failure, error: e.toString());
+      state = state.copyWith(
+        state: AsyncState.failure,
+        error: e.toString(),
+        projectProgress: [], // Return empty list on error
+      );
     }
   }
 
@@ -49,15 +50,9 @@ class ProjectProgressNotifier extends Notifier<ProjectProgressNotifierState> {
     void Function()? callBack,
   }) async {
     try {
-      // Check if project exists
-      final project =
-          await supabase.from('projects').select().eq('id', projectId).single();
+      state = state.copyWith(state: AsyncState.loading);
 
-      if (project == null) {
-        throw Exception("Project not found");
-      }
-
-      // Get timeline entries
+      // Get timeline entries - RLS will handle permission check
       final response = await supabase
           .from('project_timelines')
           .select()
@@ -76,7 +71,11 @@ class ProjectProgressNotifier extends Notifier<ProjectProgressNotifierState> {
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
-      state = state.copyWith(state: AsyncState.failure, error: e.toString());
+      state = state.copyWith(
+        state: AsyncState.failure,
+        error: e.toString(),
+        projectProgress: [], // Return empty list on error
+      );
     }
   }
 }
