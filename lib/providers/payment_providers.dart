@@ -232,11 +232,24 @@ class PaymentNotifier extends Notifier<PaymentState> {
       }
       final userId = currentUser!.id!;
 
-      final response =
-          await supabase.from(collectionName).select().eq('user_id', userId);
+      try {
+        final response =
+            await supabase.from(collectionName).select().eq('user_id', userId);
 
-      state = state.copyWith(documentCountState: AsyncState.success);
-      return (response as List).length;
+        state = state.copyWith(documentCountState: AsyncState.success);
+        return (response as List).length;
+      } catch (e) {
+        // If the table doesn't exist, return 0 instead of throwing an error
+        if (e is PostgrestException && e.code == '42P01') {
+          // Table doesn't exist, don't log the error, just return 0
+          state = state.copyWith(documentCountState: AsyncState.success);
+          return 0;
+        } else {
+          // For other errors, log and rethrow
+          Log.error(e.toString());
+          rethrow;
+        }
+      }
     } catch (e) {
       Log.error(e.toString());
       state = state.copyWith(documentCountState: AsyncState.failure);

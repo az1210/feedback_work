@@ -37,10 +37,10 @@ class GroupModel {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
-      'ownerId': ownerId,
+      'owner_id': ownerId,
       'name': name,
       'description': description,
-      'isPublic': isPublic,
+      'is_public': isPublic,
       'users': users?.map((x) => x.toMap()).toList(),
     };
   }
@@ -48,15 +48,15 @@ class GroupModel {
   factory GroupModel.fromMap(Map<String, dynamic> map) {
     return GroupModel(
       id: map['id'] as String? ?? '',
-      ownerId: map['ownerId'] as String? ?? '',
+      ownerId: map['owner_id'] as String? ?? '',
       name: map['name'] as String? ?? '',
-      description: map['description'] as String? ?? '',
-      isPublic: map['isPublic'] as bool,
-      users: (map['users'] as List<dynamic>)
-          .map(
-            (x) => UserModel.fromMap(x as Map<String, dynamic>),
-          )
-          .toList(),
+      description: map['description'] as String?,
+      isPublic: map['is_public'] as bool? ?? false,
+      users: map['users'] != null
+          ? (map['users'] as List<dynamic>)
+              .map((x) => UserModel.fromMap(x as Map<String, dynamic>))
+              .toList()
+          : [],
     );
   }
 }

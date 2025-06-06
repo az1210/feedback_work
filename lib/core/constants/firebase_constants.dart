@@ -15,11 +15,11 @@ class FirebaseConstants {
   static const String apiKeyCollection = "apiKeys";
   static const String paymentCollection = "payments";
   static const String totalFeedbackRequestTransaction =
-      "totalFeedbackRequestTransaction";
+      "totalfeedbackrequesttransaction";
   static const String totalFeedbackAcceptedTransaction =
-      "totalFeedbackAcceptedTransaction";
+      "totalfeedbackacceptedtransaction";
   static const String totalFeedbackProvidedFreeTransaction =
-      "totalFeedbackProvidedFreeTransaction";
+      "totalfeedbackprovidedfreetransaction";
   static const String totalFeedbackProvidedAtCostTransaction =
-      "totalFeedbackProvidedAtCostTransaction";
+      "totalfeedbackprovidedatcosttransaction";
 }

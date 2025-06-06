@@ -1,9 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter_quill/quill_delta.dart';
+import 'package:feedback_work/core/utils/utils.dart';
 
 import 'package:feedback_work/models/project_model.dart';
 import 'package:feedback_work/models/provide_feedback_people_model.dart';
+import 'package:feedback_work/models/user_model.dart';
 
 enum FeedbackStatus {
   requested,
@@ -356,16 +358,32 @@ class EcfModel {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'correctionMessage': jsonEncode(correctionMessage?.toJson()),
+      'correction_message': jsonEncode(correctionMessage?.toJson()),
     };
   }
 
   factory EcfModel.fromMap(Map<String, dynamic> map) {
-    return EcfModel(
-      correctionMessage: map['correctionMessage'] != null
-          ? Delta.fromJson(jsonDecode(map['correctionMessage']))
-          : null,
-    );
+    try {
+      final correctionMessageStr = map['correction_message'];
+      if (correctionMessageStr == null) {
+        return EcfModel(); // Return an empty model if no correction message
+      }
+
+      try {
+        final correctionMessageJson = jsonDecode(correctionMessageStr);
+        return EcfModel(
+          correctionMessage: Delta.fromJson(correctionMessageJson),
+        );
+      } catch (e) {
+        // If there's an error parsing the JSON, return an empty model
+        Log.error("Error parsing EcfModel correction message: $e");
+        return EcfModel();
+      }
+    } catch (e) {
+      // Handle any other parsing errors
+      Log.error("Error creating EcfModel from map: $e");
+      return EcfModel();
+    }
   }
 }
 

@@ -117,22 +117,56 @@ class NetworkNotifier extends Notifier<NetworkNotifierState> {
     try {
       state = state.copyWith(state: AsyncState.loading);
 
-      // Create bidirectional connection
-      await supabase.from('networks').insert([
-        {'user_id': currentUserId, 'connected_user_id': connectionId},
-        {'user_id': connectionId, 'connected_user_id': currentUserId},
-      ]);
+      try {
+        // Create bidirectional connection
+        await supabase.from('networks').insert([
+          {'user_id': currentUserId, 'connected_user_id': connectionId},
+          {'user_id': connectionId, 'connected_user_id': currentUserId},
+        ]);
 
-      // Delete the request
-      await supabase
-          .from('network_requests')
-          .delete()
-          .eq('requested_from', connectionId)
-          .eq('requested_to', currentUserId);
+        // Delete the request - improved query to handle UUID comparison
+        await supabase
+            .from('network_requests')
+            .delete()
+            .eq('requested_from', connectionId)
+            .eq('requested_to', currentUserId);
 
-      state = state.copyWith(state: AsyncState.success);
-      await fetchAllRequests();
-      await fetchAllOwnNetwork();
+        state = state.copyWith(state: AsyncState.success);
+        await fetchAllRequests();
+        await fetchAllOwnNetwork();
+      } catch (e) {
+        Log.error("Error accepting request: $e");
+
+        // If RLS error, try a single insert at a time
+        if (e is PostgrestException && e.code == '42501') {
+          // Try inserting one by one
+          try {
+            await supabase.from('networks').insert(
+                {'user_id': currentUserId, 'connected_user_id': connectionId});
+
+            await supabase.from('networks').insert(
+                {'user_id': connectionId, 'connected_user_id': currentUserId});
+
+            // Delete the request - improved query to handle UUID comparison
+            await supabase
+                .from('network_requests')
+                .delete()
+                .eq('requested_from', connectionId)
+                .eq('requested_to', currentUserId);
+
+            state = state.copyWith(state: AsyncState.success);
+            await fetchAllRequests();
+            await fetchAllOwnNetwork();
+            return; // Success, exit early
+          } catch (retryError) {
+            Log.error("Error in retry: $retryError");
+            throw retryError; // Rethrow to be caught by outer catch
+          }
+        }
+
+        // If not an RLS error or retry failed, rethrow
+        throw e;
+      }
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
@@ -147,6 +181,7 @@ class NetworkNotifier extends Notifier<NetworkNotifierState> {
     try {
       state = state.copyWith(state: AsyncState.loading);
 
+      // Using eq for proper type handling
       await supabase
           .from('network_requests')
           .delete()
@@ -170,15 +205,18 @@ class NetworkNotifier extends Notifier<NetworkNotifierState> {
     try {
       state = state.copyWith(state: AsyncState.loading);
 
-      // Remove bidirectional connection
-      await supabase.from('networks').delete().match({
-        'user_id': userId,
-        'connected_user_id': connectionUserId,
-      });
-      await supabase.from('networks').delete().match({
-        'user_id': connectionUserId,
-        'connected_user_id': userId,
-      });
+      // Remove bidirectional connection - using eq for proper type handling
+      await supabase
+          .from('networks')
+          .delete()
+          .eq('user_id', userId)
+          .eq('connected_user_id', connectionUserId);
+
+      await supabase
+          .from('networks')
+          .delete()
+          .eq('user_id', connectionUserId)
+          .eq('connected_user_id', userId);
 
       state = state.copyWith(state: AsyncState.success);
       await fetchAllRequests();

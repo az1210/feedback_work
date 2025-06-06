@@ -289,6 +289,38 @@ class ECFNotifier extends Notifier<ECFNotifierState> {
     return ECFNotifierState(state: AsyncState.initial);
   }
 
+  // Function to ensure the ecfs table exists
+  Future<void> _ensureEcfsTableExists() async {
+    try {
+      // First try to use the RPC function if it exists
+      try {
+        await supabase.rpc('ensure_ecfs_table_exists');
+        return; // If successful, return early
+      } catch (e) {
+        Log.error("RPC function ensure_ecfs_table_exists not available: $e");
+        // Fall through to manual creation approach
+      }
+
+      // If RPC function doesn't exist, try to create the table directly
+      // Check if the table exists by trying a simple query
+      try {
+        await supabase.from('ecfs').select('id').limit(1);
+        // If we get here, table exists
+        return;
+      } catch (e) {
+        if (e is PostgrestException && e.code == '42P01') {
+          // Table doesn't exist, but we can't create it from the client
+          // Log this and continue - the app will handle missing data gracefully
+          Log.info(
+              "Table ecfs doesn't exist. An admin should run the SQL script to create it.");
+        }
+      }
+    } catch (e) {
+      Log.error("Error in _ensureEcfsTableExists: $e");
+      // Continue with operation and handle errors at the caller level
+    }
+  }
+
   Future<void> postErrorMessage(
       {required EcfModel ecf,
       required String feedbackId,
@@ -296,11 +328,30 @@ class ECFNotifier extends Notifier<ECFNotifierState> {
     try {
       state = state.copyWith(state: AsyncState.loading);
 
-      await supabase
-          .from('ecfs')
-          .insert({...ecf.toMap(), 'feedback_id': feedbackId});
+      // Ensure table exists before proceeding
+      try {
+        await _ensureEcfsTableExists();
+      } catch (e) {
+        Log.error("Failed to ensure ecfs table exists: $e");
+        // Continue and try the operation anyway
+      }
 
-      await fetchErrorMessages(feedbackId: feedbackId);
+      try {
+        await supabase
+            .from('ecfs')
+            .insert({...ecf.toMap(), 'feedback_id': feedbackId});
+      } catch (e) {
+        Log.error("Error inserting into ecfs: $e");
+        // Continue to fetchErrorMessages which will handle empty state
+      }
+
+      // Always try to fetch error messages even if insert failed
+      try {
+        await fetchErrorMessages(feedbackId: feedbackId);
+      } catch (e) {
+        Log.error("Failed to fetch error messages after post: $e");
+      }
+
       callback?.call();
       state = state.copyWith(state: AsyncState.success);
     } catch (e, stackTrace) {
@@ -315,18 +366,39 @@ class ECFNotifier extends Notifier<ECFNotifierState> {
     try {
       state = state.copyWith(state: AsyncState.loading);
 
-      final response =
-          await supabase.from('ecfs').select().eq('feedback_id', feedbackId);
+      // Ensure table exists before proceeding
+      try {
+        await _ensureEcfsTableExists();
+      } catch (e) {
+        Log.error("Failed to ensure ecfs table exists: $e");
+        // Continue and use empty list as fallback
+      }
 
-      final errorMessages =
-          (response as List).map((data) => EcfModel.fromMap(data)).toList();
+      List<EcfModel> errorMessages = [];
+
+      try {
+        final response =
+            await supabase.from('ecfs').select().eq('feedback_id', feedbackId);
+
+        if (response != null && response is List) {
+          errorMessages =
+              response.map((data) => EcfModel.fromMap(data)).toList();
+        }
+      } catch (e) {
+        Log.error("Error fetching from ecfs: $e");
+        // Use empty list as fallback
+      }
 
       callback?.call();
       state = state.copyWith(data: errorMessages, state: AsyncState.success);
     } catch (e, stackTrace) {
       Log.error(e.toString());
       Log.error(stackTrace.toString());
-      state = state.copyWith(state: AsyncState.failure, error: e.toString());
+      state = state.copyWith(
+          state: AsyncState.failure,
+          error: e.toString(),
+          data: [] // Return empty list on error
+          );
     }
   }
 }

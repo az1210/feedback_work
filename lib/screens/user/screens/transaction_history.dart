@@ -24,151 +24,156 @@ class _TransactionHistoryScreenState
   int totalFeedbackAcceptedCount = 0;
   int totalFeedbackProvidedAtFreeCount = 0;
   int totalFeedbackProvidedAtCostCount = 0;
+  bool isLoading = true;
+
   @override
   void initState() {
     Future.microtask(() async {
-      totalFeedbackAcceptedCount = await ref
-          .watch(paymentProvider.notifier)
-          .getDocumentCount(
-              collectionName:
-                  FirebaseConstants.totalFeedbackAcceptedTransaction);
-      totalFeedbackProvidedAtCostCount = await ref
-          .watch(paymentProvider.notifier)
-          .getDocumentCount(
-              collectionName:
-                  FirebaseConstants.totalFeedbackProvidedAtCostTransaction);
-      totalFeedbackProvidedAtFreeCount = await ref
-          .watch(paymentProvider.notifier)
-          .getDocumentCount(
-              collectionName:
-                  FirebaseConstants.totalFeedbackProvidedFreeTransaction);
+      try {
+        totalFeedbackAcceptedCount = await ref
+            .watch(paymentProvider.notifier)
+            .getDocumentCount(
+                collectionName:
+                    FirebaseConstants.totalFeedbackAcceptedTransaction);
+        totalFeedbackProvidedAtCostCount = await ref
+            .watch(paymentProvider.notifier)
+            .getDocumentCount(
+                collectionName:
+                    FirebaseConstants.totalFeedbackProvidedAtCostTransaction);
+        totalFeedbackProvidedAtFreeCount = await ref
+            .watch(paymentProvider.notifier)
+            .getDocumentCount(
+                collectionName:
+                    FirebaseConstants.totalFeedbackProvidedFreeTransaction);
+      } catch (e) {
+        Log.error(e.toString());
+        // Just continue with zero counts
+      } finally {
+        if (mounted) {
+          setState(() {
+            isLoading = false;
+          });
+        }
+      }
     });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final paymentState = ref.watch(paymentProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Transaction History"),
       ),
-      body: Builder(builder: (context) {
-        if (paymentState.documentCountState == AsyncState.loading) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (paymentState.documentCountState == AsyncState.failure) {
-          return const Center(
-            child: Text("Something went wrong"),
-          );
-        } else {
-          return Padding(
-            padding: EdgeInsets.all(16.r),
-            child: Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(16.r),
-                  child: Row(
-                    children: [
-                      Expanded(
-                          flex: 2,
-                          child: Text(
-                            "Transaction",
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium!
-                                .copyWith(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                          )),
-                      Expanded(
-                          child: Center(
-                              child: Text(
-                        "Quantity",
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                      ))),
-                      Expanded(
-                          child: Center(
-                              child: Text(
-                        "Price",
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                      ))),
-                    ],
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: EdgeInsets.all(16.r),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.all(16.r),
+                    child: Row(
+                      children: [
+                        Expanded(
+                            flex: 2,
+                            child: Text(
+                              "Transaction",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            )),
+                        Expanded(
+                            child: Center(
+                                child: Text(
+                          "Quantity",
+                          style:
+                              Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                        ))),
+                        Expanded(
+                            child: Center(
+                                child: Text(
+                          "Price",
+                          style:
+                              Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                        ))),
+                      ],
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: ListView(
-                    children: [
-                      TransactionHistoryOverviewCard(
-                        index: 0,
-                        price: 0,
-                        quantity:
-                            widget.currentUser.totalFeedbackRequested ?? 0,
-                        title: "Total feedback requested",
-                        onTap: () {
-                          context.pushNamed(
-                            Routes.transactionHistoryDetails,
-                            extra: widget.currentUser,
-                          );
-                        },
-                      ),
-                      TransactionHistoryOverviewCard(
-                        index: 1,
-                        price:
-                            widget.currentUser.totalFeedbackAcceptedAmount ?? 0,
-                        quantity: totalFeedbackAcceptedCount,
-                        title: "Total feedback accepted/applie",
-                        onTap: () {
-                          context.pushNamed(
-                            Routes.transactionHistoryDetails,
-                            extra: widget.currentUser,
-                          );
-                        },
-                      ),
-                      TransactionHistoryOverviewCard(
-                        index: 2,
-                        price: widget
-                                .currentUser.totalFeedbackProvidedFreeAmount ??
-                            0,
-                        quantity: totalFeedbackProvidedAtFreeCount,
-                        title: "Total feedback provided free",
-                        onTap: () {
-                          context.pushNamed(
-                            Routes.transactionHistoryDetails,
-                            extra: widget.currentUser,
-                          );
-                        },
-                      ),
-                      TransactionHistoryOverviewCard(
-                        index: 3,
-                        price: widget.currentUser
-                                .totalFeedbackProvidedAtCostAmount ??
-                            0,
-                        quantity: totalFeedbackProvidedAtCostCount,
-                        title: "Total feedback provided at cost",
-                        onTap: () {
-                          context.pushNamed(
-                            Routes.transactionHistoryDetails,
-                            extra: widget.currentUser,
-                          );
-                        },
-                      ),
-                    ],
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        TransactionHistoryOverviewCard(
+                          index: 0,
+                          price: 0,
+                          quantity:
+                              widget.currentUser.totalFeedbackRequested ?? 0,
+                          title: "Total feedback requested",
+                          onTap: () {
+                            context.pushNamed(
+                              Routes.transactionHistoryDetails,
+                              extra: widget.currentUser,
+                            );
+                          },
+                        ),
+                        TransactionHistoryOverviewCard(
+                          index: 1,
+                          price:
+                              widget.currentUser.totalFeedbackAcceptedAmount ??
+                                  0,
+                          quantity: totalFeedbackAcceptedCount,
+                          title: "Total feedback accepted/applied",
+                          onTap: () {
+                            context.pushNamed(
+                              Routes.transactionHistoryDetails,
+                              extra: widget.currentUser,
+                            );
+                          },
+                        ),
+                        TransactionHistoryOverviewCard(
+                          index: 2,
+                          price: widget.currentUser
+                                  .totalFeedbackProvidedFreeAmount ??
+                              0,
+                          quantity: totalFeedbackProvidedAtFreeCount,
+                          title: "Total feedback provided free",
+                          onTap: () {
+                            context.pushNamed(
+                              Routes.transactionHistoryDetails,
+                              extra: widget.currentUser,
+                            );
+                          },
+                        ),
+                        TransactionHistoryOverviewCard(
+                          index: 3,
+                          price: widget.currentUser
+                                  .totalFeedbackProvidedAtCostAmount ??
+                              0,
+                          quantity: totalFeedbackProvidedAtCostCount,
+                          title: "Total feedback provided at cost",
+                          onTap: () {
+                            context.pushNamed(
+                              Routes.transactionHistoryDetails,
+                              extra: widget.currentUser,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          );
-        }
-      }),
     );
   }
 }
